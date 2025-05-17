@@ -1,0 +1,17 @@
+<h2>Historique</h2>
+<div *ngFor="let time of times">
+  <div *ngIf="editingTimeId !== time.time_id">
+    <strong>{{ time.year }}</strong> - {{ time.event_description }}
+    <button (click)="startEdit(time)">Modifier</button>
+    <button (click)="deleteTime(time.time_id)">Supprimer</button>
+  </div>
+
+  <div *ngIf="editingTimeId === time.time_id">
+    <form [formGroup]="editForm" (ngSubmit)="saveEdit(time)">
+      <input type="number" formControlName="year" />
+      <input type="text" formControlName="event_description" />
+      <button type="submit">Valider</button>
+      <button type="button" (click)="cancelEdit()">Annuler</button>
+    </form>
+  </div>
+</div>
