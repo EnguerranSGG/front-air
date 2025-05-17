@@ -14,6 +14,10 @@ export class TimeService {
     return this.http.get<Time[]>(`${this.apiUrl}/all`);
   }
 
+  create(time: Partial<Time>) {
+    return this.http.post<Time>(`${this.apiUrl}/add`, time);
+  }  
+
   update(time_id: number, time: Partial<Time>): Observable<Time> {
     return this.http.put<Time>(`${this.apiUrl}/${time_id}`, time);
   }

@@ -1,4 +1,14 @@
 <h2>Historique</h2>
+<button (click)="startCreate()" *ngIf="!isCreating && !editingTimeId">➕ Ajouter un événement</button>
+
+<!-- Formulaire de création -->
+<form *ngIf="isCreating" [formGroup]="createForm" (ngSubmit)="addTime()">
+  <input type="number" formControlName="year" placeholder="Année" />
+  <input type="text" formControlName="event_description" placeholder="Description de l'événement" />
+  <button type="submit">Ajouter</button>
+  <button type="button" (click)="cancelCreate()">Annuler</button>
+</form>
+
 <div *ngFor="let time of times">
   <div *ngIf="editingTimeId !== time.time_id">
     <strong>{{ time.year }}</strong> - {{ time.event_description }}
