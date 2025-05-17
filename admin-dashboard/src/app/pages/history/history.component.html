@@ -1,27 +1,56 @@
 <h2>Historique</h2>
+
+<div *ngIf="toastMessage" class="toast">
+    {{ toastMessage }}
+</div>
+
+<!-- Bouton d’ajout -->
 <button (click)="startCreate()" *ngIf="!isCreating && !editingTimeId">➕ Ajouter un événement</button>
 
 <!-- Formulaire de création -->
 <form *ngIf="isCreating" [formGroup]="createForm" (ngSubmit)="addTime()">
-  <input type="number" formControlName="year" placeholder="Année" />
-  <input type="text" formControlName="event_description" placeholder="Description de l'événement" />
-  <button type="submit">Ajouter</button>
-  <button type="button" (click)="cancelCreate()">Annuler</button>
+    <input type="number" formControlName="year" placeholder="Année" />
+    <div *ngIf="createForm.get('year')?.touched && createForm.get('year')?.invalid" class="error">
+        <div *ngIf="createForm.get('year')?.errors?.['required']">L'année est requise.</div>
+    </div>
+
+    <input type="text" formControlName="event_description" placeholder="Description de l'événement" />
+    <div *ngIf="createForm.get('event_description')?.touched && createForm.get('event_description')?.invalid"
+        class="error">
+        <div *ngIf="createForm.get('event_description')?.errors?.['required']">La description est requise.</div>
+        <div *ngIf="createForm.get('event_description')?.errors?.['maxlength']">175 caractères max.</div>
+    </div>
+
+    <button type="submit" [disabled]="createForm.invalid">Ajouter</button>
+    <button type="button" (click)="cancelCreate()">Annuler</button>
 </form>
 
+<!-- Liste des événements -->
 <div *ngFor="let time of times">
-  <div *ngIf="editingTimeId !== time.time_id">
-    <strong>{{ time.year }}</strong> - {{ time.event_description }}
-    <button (click)="startEdit(time)">Modifier</button>
-    <button (click)="deleteTime(time.time_id)">Supprimer</button>
-  </div>
+    <!-- Affichage normal -->
+    <div *ngIf="editingTimeId !== time.time_id">
+        <strong>{{ time.year }}</strong> - {{ time.event_description }}
+        <button (click)="startEdit(time)">Modifier</button>
+        <button (click)="deleteTime(time.time_id)">Supprimer</button>
+    </div>
 
-  <div *ngIf="editingTimeId === time.time_id">
-    <form [formGroup]="editForm" (ngSubmit)="saveEdit(time)">
-      <input type="number" formControlName="year" />
-      <input type="text" formControlName="event_description" />
-      <button type="submit">Valider</button>
-      <button type="button" (click)="cancelEdit()">Annuler</button>
-    </form>
-  </div>
+    <!-- Formulaire d’édition -->
+    <div *ngIf="editingTimeId === time.time_id">
+        <form [formGroup]="editForm" (ngSubmit)="saveEdit(time)">
+            <input type="number" formControlName="year" />
+            <div *ngIf="editForm.get('year')?.touched && editForm.get('year')?.invalid" class="error">
+                <div *ngIf="editForm.get('year')?.errors?.['required']">L'année est requise.</div>
+            </div>
+
+            <input type="text" formControlName="event_description" />
+            <div *ngIf="editForm.get('event_description')?.touched && editForm.get('event_description')?.invalid"
+                class="error">
+                <div *ngIf="editForm.get('event_description')?.errors?.['required']">La description est requise.</div>
+                <div *ngIf="editForm.get('event_description')?.errors?.['maxlength']">175 caractères max.</div>
+            </div>
+
+            <button type="submit" [disabled]="editForm.invalid">Valider</button>
+            <button type="button" (click)="cancelEdit()">Annuler</button>
+        </form>
+    </div>
 </div>
