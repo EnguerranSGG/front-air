@@ -1,9 +1,5 @@
 <h2>Historique</h2>
 
-<div *ngIf="toastMessage" class="toast">
-    {{ toastMessage }}
-</div>
-
 <!-- Bouton d’ajout -->
 <button (click)="startCreate()" *ngIf="!isCreating && !editingTimeId">➕ Ajouter un événement</button>
 

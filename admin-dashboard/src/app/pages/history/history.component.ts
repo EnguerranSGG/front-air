@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TimeService } from '../../services/time.service';
+import { ToastService } from '../../utils/toast/toast.service';
 import { Time } from '../../models/time.model';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
@@ -18,9 +19,8 @@ export class HistoryComponent implements OnInit {
   editForm!: FormGroup;
   createForm!: FormGroup;
   isCreating = false;
-  toastMessage: string | null = null;
 
-  constructor(private timeService: TimeService, private fb: FormBuilder) {}
+  constructor(private timeService: TimeService, private fb: FormBuilder, private toastService: ToastService) {}
 
   ngOnInit(): void {
     this.loadTimes();
@@ -51,7 +51,7 @@ export class HistoryComponent implements OnInit {
         next: () => {
           this.loadTimes();
           this.isCreating = false;
-          this.showToast('Événement ajouté avec succès ✅');
+          this.toastService.show('Evénement ajouté avec succès ✅');
         },
         error: (err) => console.error('Erreur lors de l’ajout:', err),
       });
@@ -82,7 +82,7 @@ export class HistoryComponent implements OnInit {
           }
           this.editingTimeId = null;
           this.loadTimes();
-          this.showToast('Événement modifié avec succès ✏️');
+          this.toastService.show('Événement modifié avec succès ✏️');
         },
         error: (err) => {
           console.error('Erreur de mise à jour:', err);
@@ -94,13 +94,8 @@ export class HistoryComponent implements OnInit {
   deleteTime(time_id: number): void {
     if (confirm('Supprimer cet événement ?')) {
       this.timeService.delete(time_id).subscribe(() => this.loadTimes());
-      this.showToast('Événement supprimé avec succès 🗑️');
+      this.toastService.show('Événement supprimé avec succès 🗑️');
     }
-  }
-
-  private showToast(message: string): void {
-    this.toastMessage = message;
-    setTimeout(() => this.toastMessage = null, 3000); // disparaît après 3s
   }
   
 }
