@@ -1,0 +1,6 @@
+<nav *ngIf="isLoggedIn()">
+    <span>Bienvenue !</span>
+    <a routerLink="/history">Historique</a>
+    <button (click)="logout()">Se déconnecter</button>
+  </nav>
+  
