@@ -22,7 +22,9 @@ export class HistoryComponent implements OnInit {
   }
 
   loadTimes(): void {
-    this.timeService.getAll().subscribe(data => this.times = data);
+    this.timeService.getAll().subscribe(data => {
+      this.times = data.sort((a, b) => b.year - a.year);
+    });
   }
 
   startEdit(time: Time): void {
@@ -39,12 +41,22 @@ export class HistoryComponent implements OnInit {
 
   saveEdit(time: Time): void {
     const updated = this.editForm.value;
-    this.timeService.update(time.time_id, updated).subscribe(() => {
-      this.editingTimeId = null;
-      this.loadTimes();
+    this.timeService.update(time.time_id, updated).subscribe({
+      next: updatedTime => {
+        console.log('Mise à jour réussie:', updatedTime);
+        const index = this.times.findIndex(t => t.time_id === time.time_id);
+        if (index !== -1) {
+          this.times[index] = { ...this.times[index], ...updatedTime };
+        }
+        this.editingTimeId = null;
+        this.loadTimes();
+      },
+      error: err => {
+        console.error('Erreur de mise à jour:', err);
+      }
     });
   }
-
+  
   deleteTime(time_id: number): void {
     if (confirm('Supprimer cet événement ?')) {
       this.timeService.delete(time_id).subscribe(() => this.loadTimes());
