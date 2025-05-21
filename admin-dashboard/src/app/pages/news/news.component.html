@@ -1,0 +1,50 @@
+<h2>📰 Actualités</h2>
+
+<!-- Bouton pour afficher le formulaire de création -->
+<button (click)="startCreate()" *ngIf="!isCreating && !editingNewsId">➕ Ajouter une actualité</button>
+
+<!-- Formulaire de création -->
+<form *ngIf="isCreating" [formGroup]="createForm" (ngSubmit)="addNews()">
+    <input type="text" formControlName="title" placeholder="Titre" />
+    <textarea formControlName="content" placeholder="Contenu"></textarea>
+
+    <div>
+        <label>Image liée :</label>
+        <app-file-selector [files]="files" [selectedFileId]="createForm.value.file_id"
+            (fileSelected)="onFileSelect($event)">
+        </app-file-selector>
+    </div>
+
+    <button type="submit">Créer</button>
+    <button type="button" (click)="cancelCreate()">Annuler</button>
+</form>
+
+<!-- Liste des actualités -->
+<div *ngFor="let news of newsList">
+    <div *ngIf="editingNewsId !== news.news_id">
+        <h3>{{ news.title }}</h3>
+        <div *ngIf="news.file?.file_id">
+            <img [src]="apiUrl + '/files/' + news.file?.file_id + '/download'" alt="{{ news.title }}" width="100" />
+        </div>
+        <p>{{ news.content }}</p>
+
+        <button (click)="startEdit(news)">✏️ Modifier</button>
+        <button (click)="deleteNews(news.news_id)">🗑️ Supprimer</button>
+    </div>
+
+    <!-- Formulaire de modification -->
+    <form *ngIf="editingNewsId === news.news_id" [formGroup]="editForm" (ngSubmit)="saveEdit(news)">
+        <input type="text" formControlName="title" placeholder="Titre" />
+        <textarea formControlName="content" placeholder="Contenu"></textarea>
+
+        <div>
+            <label>Image liée :</label>
+            <app-file-selector [files]="files" [selectedFileId]="editForm.value.file_id"
+                (fileSelected)="onFileSelect($event)">
+            </app-file-selector>
+        </div>
+
+        <button type="submit">💾 Sauvegarder</button>
+        <button type="button" (click)="cancelEdit()">Annuler</button>
+    </form>
+</div>
