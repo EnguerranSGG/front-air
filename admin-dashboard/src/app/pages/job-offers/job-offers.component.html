@@ -1,0 +1,69 @@
+<h2>💼 Gestion des offres d’emploi</h2>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div>
+    <label for="name">Nom du poste :</label>
+    <input id="name" formControlName="name" type="text" />
+  </div>
+
+  <div>
+    <label for="job_type">Type de contrat :</label>
+    <input id="job_type" formControlName="job_type" type="text" />
+  </div>
+
+  <div>
+    <label for="city">Ville :</label>
+    <input id="city" formControlName="city" type="text" />
+  </div>
+
+  <div>
+    <label>Image liée :</label>
+    <app-file-selector
+      [files]="files"
+      [selectedFileId]="form.value.file_id"
+      (fileSelected)="form.patchValue({ file_id: $event })"
+    ></app-file-selector>
+  </div>
+
+  <div>
+    <label for="link">Lien de l’offre :</label>
+    <input id="link" formControlName="link" type="text" />
+  </div>
+
+  <div>
+    <label for="description">Description :</label>
+    <textarea id="description" formControlName="description"></textarea>
+  </div>
+
+  <button type="submit" [disabled]="form.invalid">
+    {{ editingId ? 'Modifier' : 'Créer' }}
+  </button>
+  <button type="button" (click)="reset()" *ngIf="editingId">Annuler</button>
+</form>
+
+<hr />
+
+<h3>📃 Liste des offres</h3>
+
+<ul *ngIf="jobOffers.length > 0; else noOffers">
+  <li *ngFor="let offer of jobOffers">
+    <strong>{{ offer.name }}</strong> - {{ offer.job_type }} - {{ offer.city || 'Ville non renseignée' }}
+    <div>
+      <a *ngIf="offer.link" [href]="offer.link" target="_blank">🔗 Voir l’offre</a>
+    </div>
+    <p>{{ offer.description }}</p>
+    <div *ngIf="offer.file_id">
+      <img
+        [src]="apiUrl + '/files/' + offer.file.file_id + '/download'"
+        alt="Illustration"
+        width="100"
+      />
+    </div>
+    <button (click)="edit(offer)">✏️ Modifier</button>
+    <button (click)="delete(offer.job_offer_id)">🗑️ Supprimer</button>
+  </li>
+</ul>
+
+<ng-template #noOffers>
+  <p>Aucune offre disponible.</p>
+</ng-template>
