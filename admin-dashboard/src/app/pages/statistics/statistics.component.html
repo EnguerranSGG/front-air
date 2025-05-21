@@ -1,0 +1,42 @@
+<h2>Statistiques</h2>
+
+<!-- Filtre par type -->
+<select (change)="onTypeFilterChange($event)">
+    <option value="">Toutes les statistiques</option>
+    <option *ngFor="let type of types" [value]="type.type_id">
+      {{ type.name }}
+    </option>
+  </select>  
+
+<!-- Formulaire d'ajout -->
+<form [formGroup]="createForm" (ngSubmit)="addStatistic()">
+  <input formControlName="label" placeholder="Label" />
+  <input type="number" formControlName="value" placeholder="Valeur" />
+  <input type="number" formControlName="year" placeholder="Année" />
+  <select formControlName="type_id">
+    <option *ngFor="let type of types" [value]="type.type_id">{{ type.name }}</option>
+  </select>
+  <button type="submit">Ajouter</button>
+</form>
+
+<!-- Liste des statistiques -->
+<ul>
+  <li *ngFor="let stat of filteredStatistics">
+    <div *ngIf="editingId !== stat.statistic_id">
+      {{ stat.label }} - {{ stat.value }} ({{ stat.year }}) - {{ stat.type?.name }}
+      <button (click)="startEdit(stat)">Modifier</button>
+      <button (click)="deleteStatistic(stat.statistic_id)">Supprimer</button>
+    </div>
+
+    <form *ngIf="editingId === stat.statistic_id" [formGroup]="editForm" (ngSubmit)="saveEdit(stat)">
+      <input formControlName="label" />
+      <input type="number" formControlName="value" />
+      <input type="number" formControlName="year" />
+      <select formControlName="type_id">
+        <option *ngFor="let type of types" [value]="type.type_id">{{ type.name }}</option>
+      </select>
+      <button type="submit">Valider</button>
+      <button type="button" (click)="cancelEdit()">Annuler</button>
+    </form>
+  </li>
+</ul>
