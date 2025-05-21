@@ -4,45 +4,72 @@ import { CommonModule } from '@angular/common';
 import { ValueService } from '../../services/value.service';
 import { Value } from '../../models/value.model';
 import { ToastService } from '../../utils/toast/toast.service';
+import { environment } from '../../../environments/environment';
+import { FileEntity } from '../../models/file.model';
+import { FileSelectorComponent } from '../files/files-selector.component';
+import { FileService } from '../../services/file.service';
 
 @Component({
   selector: 'app-value',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FileSelectorComponent],
   templateUrl: './values.component.html',
-  styleUrls: ['./values.component.scss']
+  styleUrls: ['./values.component.scss'],
 })
 export class ValuesComponent implements OnInit {
+  apiUrl = environment.API_URL;
+  files: FileEntity[] = [];
   values: Value[] = [];
-  editingValueId: number | null = null;
   isCreating = false;
+  editingValueId: number | null = null;
 
   createForm!: FormGroup;
   editForm!: FormGroup;
 
   constructor(
-    private valueService: ValueService,
     private fb: FormBuilder,
-    private toastService: ToastService
+    private valueService: ValueService,
+    private toast: ToastService,
+    private fileService: FileService
   ) {}
 
   ngOnInit(): void {
     this.loadValues();
-    this.createForm = this.fb.group({
-      name: ['', [Validators.required, Validators.maxLength(100)]],
-      image_url: ['', [Validators.maxLength(500)]],
+    this.createForm = this.buildForm();
+    this.getFiles();
+  }
+
+  buildForm(value?: Value): FormGroup {
+    return this.fb.group({
+      name: [value?.name || '', [Validators.required, Validators.maxLength(100)]],
+      file: [value?.file?.file_id || null]
     });
+  }
+
+  getFiles(): void {
+    this.fileService.getAll().subscribe({
+      next: (files) => (this.files = files),
+      error: () => this.toast.show('Erreur lors du chargement des fichiers'),
+    });
+  }
+
+  onFileSelect(fileId: number): void {
+    if (this.editingValueId !== null) {
+      this.editForm.patchValue({ file_id: fileId });
+    } else {
+      this.createForm.patchValue({ file_id: fileId });
+    }
   }
 
   loadValues(): void {
     this.valueService.getAll().subscribe(data => {
-      this.values = data;
+      this.values = data.sort((a, b) => a.name.localeCompare(b.name));
     });
   }
 
   startCreate(): void {
     this.isCreating = true;
-    this.createForm.reset();
+    this.createForm = this.buildForm();
   }
 
   cancelCreate(): void {
@@ -53,21 +80,18 @@ export class ValuesComponent implements OnInit {
     if (this.createForm.valid) {
       this.valueService.create(this.createForm.value).subscribe({
         next: () => {
+          this.toast.show('Valeur ajoutée');
           this.loadValues();
           this.isCreating = false;
-          this.toastService.show('Valeur ajoutée avec succès ✅');
         },
-        error: err => console.error('Erreur lors de l’ajout:', err)
+        error: () => this.toast.show('Erreur lors de l’ajout'),
       });
     }
   }
 
   startEdit(value: Value): void {
     this.editingValueId = value.value_id;
-    this.editForm = this.fb.group({
-      name: [value.name, [Validators.required, Validators.maxLength(100)]],
-      image_url: [value.image_url, [Validators.maxLength(500)]],
-    });
+    this.editForm = this.buildForm(value);
   }
 
   cancelEdit(): void {
@@ -75,26 +99,23 @@ export class ValuesComponent implements OnInit {
   }
 
   saveEdit(value: Value): void {
-    const updated = this.editForm.value;
-    this.valueService.update(value.value_id, updated).subscribe({
-      next: updatedValue => {
-        const index = this.values.findIndex(v => v.value_id === value.value_id);
-        if (index !== -1) {
-          this.values[index] = { ...this.values[index], ...updatedValue };
-        }
-        this.editingValueId = null;
-        this.loadValues();
-        this.toastService.show('Valeur modifiée avec succès ✏️');
-      },
-      error: err => console.error('Erreur de mise à jour:', err)
-    });
+    if (this.editForm.valid) {
+      this.valueService.update(value.value_id, this.editForm.value).subscribe({
+        next: () => {
+          this.toast.show('Valeur modifiée');
+          this.editingValueId = null;
+          this.loadValues();
+        },
+        error: () => this.toast.show('Erreur lors de la modification'),
+      });
+    }
   }
 
-  deleteValue(value_id: number): void {
+  deleteValue(id: number): void {
     if (confirm('Supprimer cette valeur ?')) {
-      this.valueService.delete(value_id).subscribe(() => {
+      this.valueService.delete(id).subscribe(() => {
+        this.toast.show('Valeur supprimée');
         this.loadValues();
-        this.toastService.show('Valeur supprimée avec succès 🗑️');
       });
     }
   }

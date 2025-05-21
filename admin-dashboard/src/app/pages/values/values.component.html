@@ -1,25 +1,51 @@
 <h2>Valeurs</h2>
-<button (click)="startCreate()" *ngIf="!isCreating && !editingValueId">➕ Ajouter une valeur</button>
+    <button (click)="startCreate()" *ngIf="!isCreating && !editingValueId">➕ Ajouter une valeur</button>
 
-<form *ngIf="isCreating" [formGroup]="createForm" (ngSubmit)="addValue()">
-  <input type="text" formControlName="name" placeholder="Nom de la valeur" />
-  <input type="text" formControlName="image_url" placeholder="URL de l'image (facultatif)" />
-  <button type="submit">Ajouter</button>
-  <button type="button" (click)="cancelCreate()">Annuler</button>
-</form>
+    <form *ngIf="isCreating" [formGroup]="createForm" (ngSubmit)="addValue()">
+      <input type="text" formControlName="title" placeholder="Titre" />
+      <textarea formControlName="content" placeholder="Contenu"></textarea>
 
-<div *ngFor="let value of values">
-  <div *ngIf="editingValueId !== value.value_id">
-    <img *ngIf="value.image_url" [src]="value.image_url" alt="Image" width="100" />
-    <strong>{{ value.name }}</strong>
-    <button (click)="startEdit(value)">Modifier</button>
-    <button (click)="deleteValue(value.value_id)">Supprimer</button>
-  </div>
+      <div>
+        <label>Fichier lié :</label>
+        <app-file-selector
+          [files]="files"
+          [selectedFileId]="createForm.value.file_id"
+          (fileSelected)="onFileSelect($event)"
+        ></app-file-selector>
+      </div>
 
-  <form *ngIf="editingValueId === value.value_id" [formGroup]="editForm" (ngSubmit)="saveEdit(value)">
-    <input type="text" formControlName="name" />
-    <input type="text" formControlName="image_url" />
-    <button type="submit">Valider</button>
-    <button type="button" (click)="cancelEdit()">Annuler</button>
-  </form>
-</div>
+      <button type="submit">Créer</button>
+      <button type="button" (click)="cancelCreate()">Annuler</button>
+    </form>
+
+    <div *ngFor="let value of values">
+      <div *ngIf="editingValueId !== value.value_id">
+        <h3>{{ value.name }}</h3>
+        <div *ngIf="value.file?.file_id">
+          <img
+            [src]="apiUrl + '/files/' + value.file?.file_id + '/download'"
+            alt="Illustration"
+            width="100"
+          />
+        </div>
+        <button (click)="startEdit(value)">✏️ Modifier</button>
+        <button (click)="deleteValue(value.value_id)">🗑️ Supprimer</button>
+      </div>
+
+      <form *ngIf="editingValueId === value.value_id" [formGroup]="editForm" (ngSubmit)="saveEdit(value)">
+        <input type="text" formControlName="title" placeholder="Titre" />
+        <textarea formControlName="content" placeholder="Contenu"></textarea>
+
+        <div>
+          <label>Fichier lié :</label>
+          <app-file-selector
+            [files]="files"
+            [selectedFileId]="editForm.value.file_id"
+            (fileSelected)="onFileSelect($event)"
+          ></app-file-selector>
+        </div>
+
+        <button type="submit">💾 Sauvegarder</button>
+        <button type="button" (click)="cancelEdit()">Annuler</button>
+      </form>
+    </div>
