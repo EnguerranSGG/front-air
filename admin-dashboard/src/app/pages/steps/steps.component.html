@@ -1,0 +1,74 @@
+<h2>Étapes</h2>
+
+<label for="pathFilter">Filtrer par parcours:</label>
+<select (change)="onPathFilterChange($event)">
+  <option value="">Toutes les étapes</option>
+  <option *ngFor="let path of paths" [value]="path.path_id">
+    {{ path.name }}
+  </option>
+</select>
+
+<form [formGroup]="createForm" (ngSubmit)="addStep()">
+  <input formControlName="name" placeholder="Nom" required />
+  <textarea formControlName="description" placeholder="Description" required></textarea>
+
+  <select formControlName="path_id" required>
+    <option [ngValue]="null" disabled>Choisir un parcours</option>
+    <option *ngFor="let path of paths" [ngValue]="path.path_id">
+      {{ path.name }}
+    </option>
+  </select>  
+
+  <div>
+    <label>Fichier lié :</label>
+    <app-file-selector
+      [files]="files"
+      [selectedFileId]="createForm.value.file_id"
+      (fileSelected)="onFileSelect($event)">
+    </app-file-selector>
+  </div>
+
+  <button type="submit">Ajouter</button>
+</form>
+
+<ul>
+  <li *ngFor="let step of steps">
+    <div *ngIf="editingId !== step.step_id">
+      <h3>{{ step.name }}</h3>
+      <div *ngIf="step.file?.file_id">
+        <img
+          [src]="apiUrl + '/files/' + step.file?.file_id + '/download'"
+          alt="{{ step.name }}"
+          width="100"
+        />
+      </div>
+      <p>{{ step.description }}</p>
+      <small>Parcours : {{ getPathName(step.path_id) }}</small>
+      <button (click)="startEdit(step)">Modifier</button>
+      <button (click)="deleteStep(step.step_id)">Supprimer</button>
+    </div>
+
+    <form *ngIf="editingId === step.step_id" [formGroup]="editForm" (ngSubmit)="saveEdit(step)">
+      <input formControlName="name" placeholder="Nom" />
+      <textarea formControlName="description" placeholder="Description"></textarea>
+      <select formControlName="path_id" required>
+        <option [ngValue]="null" disabled>Choisir un parcours</option>
+        <option *ngFor="let path of paths" [ngValue]="path.path_id">
+          {{ path.name }}
+        </option>
+      </select> 
+
+      <div>
+        <label>Fichier lié :</label>
+        <app-file-selector
+          [files]="files"
+          [selectedFileId]="editForm.value.file_id"
+          (fileSelected)="onFileSelect($event)">
+        </app-file-selector>
+      </div>
+
+      <button type="submit">Sauvegarder</button>
+      <button type="button" (click)="cancelEdit()">Annuler</button>
+    </form>
+  </li>
+</ul>
