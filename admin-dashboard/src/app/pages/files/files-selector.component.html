@@ -1,0 +1,17 @@
+<div class="file-selector">
+    <div
+      *ngFor="let file of files"
+      class="file-thumbnail"
+      [class.selected]="file.file_id === selectedFileId"
+      (click)="onSelect(file.file_id)"
+    >
+      <img
+        *ngIf="file.name.endsWith('.jpg') || file.name.endsWith('.png')"
+        [src]="apiUrl + '/files/' + file.file_id + '/download'"
+        [alt]="file.name"
+        width="100"
+      />
+      <p>{{ file.name }}</p>
+    </div>
+  </div>
+  

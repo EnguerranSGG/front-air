@@ -1,0 +1,23 @@
+.file-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  
+    .file-thumbnail {
+      border: 2px solid #ccc;
+      padding: 0.5rem;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color 0.3s;
+  
+      &.selected {
+        border-color: #007bff;
+      }
+  
+      img {
+        display: block;
+        margin: 0 auto 0.5rem;
+      }
+    }
+  }
+  

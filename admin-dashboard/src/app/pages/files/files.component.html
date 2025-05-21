@@ -1,0 +1,37 @@
+<h2>📁 Gestion des fichiers</h2>
+
+<form [formGroup]="fileForm" (ngSubmit)="onSubmit()" enctype="multipart/form-data">
+  <div>
+    <label for="name">Nom du fichier :</label>
+    <input id="name" formControlName="name" type="text" [readonly]="editingFileId !== null" />
+  </div>
+
+  <div>
+    <label for="file">Sélectionner un fichier :</label>
+    <input id="file" type="file" (change)="onFileSelected($event)" />
+  </div>
+
+  <button type="submit" [disabled]="fileForm.invalid || !selectedFile">
+    {{ editingFileId ? 'Mettre à jour le fichier' : 'Téléverser' }}
+  </button>
+</form>
+
+<hr />
+
+<h3>📂 Fichiers téléversés</h3>
+
+<ul *ngIf="files.length > 0; else noFiles">
+    <li *ngFor="let file of files">
+      <strong>{{ file.name }}</strong>
+      <a href="#" (click)="onDownload(file); $event.preventDefault();">
+        📥 Télécharger
+      </a>
+      <button (click)="onEdit(file)">✏️ Modifier</button>
+      <button (click)="onDelete(file.file_id)">🗑️ Supprimer</button>
+    </li>
+  </ul>
+  
+
+<ng-template #noFiles>
+  <p>Aucun fichier disponible.</p>
+</ng-template>
