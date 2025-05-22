@@ -25,6 +25,8 @@ export class JobOfferComponent implements OnInit {
   jobOffers: any[] = [];
   editingId: number | null = null;
   files: FileEntity[] = [];
+  showForm = false;
+  showFileSelector = false;
 
   constructor(
     private fb: FormBuilder,

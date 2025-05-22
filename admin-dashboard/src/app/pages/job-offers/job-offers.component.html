@@ -1,69 +1,85 @@
 <h2>💼 Gestion des offres d’emploi</h2>
 
-<form [formGroup]="form" (ngSubmit)="onSubmit()">
-  <div>
-    <label for="name">Nom du poste :</label>
-    <input id="name" formControlName="name" type="text" />
-  </div>
+<div class="filter-add-wrapper">
+    <button (click)="showForm = !showForm">
+        {{ showForm ? '❌ Annuler' : '➕ Ajouter une offre' }}
+    </button>
+</div>
 
-  <div>
-    <label for="job_type">Type de contrat :</label>
-    <input id="job_type" formControlName="job_type" type="text" />
-  </div>
+<!-- Formulaire harmonisé -->
+<form *ngIf="showForm" class="create-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <input formControlName="name" type="text" placeholder="Nom du poste" />
+    <input formControlName="job_type" type="text" placeholder="Type de contrat" />
+    <input formControlName="city" type="text" placeholder="Ville" />
+    <input formControlName="link" type="text" placeholder="Lien de l’offre" />
+    <textarea formControlName="description" placeholder="Description"></textarea>
 
-  <div>
-    <label for="city">Ville :</label>
-    <input id="city" formControlName="city" type="text" />
-  </div>
+    <div class="form-buttons">
+        <!-- Bouton pour afficher/masquer les fichiers -->
+        <button type="button" (click)="showFileSelector = !showFileSelector">
+            {{ showFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
+        </button>
 
-  <div>
-    <label>Image liée :</label>
-    <app-file-selector
-      [files]="files"
-      [selectedFileId]="form.value.file_id"
-      (fileSelected)="form.patchValue({ file_id: $event })"
-    ></app-file-selector>
-  </div>
-
-  <div>
-    <label for="link">Lien de l’offre :</label>
-    <input id="link" formControlName="link" type="text" />
-  </div>
-
-  <div>
-    <label for="description">Description :</label>
-    <textarea id="description" formControlName="description"></textarea>
-  </div>
-
-  <button type="submit" [disabled]="form.invalid">
-    {{ editingId ? 'Modifier' : 'Créer' }}
-  </button>
-  <button type="button" (click)="reset()" *ngIf="editingId">Annuler</button>
+        <!-- Sélecteur de fichier conditionnel -->
+        <div *ngIf="showFileSelector">
+            <app-file-selector [files]="files" [selectedFileId]="form.value.file_id"
+                (fileSelected)="form.patchValue({ file_id: $event })"></app-file-selector>
+        </div>
+        <button type="submit" [disabled]="form.invalid">
+            {{ editingId ? 'Modifier' : 'Créer' }}
+        </button>
+        <button type="button" (click)="reset(); showForm = false" *ngIf="editingId">❌ Annuler</button>
+    </div>
 </form>
 
-<hr />
+<div *ngFor="let offer of jobOffers" class="event-card">
+    <!-- Si ce n’est pas l’offre en cours d’édition -->
+    <ng-container *ngIf="editingId !== offer.job_offer_id; else editForm">
+        <div class="event-content">
+            <strong class="event-year">{{ offer.name }}</strong>
+            <p class="event-description">{{ offer.job_type }} – {{ offer.city || 'Ville non renseignée' }}</p>
+            <p class="event-description">{{ offer.description }}</p>
 
-<h3>📃 Liste des offres</h3>
+            <a *ngIf="offer.link" [href]="offer.link" target="_blank">🔗 Voir l’offre</a>
 
-<ul *ngIf="jobOffers.length > 0; else noOffers">
-  <li *ngFor="let offer of jobOffers">
-    <strong>{{ offer.name }}</strong> - {{ offer.job_type }} - {{ offer.city || 'Ville non renseignée' }}
-    <div>
-      <a *ngIf="offer.link" [href]="offer.link" target="_blank">🔗 Voir l’offre</a>
-    </div>
-    <p>{{ offer.description }}</p>
-    <div *ngIf="offer.file_id">
-      <img
-        [src]="apiUrl + '/files/' + offer.file.file_id + '/download'"
-        alt="Illustration"
-        width="100"
-      />
-    </div>
-    <button (click)="edit(offer)">✏️ Modifier</button>
-    <button (click)="delete(offer.job_offer_id)">🗑️ Supprimer</button>
-  </li>
-</ul>
+            <div *ngIf="offer.file_id">
+                <img [src]="apiUrl + '/files/' + offer.file.file_id + '/download'" alt="Illustration" width="100" />
+            </div>
+        </div>
+
+        <div class="event-buttons">
+            <button (click)="edit(offer)">✏️ Modifier</button>
+            <button (click)="delete(offer.job_offer_id)">🗑️ Supprimer</button>
+        </div>
+    </ng-container>
+
+    <!-- Formulaire d'édition intégré à la carte -->
+    <ng-template #editForm>
+        <form class="create-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+            <input formControlName="name" type="text" placeholder="Nom du poste" />
+            <input formControlName="job_type" type="text" placeholder="Type de contrat" />
+            <input formControlName="city" type="text" placeholder="Ville" />
+            <input formControlName="link" type="text" placeholder="Lien de l’offre" />
+            <textarea formControlName="description" placeholder="Description"></textarea>
+
+            <div class="form-buttons">
+                <button type="button" (click)="showFileSelector = !showFileSelector">
+                    {{ showFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
+                </button>
+
+                <div *ngIf="showFileSelector">
+                    <app-file-selector [files]="files" [selectedFileId]="form.value.file_id"
+                        (fileSelected)="form.patchValue({ file_id: $event })">
+                    </app-file-selector>
+                </div>
+                <button type="submit" [disabled]="form.invalid">💾 Sauvegarder</button>
+                <button type="button" (click)="reset()">❌ Annuler</button>
+            </div>
+        </form>
+    </ng-template>
+</div>
+
 
 <ng-template #noOffers>
-  <p>Aucune offre disponible.</p>
+    <p>Aucune offre disponible.</p>
 </ng-template>
