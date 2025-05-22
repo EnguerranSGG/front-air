@@ -2,22 +2,50 @@
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
-  
-    .file-thumbnail {
-      border: 2px solid #ccc;
-      padding: 0.5rem;
-      cursor: pointer;
-      text-align: center;
-      transition: border-color 0.3s;
-  
-      &.selected {
-        border-color: #007bff;
-      }
-  
-      img {
-        display: block;
-        margin: 0 auto 0.5rem;
-      }
-    }
+    justify-content: center;
+    background: #fff;
+    border-radius: 1rem;
+    padding: 1rem;
+    margin-top: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
   }
+  
+  .file-thumbnail {
+    border: 2px solid transparent;
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    text-align: center;
+    cursor: pointer;
+    width: 120px;
+    transition: border-color 0.3s ease, transform 0.2s ease;
+    background-color: #f9f9fb;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  }
+  
+  .file-thumbnail img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    margin-bottom: 0.4rem;
+  }
+  
+  .file-thumbnail p {
+    font-size: 0.85rem;
+    color: #333;
+    word-break: break-word;
+  }
+  
+  .file-thumbnail:hover {
+    transform: translateY(-2px);
+    border-color: #5a007a;
+  }
+  
+  .file-thumbnail.selected {
+    border-color: #5a007a;
+    background-color: #f4eaff;
+  }
+  
   
