@@ -1,0 +1,31 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A.I.R.</title>
+    <link rel="stylesheet" href="src/styles/global.css" />
+    <link rel="stylesheet" href="src/styles/values.css" />
+    <link rel="stylesheet" href="src/styles/air-stat.css" />
+    <link rel="stylesheet" href="src/styles/news.css" />
+    <link rel="stylesheet" href="src/styles/partners.css" />
+    <link rel="stylesheet" href="src/styles/gouvernance.css" />
+    <link rel="stylesheet" href="src/styles/structures.css" />
+    <link rel="stylesheet" href="src/styles/job-offers.css" />
+    <link rel="stylesheet" href="src/styles/timeline.css" />
+    <link rel="stylesheet" href="src/styles/steps-da.css" />
+    <link rel="stylesheet" href="src/styles/steps-bpi.css" />
+    <link rel="stylesheet" href="src/styles/fle.css" /> 
+  </head>
+  <body>
+    <Header />
+    <main>
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
