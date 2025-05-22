@@ -1,0 +1,102 @@
+.admin-header {
+    background-color: white;
+    border-bottom: 1px solid #e6ebf5;
+    padding: 0.8rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    .nav-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .logo-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+
+        .logo {
+            height: 42px;
+            width: auto;
+            border-radius: 0.5rem;
+            background-color: white;
+        }
+
+        .title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #0046a4;
+        }
+    }
+
+    .nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 0.5rem;
+
+        a {
+            text-decoration: none;
+            color: #4c3575;
+            font-weight: 500;
+            padding: 0.3rem 0.9rem;
+            border-radius: 999px;
+            transition: background-color 0.3s ease;
+
+            &:hover {
+                background-color: #f4eaff;
+            }
+        }
+    }
+}
+
+.logout-button {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    background-color: #4c3575;
+    color: white;
+    border: none;
+    padding: 0.7rem;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+        display: block;
+    }
+
+    &:hover {
+        background-color: #3a005c;
+    }
+
+    .tooltip {
+        visibility: hidden;
+        background-color: #222;
+        color: #fff;
+        text-align: center;
+        border-radius: 5px;
+        padding: 0.4rem 0.6rem;
+        position: absolute;
+        bottom: 3.5rem;
+        right: 0;
+        transform: translateX(20%);
+        white-space: nowrap;
+        z-index: 100;
+        font-size: 0.8rem;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    &:hover .tooltip {
+        visibility: visible;
+        opacity: 1;
+    }
+}
