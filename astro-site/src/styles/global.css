@@ -10,6 +10,33 @@ body {
 	padding: 1rem 2rem;
 }
 
+.desktop-menu a {
+	text-decoration: none;
+	color: black;
+	font-weight: bold;
+	position: relative;
+	transition: color 0.3s ease;
+}
+
+.desktop-menu a::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	bottom: -6px;
+	width: 0%;
+	height: 2px;
+	background-color: #0046a4;
+	transition: width 0.3s ease-in-out;
+}
+
+.desktop-menu a:hover {
+	color: #0046a4;
+}
+
+.desktop-menu a:hover::after {
+	width: 100%;
+}
+
 .logo {
 	height: 70px;
 }
@@ -137,15 +164,6 @@ h4 {
 	text-align: center;
 }
 
-.image-wrapper {
-	position: relative;
-	overflow: hidden;
-	border-radius: 1rem;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-}
-
 .hero-image {
 	width: 60vw;
 	height: auto;
@@ -171,31 +189,31 @@ h4 {
 	}
 
 	.hero-image {
-		width: 80vw;
-		border-radius: 5px;
-		position: inherit;
-		top: 1.5vh;
+		width: 100%;
+        height: auto;
+        display: block;
+        object-fit: cover;
+        border-radius: 1rem;
 	}
 
 	.hero-overlay {
-		position: absolute;
-		background: rgba(0, 70, 164, 0.85);
-		border-radius: 1rem;
-		top: 0vh;
-		bottom: 2vh;
-		border-radius: 5px;
+		bottom: 0;
+        left: 0;
+        background: rgba(0, 70, 164, 0.85);
+        color: white;
+        padding: 1rem;
+        text-align: center;
+        border-bottom-left-radius: 1rem;
+        border-bottom-right-radius: 1rem;
 	}
 
 	h4 {
-		color: #ffffff;
-		font-size: 1.3rem;
-		margin-bottom: 1rem;
-		text-align: center;
-		position: inherit;
-		top: 3.5vh;
-		right: 1vh;
-		padding: 0.5rem 0rem;
+		position: initial;
+        margin: 0;
+        font-size: 1.2rem;
+        line-height: 1.4;
 	}
+    
 }
 
 .values {

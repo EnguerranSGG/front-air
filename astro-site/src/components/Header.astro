@@ -10,43 +10,43 @@ const navLinks = [
 
 <header class="header">
   <div class="container">
-    <img href="/" src="/assets/air-asso.png" alt="Logo A.I.R." class="logo" />
+    <a href="/" class="logo-link">
+      <img src="/assets/air-asso.png" alt="Logo A.I.R." class="logo" />
+    </a>
 
     <nav class="desktop-menu">
       {navLinks.map((link) => (
-        <a href={link.href}>{link.name}</a>
+        <a href={link.href} class="nav-link">{link.name}</a>
       ))}
     </nav>
 
-    <div class="mobile-menu-icon" id="menu-icon" onclick="toggleMenu()">
+    <div class="mobile-menu-icon" id="menu-icon">
       <span></span><span></span><span></span>
     </div>
   </div>
 
   <nav class="mobile-menu" id="mobile-menu">
-  {navLinks.map((link) => (
-    <a href={link.href}>{link.name}</a>
-  ))}
-</nav>
+    {navLinks.map((link) => (
+      <a href={link.href}>{link.name}</a>
+    ))}
+  </nav>
 
   <script is:inline>
-  document.addEventListener('DOMContentLoaded', () => {
-    const icon = document.querySelector('.mobile-menu-icon');
-    const menu = document.querySelector('.mobile-menu');
+    document.addEventListener('DOMContentLoaded', () => {
+      const icon = document.querySelector('.mobile-menu-icon');
+      const menu = document.querySelector('.mobile-menu');
 
-    icon.addEventListener('click', () => {
-      icon.classList.toggle('open');
-      menu.classList.toggle('open');
-    });
+      icon.addEventListener('click', () => {
+        icon.classList.toggle('open');
+        menu.classList.toggle('open');
+      });
 
-    // Facultatif : fermer le menu après clic sur un lien
-    menu.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        icon.classList.remove('open');
-        menu.classList.remove('open');
+      menu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          icon.classList.remove('open');
+          menu.classList.remove('open');
+        });
       });
     });
-  });
-</script>
-
+  </script>
 </header>
