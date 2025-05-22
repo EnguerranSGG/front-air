@@ -1,0 +1,23 @@
+---
+import StructureCard from '../components/StructureCard.astro';
+
+let structures = [];
+
+try {
+  const res = await fetch(import.meta.env.PUBLIC_API_URL + '/structures/all');
+  const data = await res.json();
+  console.log('Structures récupérées :', data);
+  structures = Array.isArray(data) ? data : [];
+} catch (err) {
+  console.error('Erreur lors du fetch des structures :', err);
+}
+---
+
+<h2>Nos différentes structures</h2>
+
+{structures?.length > 0 ? (
+  structures.map((structure) => structure && <StructureCard structure={structure} />)
+) : (
+  <p>Aucune structure disponible pour le moment.</p>
+)}
+

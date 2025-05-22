@@ -1,0 +1,45 @@
+---
+const { structure } = Astro.props;
+const hasImage = structure?.file_id;
+const baseUrl = import.meta.env.PUBLIC_ASSET_URL;
+---
+
+<div class="structure-card">
+  {hasImage && (
+    <div class="structure-image">
+      <img src={`${baseUrl}/files/${structure.file_id}/download`} alt={structure.name} />
+    </div>
+  )}
+
+  <div class="structure-content">
+    <h3 class="structure-title">{structure?.name ?? 'Nom manquant'}</h3>
+    <p>{structure?.description ?? ''}</p>
+
+    {structure?.link && (
+      <p>
+        <a href={structure.link} target="_blank" rel="noopener noreferrer">
+          🔗 Lien vers la structure
+        </a>
+      </p>
+    )}
+
+    {structure?.phone_number && (
+      <p>📞 {structure.phone_number}</p>
+    )}
+
+    {structure?.address && (
+      <p>📍 {structure.address}</p>
+    )}
+
+    {structure?.missions?.length > 0 && (
+      <>
+        <p class="structure-mission-title"><strong>Missions :</strong></p>
+        <ul>
+          {structure.missions.map((mission) => (
+            <li>{mission.content}</li>
+          ))}
+        </ul>
+      </>
+    )}
+  </div>
+</div>
