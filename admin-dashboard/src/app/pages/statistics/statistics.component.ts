@@ -20,6 +20,7 @@ export class StatisticsComponent implements OnInit {
   createForm!: FormGroup;
   editingId: number | null = null;
   editForm!: FormGroup;
+  showCreate = false;
 
   constructor(
     private fb: FormBuilder,
