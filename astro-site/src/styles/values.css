@@ -1,0 +1,30 @@
+.values {
+    text-align: center;
+    padding: 3rem 1rem;
+  }
+  
+  .values-list {
+    display: flex;
+    justify-content: center;
+    gap: 8rem;
+    flex-wrap: wrap;
+  }
+  
+  .value-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 120px;
+  }
+  
+  .value-item img {
+    width: 8rem;
+    height: auto;
+  }
+  
+  .value-item p {
+    margin-top: 1rem;
+    font-weight: bold;
+    color: #045DD2;
+  }
+  
