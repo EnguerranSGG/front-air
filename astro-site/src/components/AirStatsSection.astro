@@ -16,7 +16,7 @@ try {
     {stats.map((stat) => (
       <div class="stat-item" key={stat.statistic_id}>
         <p class="stat-value">{stat.value}</p>
-        <p class="stat-label">{stat.label} {stat.year}</p>
+        <p class="stat-label">{stat.label}<br/>en {stat.year}</p>
       </div>
     ))}
   </div>
