@@ -1,0 +1,42 @@
+.partners-carousel {
+    padding: 2rem;
+    overflow: hidden;
+  }
+  
+  .carousel-track {
+    display: flex;
+    gap: 2rem;
+    animation: scroll 20s linear infinite;
+    min-width: 200%;
+  }
+  
+  .carousel-item {
+    flex: 0 0 auto;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .carousel-item img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    filter: grayscale(0%);
+    transition: filter 0.3s ease;
+  }
+  
+  .carousel-item img:hover {
+    filter: grayscale(80%);
+  }
+  
+  @keyframes scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  
