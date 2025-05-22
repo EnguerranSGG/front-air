@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ValueService } from '../../services/value.service';
 import { Value } from '../../models/value.model';
@@ -25,6 +30,9 @@ export class ValuesComponent implements OnInit {
 
   createForm!: FormGroup;
   editForm!: FormGroup;
+  showForm = false;
+  showCreateFileSelector = false;
+  showEditFileSelector = false;
 
   constructor(
     private fb: FormBuilder,
@@ -41,10 +49,14 @@ export class ValuesComponent implements OnInit {
 
   buildForm(value?: Value): FormGroup {
     return this.fb.group({
-      name: [value?.name || '', [Validators.required, Validators.maxLength(100)]],
-      file: [value?.file?.file_id || null]
+      name: [
+        value?.name || '',
+        [Validators.required, Validators.maxLength(100)],
+      ],
+      file_id: [value?.file?.file_id || null],
     });
   }
+  
 
   getFiles(): void {
     this.fileService.getAll().subscribe({
@@ -62,7 +74,7 @@ export class ValuesComponent implements OnInit {
   }
 
   loadValues(): void {
-    this.valueService.getAll().subscribe(data => {
+    this.valueService.getAll().subscribe((data) => {
       this.values = data.sort((a, b) => a.name.localeCompare(b.name));
     });
   }
