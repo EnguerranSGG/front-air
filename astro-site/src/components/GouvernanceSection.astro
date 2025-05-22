@@ -1,0 +1,33 @@
+---
+let jobs = [];
+
+try {
+  const res = await fetch(import.meta.env.PUBLIC_API_URL + '/jobs/all');
+  const data = await res.json();
+  jobs = Array.isArray(data) ? data : [];
+} catch (err) {
+  console.error('Erreur lors de la récupération des jobs :', err);
+}
+
+// Regrouper par position
+const groupedJobs = {};
+jobs.forEach((job) => {
+  const pos = job.position?.name || 'Autres';
+  if (!groupedJobs[pos]) groupedJobs[pos] = [];
+  groupedJobs[pos].push(job.function);
+});
+---
+<h2>La gouvernance de l’association</h2>
+<section class="governance">
+
+  {Object.entries(groupedJobs).map(([position, functions]) => (
+    <div class="governance-group">
+      <h3>{position}</h3>
+      <div class="governance-list">
+        {functions.map((fct) => (
+          <div class="governance-item">{fct}</div>
+        ))}
+      </div>
+    </div>
+  ))}
+</section>
