@@ -25,7 +25,7 @@ try {
     {stats.map((stat, index) => (
       <div class="stat-block" key={index}>
         <strong>{stat.value}</strong>
-        <p>{stat.label}</p>
+        <p>{stat.label}<br/>en {stat.year}</p>
       </div>
     ))}
   </div>
