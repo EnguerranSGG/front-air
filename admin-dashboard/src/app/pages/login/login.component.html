@@ -1,16 +1,17 @@
-<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <label>
-      Email :
-      <input type="email" formControlName="mail" />
-    </label>
-    <br />
-    <label>
-      Mot de passe :
-      <input type="password" formControlName="password" />
-    </label>
-    <br />
-    <button type="submit">Se connecter</button>
-  
-    <p *ngIf="errorMessage" style="color:red;">{{ errorMessage }}</p>
-  </form>
-  
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+  <h2 class="form-title">Connexion</h2>
+
+  <label class="form-label">
+    Email :
+    <input type="email" formControlName="mail" class="form-input" />
+  </label>
+
+  <label class="form-label">
+    Mot de passe :
+    <input type="password" formControlName="password" class="form-input" />
+  </label>
+
+  <button type="submit" class="form-button">Se connecter</button>
+
+  <p *ngIf="errorMessage" class="form-error">{{ errorMessage }}</p>
+</form>
