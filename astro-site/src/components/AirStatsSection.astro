@@ -1,0 +1,23 @@
+---
+let stats = [];
+
+try {
+  const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/statistics/by-type-name/AIR`);
+  const data = await res.json();
+  stats = Array.isArray(data) ? data : [];
+  console.log(stats);
+} catch (err) {
+  console.error("Erreur fetch statistiques AIR :", err);
+}
+---
+<h2 class="stats-title">Nos dernières actualités</h2>
+<section class="stats">
+  <div class="stats-list">
+    {stats.map((stat) => (
+      <div class="stat-item" key={stat.statistic_id}>
+        <p class="stat-value">{stat.value}</p>
+        <p class="stat-label">{stat.label} {stat.year}</p>
+      </div>
+    ))}
+  </div>
+</section>

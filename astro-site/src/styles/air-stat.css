@@ -1,0 +1,20 @@
+.stats {
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .stats-list {
+    display: flex;
+    justify-content: space-around;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .stat-item {
+    font-size: 1.2rem;
+  }
+  .stat-value {
+    font-size: 2rem;
+    color: #0056b3;
+    font-weight: bold;
+  }
+  
