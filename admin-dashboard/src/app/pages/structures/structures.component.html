@@ -1,12 +1,21 @@
-<h2>Structures</h2>
-<button (click)="startCreate()" *ngIf="!isCreating && !editingStructureId">➕ Ajouter une structure</button>
+<h2>🏢 Gestion des structures</h2>
+
+<!-- Bouton d’ajout -->
+<div class="filter-add-wrapper">
+  <button (click)="showForm = !showForm">
+    {{ showForm ? '❌ Annuler' : '➕ Ajouter une structure' }}
+  </button>
+</div>
 
 <!-- Formulaire de création -->
-<form *ngIf="isCreating" [formGroup]="createForm" (ngSubmit)="addStructure()">
+<form *ngIf="showForm" class="create-form" [formGroup]="createForm" (ngSubmit)="addStructure()">
   <input type="text" formControlName="name" placeholder="Nom" />
 
-  <div>
-    <label>Fichier lié :</label>
+  <button type="button" (click)="showCreateFileSelector = !showCreateFileSelector">
+    {{ showCreateFileSelector ? '❌ Fermer les images' : '📎 Lier un fichier' }}
+  </button>
+
+  <div *ngIf="showCreateFileSelector">
     <app-file-selector
       [files]="files"
       [selectedFileId]="createForm.value.file_id"
@@ -20,69 +29,82 @@
   <input type="text" formControlName="link" placeholder="Lien" />
 
   <div formArrayName="missions">
-    <label>Missions</label>
-    <div *ngFor="let mission of createMissions.controls; let i = index">
+    <div *ngFor="let mission of createMissions.controls; let i = index" class="mission-line">
       <input [formControlName]="i" placeholder="Mission" />
       <button type="button" (click)="removeMission(createForm, i)">❌</button>
     </div>
     <button type="button" (click)="addMission(createForm)">➕ Ajouter une mission</button>
   </div>
 
-  <button type="submit">Créer</button>
-  <button type="button" (click)="cancelCreate()">Annuler</button>
+  <div class="form-buttons">
+    <button type="submit" [disabled]="createForm.invalid">Créer</button>
+  </div>
 </form>
 
 <!-- Liste des structures -->
-<div *ngFor="let structure of structures">
-  <div *ngIf="editingStructureId !== structure.structure_id">
-    <h3>{{ structure.name }}</h3>
-    <div *ngIf="structure.file?.file_id">
-      <img
-        [src]="apiUrl + '/files/' + structure.file?.file_id + '/download'"
-        [alt]="structure.name"
-        width="100"
-      />
+<div *ngFor="let structure of structures" class="event-card">
+  <!-- Affichage classique -->
+  <ng-container *ngIf="editingStructureId !== structure.structure_id; else editTemplate">
+    <div class="event-content">
+      <strong class="event-year">{{ structure.name }}</strong>
+      <div *ngIf="structure.file?.file_id">
+        <img
+          [src]="apiUrl + '/files/' + structure.file?.file_id + '/download'"
+          [alt]="structure.name"
+          width="100"
+        />
+      </div>
+      <p class="event-description">{{ structure.description }}</p>
+      <p *ngIf="structure.address"><strong>Adresse :</strong> {{ structure.address }}</p>
+      <p *ngIf="structure.phone_number"><strong>Téléphone :</strong> {{ structure.phone_number }}</p>
+      <p *ngIf="structure.link">
+        <strong>Lien :</strong>
+        <a [href]="structure.link" target="_blank">{{ structure.link }}</a>
+      </p>
+      <ul *ngIf="structure.missions?.length">
+        <li *ngFor="let mission of structure.missions">{{ mission.content }}</li>
+      </ul>
     </div>
-    <p><strong>Description :</strong> {{ structure.description }}</p>
-    <p *ngIf="structure.address"><strong>Adresse :</strong> {{ structure.address }}</p>
-    <p *ngIf="structure.phone_number"><strong>Téléphone :</strong> {{ structure.phone_number }}</p>
-    <p *ngIf="structure.link"><strong>Lien :</strong> <a [href]="structure.link" target="_blank">{{ structure.link }}</a></p>
-    <ul *ngIf="structure.missions?.length">
-      <li *ngFor="let mission of structure.missions">{{ mission.content }}</li>
-    </ul>
-
-    <button (click)="startEdit(structure)">✏️ Modifier</button>
-    <button (click)="deleteStructure(structure.structure_id)">🗑️ Supprimer</button>
-  </div>
+    <div class="event-buttons">
+      <button (click)="startEdit(structure)">✏️ Modifier</button>
+      <button (click)="deleteStructure(structure.structure_id)">🗑️ Supprimer</button>
+    </div>
+  </ng-container>
 
   <!-- Formulaire de modification -->
-  <form *ngIf="editingStructureId === structure.structure_id" [formGroup]="editForm" (ngSubmit)="saveEdit(structure)">
-    <input type="text" formControlName="name" placeholder="Nom" />
+  <ng-template #editTemplate>
+    <form class="create-form" [formGroup]="editForm" (ngSubmit)="saveEdit(structure)">
+      <input type="text" formControlName="name" placeholder="Nom" />
 
-    <div>
-      <label>Fichier lié :</label>
-      <app-file-selector
-        [files]="files"
-        [selectedFileId]="editForm.value.file_id"
-        (fileSelected)="onFileSelect($event)">
-      </app-file-selector>
-    </div>
+      <button type="button" (click)="showEditFileSelector = !showEditFileSelector">
+        {{ showEditFileSelector ? '❌ Fermer les images' : '📎 Lier un fichier' }}
+      </button>
 
-    <textarea formControlName="description" placeholder="Description"></textarea>
-    <input type="text" formControlName="address" placeholder="Adresse" />
-    <input type="text" formControlName="phone_number" placeholder="Téléphone" />
-    <input type="text" formControlName="link" placeholder="Lien" />
-
-    <div formArrayName="missions">
-      <label>Missions</label>
-      <div *ngFor="let mission of editMissions.controls; let i = index">
-        <input [formControlName]="i" placeholder="Mission" />
-        <button type="button" (click)="removeMission(editForm, i)">❌</button>
+      <div *ngIf="showEditFileSelector">
+        <app-file-selector
+          [files]="files"
+          [selectedFileId]="editForm.value.file_id"
+          (fileSelected)="onFileSelect($event)">
+        </app-file-selector>
       </div>
-      <button type="button" (click)="addMission(editForm)">➕ Ajouter une mission</button>
-    </div>
 
-    <button type="submit">💾 Sauvegarder</button>
-    <button type="button" (click)="cancelEdit()">Annuler</button>
-  </form>
+      <textarea formControlName="description" placeholder="Description"></textarea>
+      <input type="text" formControlName="address" placeholder="Adresse" />
+      <input type="text" formControlName="phone_number" placeholder="Téléphone" />
+      <input type="text" formControlName="link" placeholder="Lien" />
+
+      <div formArrayName="missions">
+        <div *ngFor="let mission of editMissions.controls; let i = index" class="mission-line">
+          <input [formControlName]="i" placeholder="Mission" />
+          <button type="button" (click)="removeMission(editForm, i)">❌</button>
+        </div>
+        <button type="button" (click)="addMission(editForm)">➕ Ajouter une mission</button>
+      </div>
+
+      <div class="form-buttons">
+        <button type="submit">💾 Sauvegarder</button>
+        <button type="button" (click)="cancelEdit()">Annuler</button>
+      </div>
+    </form>
+  </ng-template>
 </div>

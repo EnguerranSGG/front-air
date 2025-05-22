@@ -1,0 +1,156 @@
+.mission-line {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Titre */
+h2 {
+    color: #0046a4;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+/* Conteneur pour aligner le bouton d'ajout */
+.add-button-wrapper {
+    max-width: 800px;
+    margin: 0 auto 1rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Formulaire d’ajout aligné avec les cartes */
+.create-form {
+    background: #fff;
+    padding: 1rem 1.5rem;
+    margin: 1.2rem auto;
+    border-radius: 1rem;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+    max-width: 800px;
+}
+
+.filter-add-wrapper {
+    max-width: 800px;
+    margin: 0 auto 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.filter-add-wrapper select {
+    max-width: 300px;
+    flex: 1;
+}
+
+.filter-add-wrapper button {
+    flex-shrink: 0;
+}
+
+/* Formulaires sobres avec centrage */
+form {
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 1rem;
+}
+
+/* Champs de formulaire centrés visuellement */
+input,
+textarea,
+select {
+    width: 100%;
+    max-width: 600px;
+    padding: 0.6rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    background: #fff;
+    transition: border-color 0.2s;
+    display: block;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: #5a007a;
+    outline: none;
+}
+
+/* Tous les boutons violet sobre */
+button {
+    background-color: #4c3575;
+    color: white;
+    border: none;
+    padding: 0.4rem 1rem;
+    font-size: 0.95rem;
+    border-radius: 999px;
+    font-weight: 500;
+    cursor: pointer;
+    margin: 0.3rem 0.5rem 0.3rem 0;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #3a005c;
+}
+
+/* Cartes événements avec marge latérale */
+.event-card {
+    background: #fff;
+    padding: 1rem 1.5rem;
+    margin: 1.2rem auto;
+    border-radius: 1rem;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+    max-width: 800px;
+}
+
+/* Contenu et année */
+.event-content {
+    margin-bottom: 0.75rem;
+}
+
+.event-year {
+    color: #0046a4;
+    font-weight: bold;
+    font-size: 1.15rem;
+}
+
+.event-description {
+    color: #111;
+    font-size: 0.95rem;
+    margin: 0.3rem 0 0.8rem;
+}
+
+/* Boutons sous l'événement */
+.event-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .event-card {
+        padding: 1rem;
+        margin: 1rem 1rem;
+    }
+
+    button {
+        width: 100%;
+    }
+
+    form {
+        padding: 1rem;
+    }
+}

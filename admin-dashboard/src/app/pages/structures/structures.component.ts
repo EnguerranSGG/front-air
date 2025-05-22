@@ -20,8 +20,10 @@ export class StructureComponent implements OnInit {
   apiUrl = environment.API_URL;
   files: FileEntity[] = [];
   structures: Structure[] = [];
-  isCreating = false;
+  showForm = false;
   editingStructureId: number | null = null;
+  showCreateFileSelector = false;
+  showEditFileSelector = false;
 
   createForm!: FormGroup;
   editForm!: FormGroup;
@@ -46,7 +48,7 @@ export class StructureComponent implements OnInit {
       address: [structure?.address || '', [Validators.maxLength(255)]],
       phone_number: [structure?.phone_number || '', [Validators.maxLength(25)]],
       link: [structure?.link || '', [Validators.maxLength(500)]],
-      file: [structure?.file?.file_id || null],
+      file_id: [structure?.file?.file_id || null],
       missions: this.fb.array(
         structure?.missions?.map(m => this.fb.control(m.content, [Validators.maxLength(250)])) || []
       ),
@@ -74,22 +76,13 @@ export class StructureComponent implements OnInit {
     });
   }
 
-  startCreate(): void {
-    this.isCreating = true;
-    this.createForm = this.buildForm();
-  }
-
-  cancelCreate(): void {
-    this.isCreating = false;
-  }
-
   addStructure(): void {
     const payload = this.formatMissions(this.createForm);
     this.structureService.create(payload).subscribe({
       next: () => {
         this.toast.show('Structure ajoutée avec succès');
         this.loadStructures();
-        this.isCreating = false;
+        this.showForm = false;
       },
       error: err => this.toast.show('Erreur lors de l’ajout'),
     });
@@ -98,6 +91,7 @@ export class StructureComponent implements OnInit {
   startEdit(structure: Structure): void {
     this.editingStructureId = structure.structure_id;
     this.editForm = this.buildForm(structure);
+    this.showEditFileSelector = false;
   }
 
   cancelEdit(): void {
