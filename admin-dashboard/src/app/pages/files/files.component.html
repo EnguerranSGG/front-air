@@ -1,37 +1,38 @@
 <h2>📁 Gestion des fichiers</h2>
 
-<form [formGroup]="fileForm" (ngSubmit)="onSubmit()" enctype="multipart/form-data">
-  <div>
-    <label for="name">Nom du fichier :</label>
-    <input id="name" formControlName="name" type="text" [readonly]="editingFileId !== null" />
-  </div>
+<!-- Formulaire de téléversement -->
+<form class="create-form" [formGroup]="fileForm" (ngSubmit)="onSubmit()" enctype="multipart/form-data">
 
-  <div>
-    <label for="file">Sélectionner un fichier :</label>
-    <input id="file" type="file" (change)="onFileSelected($event)" />
-  </div>
-
-  <button type="submit" [disabled]="fileForm.invalid || !selectedFile">
-    {{ editingFileId ? 'Mettre à jour le fichier' : 'Téléverser' }}
-  </button>
+    <label class="file-upload">
+        <span>📎 Sélectionner un fichier</span>
+        <input id="file" type="file" (change)="onFileSelected($event)" />
+    </label>
+    <!-- Affichage du nom du fichier sélectionné -->
+    <div *ngIf="selectedFile" class="file-selected-name">
+        ✅ Fichier sélectionné : <strong>{{ selectedFile.name }}</strong>
+    </div>
+    <input formControlName="name" type="text" placeholder="Nom du fichier" [readonly]="editingFileId !== null" />
+    <div class="form-buttons">
+        <button type="submit" [disabled]="fileForm.invalid || !selectedFile">
+            {{ editingFileId ? '💾 Mettre à jour' : '⬆️ Téléverser' }}
+        </button>
+        <button type="button" *ngIf="editingFileId !== null" (click)="cancelEdit()">❌ Annuler</button>
+    </div>
 </form>
 
-<hr />
-
-<h3>📂 Fichiers téléversés</h3>
-
-<ul *ngIf="files.length > 0; else noFiles">
-    <li *ngFor="let file of files">
-      <strong>{{ file.name }}</strong>
-      <a href="#" (click)="onDownload(file); $event.preventDefault();">
-        📥 Télécharger
-      </a>
-      <button (click)="onEdit(file)">✏️ Modifier</button>
-      <button (click)="onDelete(file.file_id)">🗑️ Supprimer</button>
-    </li>
-  </ul>
-  
+<div *ngIf="files.length > 0; else noFiles">
+    <div *ngFor="let file of files" class="event-card">
+        <div class="event-content">
+            <strong class="event-year">{{ file.name }}</strong>
+        </div>
+        <div class="event-buttons">
+            <button href="#" (click)="onDownload(file); $event.preventDefault()">📥 Télécharger</button>
+            <button (click)="onEdit(file)">✏️ Modifier</button>
+            <button (click)="onDelete(file.file_id)">🗑️ Supprimer</button>
+        </div>
+    </div>
+</div>
 
 <ng-template #noFiles>
-  <p>Aucun fichier disponible.</p>
+    <p>Aucun fichier disponible.</p>
 </ng-template>

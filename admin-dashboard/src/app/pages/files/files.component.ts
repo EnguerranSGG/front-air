@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { FileService } from '../../services/file.service';
 import { ToastService } from '../../utils/toast/toast.service';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-file',
+  standalone: true,
   imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './files.component.html',
   styleUrls: ['./files.component.scss'],
@@ -24,14 +24,19 @@ export class FileComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.initForm();
+    this.getFiles();
+  }
+
+  // Initialisation du formulaire
+  private initForm(): void {
     this.fileForm = this.fb.group({
       name: ['', Validators.required],
       file: [null, Validators.required],
     });
-
-    this.getFiles();
   }
 
+  // Récupère les fichiers existants
   getFiles(): void {
     this.fileService.getAll().subscribe({
       next: (files) => (this.files = files),
@@ -39,21 +44,28 @@ export class FileComponent implements OnInit {
     });
   }
 
+  // Gère la sélection de fichier
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
       this.fileForm.patchValue({ file: this.selectedFile });
+  
+      // Remplir automatiquement le nom si ce n'est pas une édition
+      if (!this.editingFileId) {
+        this.fileForm.patchValue({ name: this.selectedFile.name });
+      }
     }
   }
+  
 
+  // Crée ou met à jour un fichier
   onSubmit(): void {
     if (!this.fileForm.valid || !this.selectedFile) return;
 
     const formData = new FormData();
     formData.append('file', this.selectedFile);
 
-    // Ajout du nom uniquement si on crée un fichier
     if (!this.editingFileId) {
       formData.append('name', this.fileForm.value.name);
     }
@@ -72,11 +84,13 @@ export class FileComponent implements OnInit {
     });
   }
 
+  // Prépare le formulaire pour modification
   onEdit(file: any): void {
     this.editingFileId = file.file_id;
-    this.fileForm.patchValue({ name: file.name }); // affiché, mais pas modifiable
+    this.fileForm.patchValue({ name: file.name });
   }
 
+  // Supprime un fichier
   onDelete(id: number): void {
     this.fileService.delete(id).subscribe({
       next: () => {
@@ -87,6 +101,7 @@ export class FileComponent implements OnInit {
     });
   }
 
+  // Télécharge un fichier
   onDownload(file: any): void {
     this.fileService.download(file.file_id).subscribe(blob => {
       const url = window.URL.createObjectURL(blob);
@@ -97,11 +112,16 @@ export class FileComponent implements OnInit {
       window.URL.revokeObjectURL(url);
     });
   }
-   
 
+  // Réinitialise le formulaire
   resetForm(): void {
     this.fileForm.reset();
     this.selectedFile = null;
     this.editingFileId = null;
   }
+
+  cancelEdit(): void {
+    this.resetForm();
+  }
+  
 }
