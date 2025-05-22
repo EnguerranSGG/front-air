@@ -1,16 +1,26 @@
-<h2>Jobs</h2>
+<h2>💼 Gestion des jobs</h2>
 
-<!-- Filtre par position -->
-<label for="positionFilter">Filtrer par poste :</label>
-<select (change)="onPositionFilterChange($event)">
-  <option value="">Tous les jobs</option>
-  <option *ngFor="let pos of positions" [value]="pos.position_id">
-    {{ pos.name }}
-  </option>
-</select>
+<!-- Filtre + bouton d'ajout alignés -->
+<div class="filter-add-wrapper">
+  <select id="positionFilter" (change)="onPositionFilterChange($event)">
+    <option value="">Filtrer par position</option>
+    <option *ngFor="let pos of positions" [value]="pos.position_id">
+      {{ pos.name }}
+    </option>
+  </select>
+
+  <button (click)="showCreate = !showCreate">
+    {{ showCreate ? '❌ Annuler' : '➕ Ajouter un job' }}
+  </button>
+</div>
 
 <!-- Formulaire de création -->
-<form [formGroup]="createForm" (ngSubmit)="addJob()">
+<form
+  *ngIf="showCreate"
+  class="create-form"
+  [formGroup]="createForm"
+  (ngSubmit)="addJob()"
+>
   <input formControlName="function" placeholder="Fonction" required />
   <select formControlName="position_id" required>
     <option [value]="null" disabled>Choisir un poste</option>
@@ -18,27 +28,34 @@
       {{ pos.name }}
     </option>
   </select>
-  <button type="submit">Ajouter</button>
+  <div class="form-buttons">
+    <button type="submit" [disabled]="createForm.invalid">Ajouter</button>
+  </div>
 </form>
 
 <!-- Liste des jobs -->
-<ul>
-  <li *ngFor="let job of filteredJobs">
-    <div *ngIf="editingId !== job.job_id">
-      <strong>{{ job.function }}</strong> – Poste : {{ getPositionName(job.position_id) }}
-      <button (click)="startEdit(job)">Modifier</button>
-      <button (click)="deleteJob(job.job_id)">Supprimer</button>
+<div *ngFor="let job of filteredJobs" class="event-card">
+  <div *ngIf="editingId !== job.job_id">
+    <div class="event-content">
+      <strong class="event-year">{{ job.function }}</strong>
+      <p class="event-description">Poste : {{ getPositionName(job.position_id) }}</p>
     </div>
+    <div class="event-buttons">
+      <button (click)="startEdit(job)">✏️ Modifier</button>
+      <button (click)="deleteJob(job.job_id)">🗑️ Supprimer</button>
+    </div>
+  </div>
 
-    <form *ngIf="editingId === job.job_id" [formGroup]="editForm" (ngSubmit)="saveEdit(job)">
-      <input formControlName="function" placeholder="Fonction" />
-      <select formControlName="position_id">
-        <option *ngFor="let pos of positions" [value]="pos.position_id">
-          {{ pos.name }}
-        </option>
-      </select>
-      <button type="submit">Valider</button>
+  <form *ngIf="editingId === job.job_id" [formGroup]="editForm" (ngSubmit)="saveEdit(job)">
+    <input formControlName="function" placeholder="Fonction" />
+    <select formControlName="position_id">
+      <option *ngFor="let pos of positions" [value]="pos.position_id">
+        {{ pos.name }}
+      </option>
+    </select>
+    <div class="form-buttons">
+      <button type="submit" [disabled]="editForm.invalid">Valider</button>
       <button type="button" (click)="cancelEdit()">Annuler</button>
-    </form>
-  </li>
-</ul>
+    </div>
+  </form>
+</div>
