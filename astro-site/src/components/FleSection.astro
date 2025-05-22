@@ -1,0 +1,45 @@
+---
+let stats = [];
+
+try {
+  const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/statistics/by-type-name/FLE`);
+  const data = await res.json();
+  stats = Array.isArray(data) ? data : [];
+} catch (err) {
+  console.error("Erreur fetch statistiques AIR :", err);
+}
+---
+
+<section class="fle-section">
+  <div class="image-wrapper">
+    <img
+      src={`${import.meta.env.PUBLIC_ASSET_URL}/files/11/download`}
+      alt="Cours de FLE"
+    />
+    <div class="overlay">
+      <h4>Formations<br />Français Langue Étrangère</h4>
+    </div>
+  </div>
+
+  <div class="stats">
+    {stats.map((stat, index) => (
+      <div class="stat-block" key={index}>
+        <strong>{stat.value}</strong>
+        <p>{stat.label}</p>
+      </div>
+    ))}
+  </div>
+
+  <div class="certif-block">
+    <img src="/assets/logo_qualiopi.png" alt="Logo Qualiopi" class="qualiopi" />
+    <div class="buttons-fle">
+      <a class="download-btn" href={`${import.meta.env.PUBLIC_ASSET_URL}/files/16/download`} download>
+        ⬇️ Certification
+      </a>
+      <a class="download-btn" href={`${import.meta.env.PUBLIC_ASSET_URL}/files/16/download`} download>
+        ⬇️ Programme
+      </a>
+    </div>
+  </div>
+</section>
+

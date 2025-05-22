@@ -1,0 +1,128 @@
+h4 {
+    color: #ffffff;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.fle-section {
+    text-align: center;
+    padding: 2rem;
+}
+
+.image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.image-wrapper img {
+    width: 60vw;
+    height: auto;
+    border-radius: 1rem;
+}
+
+.overlay {
+    position: absolute;
+    top: 15vh;
+    right: 0;
+    background: rgba(0, 70, 164, 0.8);
+    color: white;
+    padding: 5rem 8rem;
+    border-radius: 10px;
+    font-size: 1.2rem;
+}
+
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin: 2rem 0;
+}
+
+.stat-block strong {
+    color: #0046a4;
+    font-size: 1.8rem;
+}
+
+.certif-block {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.qualiopi {
+    width: 30vw;
+    height: auto;
+}
+
+.buttons-fle {
+    display: flex;
+    flex-direction: column;
+    align-items: space-around;
+    justify-content: center;
+}
+
+.download-btn {
+    background-color: #0046a4;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px;
+    margin: 0.5rem;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.download-btn:hover {
+    background-color: #003080;
+}
+
+@media (max-width: 768px) {
+
+    .image-wrapper img {
+        width: 80vw;
+        border-radius: 5px;
+        position: inherit;
+        top: 1.5vh;
+    }
+
+    h4 {
+        color: #ffffff;
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+        text-align: center;
+        position: inherit;
+        top: 3.5vh;
+        right: 1vh;
+        padding: 0.5rem 0rem;
+    }
+
+    .overlay {
+        position: absolute;
+        background: rgba(0, 70, 164, 0.85);
+        border-radius: 1rem;
+        top: 0vh;
+        bottom: 2vh;
+        border-radius: 5px;
+    }
+
+    .stats {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .certif-block {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .qualiopi {
+        width: 60vw;
+        margin-bottom: 1vh;
+    }
+
+}
