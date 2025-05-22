@@ -12,13 +12,13 @@
   .governance-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 1.5rem;
   }
   
   .governance-item {
     background-color: #2664b4;
     color: white;
-    padding: 0.8rem 1.5rem;
+    padding: 0.8rem 2rem;
     border-radius: 1rem;
     flex: 1 1 240px;
     text-align: center;
@@ -29,7 +29,7 @@
     .governance-list {
       flex-direction: column;
       flex-wrap: nowrap;
-      gap: 0.5rem; 
+      gap: 0.8rem; 
     }
   
     .governance-item {
