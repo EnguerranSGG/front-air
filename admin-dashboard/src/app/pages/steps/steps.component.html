@@ -1,26 +1,36 @@
-<h2>Étapes</h2>
+<h2>🚶‍♂️ Gestion des étapes</h2>
 
-<label for="pathFilter">Filtrer par parcours:</label>
-<select (change)="onPathFilterChange($event)">
-  <option value="">Toutes les étapes</option>
-  <option *ngFor="let path of paths" [value]="path.path_id">
-    {{ path.name }}
-  </option>
-</select>
+<!-- Filtres et bouton d’ajout -->
+<div class="filter-add-wrapper">
+  <select (change)="onPathFilterChange($event)">
+    <option value="">Toutes les étapes</option>
+    <option *ngFor="let path of paths" [value]="path.path_id">
+      {{ path.name }}
+    </option>
+  </select>
 
-<form [formGroup]="createForm" (ngSubmit)="addStep()">
-  <input formControlName="name" placeholder="Nom" required />
-  <textarea formControlName="description" placeholder="Description" required></textarea>
+  <button (click)="showCreate = !showCreate">
+    {{ showCreate ? '❌ Annuler' : '➕ Ajouter une étape' }}
+  </button>
+</div>
+
+<!-- Formulaire d'ajout -->
+<form *ngIf="showCreate" class="create-form" [formGroup]="createForm" (ngSubmit)="addStep()">
+  <input formControlName="name" placeholder="Nom de l’étape" />
+  <textarea formControlName="description" placeholder="Description"></textarea>
 
   <select formControlName="path_id" required>
     <option [ngValue]="null" disabled>Choisir un parcours</option>
     <option *ngFor="let path of paths" [ngValue]="path.path_id">
       {{ path.name }}
     </option>
-  </select>  
+  </select>
 
-  <div>
-    <label>Fichier lié :</label>
+  <button type="button" (click)="showCreateFileSelector = !showCreateFileSelector">
+    {{ showCreateFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
+  </button>
+
+  <div *ngIf="showCreateFileSelector">
     <app-file-selector
       [files]="files"
       [selectedFileId]="createForm.value.file_id"
@@ -28,13 +38,18 @@
     </app-file-selector>
   </div>
 
-  <button type="submit">Ajouter</button>
+  <div class="form-buttons">
+    <button type="submit" [disabled]="createForm.invalid">➕ Ajouter</button>
+  </div>
 </form>
 
-<ul>
-  <li *ngFor="let step of steps">
-    <div *ngIf="editingId !== step.step_id">
-      <h3>{{ step.name }}</h3>
+<!-- Liste des étapes -->
+<div *ngFor="let step of steps" class="event-card">
+  <div *ngIf="editingId !== step.step_id">
+    <div class="event-content">
+      <strong class="event-year">{{ step.name }}</strong>
+      <p class="event-description">{{ step.description }}</p>
+      <p class="event-description"><em>Parcours :</em> {{ getPathName(step.path_id) }}</p>
       <div *ngIf="step.file?.file_id">
         <img
           [src]="apiUrl + '/files/' + step.file?.file_id + '/download'"
@@ -42,33 +57,40 @@
           width="100"
         />
       </div>
-      <p>{{ step.description }}</p>
-      <small>Parcours : {{ getPathName(step.path_id) }}</small>
-      <button (click)="startEdit(step)">Modifier</button>
-      <button (click)="deleteStep(step.step_id)">Supprimer</button>
+    </div>
+    <div class="event-buttons">
+      <button (click)="startEdit(step)">✏️ Modifier</button>
+      <button (click)="deleteStep(step.step_id)">🗑️ Supprimer</button>
+    </div>
+  </div>
+
+  <!-- Formulaire de modification -->
+  <form *ngIf="editingId === step.step_id" class="create-form" [formGroup]="editForm" (ngSubmit)="saveEdit(step)">
+    <input formControlName="name" placeholder="Nom de l’étape" />
+    <textarea formControlName="description" placeholder="Description"></textarea>
+
+    <select formControlName="path_id" required>
+      <option [ngValue]="null" disabled>Choisir un parcours</option>
+      <option *ngFor="let path of paths" [ngValue]="path.path_id">
+        {{ path.name }}
+      </option>
+    </select>
+
+    <button type="button" (click)="showEditFileSelector = !showEditFileSelector">
+      {{ showEditFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
+    </button>
+
+    <div *ngIf="showEditFileSelector">
+      <app-file-selector
+        [files]="files"
+        [selectedFileId]="editForm.value.file_id"
+        (fileSelected)="onFileSelect($event)">
+      </app-file-selector>
     </div>
 
-    <form *ngIf="editingId === step.step_id" [formGroup]="editForm" (ngSubmit)="saveEdit(step)">
-      <input formControlName="name" placeholder="Nom" />
-      <textarea formControlName="description" placeholder="Description"></textarea>
-      <select formControlName="path_id" required>
-        <option [ngValue]="null" disabled>Choisir un parcours</option>
-        <option *ngFor="let path of paths" [ngValue]="path.path_id">
-          {{ path.name }}
-        </option>
-      </select> 
-
-      <div>
-        <label>Fichier lié :</label>
-        <app-file-selector
-          [files]="files"
-          [selectedFileId]="editForm.value.file_id"
-          (fileSelected)="onFileSelect($event)">
-        </app-file-selector>
-      </div>
-
-      <button type="submit">Sauvegarder</button>
-      <button type="button" (click)="cancelEdit()">Annuler</button>
-    </form>
-  </li>
-</ul>
+    <div class="form-buttons">
+      <button type="submit" [disabled]="editForm.invalid">💾 Sauvegarder</button>
+      <button type="button" (click)="cancelEdit()">❌ Annuler</button>
+    </div>
+  </form>
+</div>

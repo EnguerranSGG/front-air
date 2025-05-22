@@ -2,7 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { StepService } from '../../services/step.service';
 import { Step } from '../../models/step.model';
 import { Path } from '../../models/path.model';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+  FormsModule,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ToastService } from '../../utils/toast/toast.service';
 import { PathService } from '../../services/path.service';
@@ -14,9 +20,14 @@ import { FileSelectorComponent } from '../files/files-selector.component';
 @Component({
   selector: 'app-step',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, FileSelectorComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    FileSelectorComponent,
+  ],
   templateUrl: './steps.component.html',
-  styleUrls: ['./steps.component.scss']
+  styleUrls: ['./steps.component.scss'],
 })
 export class StepComponent implements OnInit {
   apiUrl = environment.API_URL;
@@ -28,6 +39,9 @@ export class StepComponent implements OnInit {
   createForm!: FormGroup;
   editForm!: FormGroup;
   editingId: number | null = null;
+  showCreate = false;
+  showCreateFileSelector = false;
+  showEditFileSelector = false;
 
   constructor(
     private stepService: StepService,
@@ -49,7 +63,7 @@ export class StepComponent implements OnInit {
       name: [step?.name || '', [Validators.required]],
       description: [step?.description || '', [Validators.required]],
       path_id: [step?.path_id || null, [Validators.required]],
-      file: [step?.file?.file_id || null]
+      file_id: [step?.file?.file_id || null],
     });
   }
 
@@ -62,14 +76,16 @@ export class StepComponent implements OnInit {
 
   loadSteps(): void {
     if (this.pathIdFilter) {
-      this.stepService.getByPathId(this.pathIdFilter).subscribe(data => this.steps = data);
+      this.stepService
+        .getByPathId(this.pathIdFilter)
+        .subscribe((data) => (this.steps = data));
     } else {
-      this.stepService.getAll().subscribe(data => this.steps = data);
+      this.stepService.getAll().subscribe((data) => (this.steps = data));
     }
   }
 
   loadPaths(): void {
-    this.pathService.getAll().subscribe(paths => {
+    this.pathService.getAll().subscribe((paths) => {
       this.paths = paths;
     });
   }
@@ -79,7 +95,7 @@ export class StepComponent implements OnInit {
   }
 
   getPathName(pathId: number): string {
-    const path = this.paths.find(p => p.path_id === pathId);
+    const path = this.paths.find((p) => p.path_id === pathId);
     return path ? path.name : 'Inconnu';
   }
 
@@ -111,11 +127,13 @@ export class StepComponent implements OnInit {
 
   saveEdit(step: Step): void {
     if (this.editForm.valid) {
-      this.stepService.update(step.step_id, this.editForm.value).subscribe(() => {
-        this.toast.show('Étape modifiée');
-        this.editingId = null;
-        this.loadSteps();
-      });
+      this.stepService
+        .update(step.step_id, this.editForm.value)
+        .subscribe(() => {
+          this.toast.show('Étape modifiée');
+          this.editingId = null;
+          this.loadSteps();
+        });
     }
   }
 
