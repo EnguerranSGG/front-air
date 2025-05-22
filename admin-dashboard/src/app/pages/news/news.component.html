@@ -1,50 +1,69 @@
-<h2>📰 Actualités</h2>
+<h2>📰 Gestion des actualités</h2>
 
-<!-- Bouton pour afficher le formulaire de création -->
-<button (click)="startCreate()" *ngIf="!isCreating && !editingNewsId">➕ Ajouter une actualité</button>
+<!-- Bouton d'ajout -->
+<div class="filter-add-wrapper">
+    <button (click)="cancelCreate()">
+        {{ showForm ? '❌ Annuler' : '➕ Ajouter une actualité' }}
+    </button>
+</div>
 
 <!-- Formulaire de création -->
-<form *ngIf="isCreating" [formGroup]="createForm" (ngSubmit)="addNews()">
-    <input type="text" formControlName="title" placeholder="Titre" />
-    <textarea formControlName="content" placeholder="Contenu"></textarea>
+<form *ngIf="showForm" class="create-form" [formGroup]="createForm" (ngSubmit)="addNews()">
+    <input formControlName="name" type="text" placeholder="Titre" />
+    <textarea formControlName="description" placeholder="Contenu"></textarea>
 
-    <div>
-        <label>Image liée :</label>
-        <app-file-selector [files]="files" [selectedFileId]="createForm.value.file_id"
-            (fileSelected)="onFileSelect($event)">
-        </app-file-selector>
-    </div>
+    <div class="form-buttons">
+        <button type="button" (click)="showCreateFileSelector = !showCreateFileSelector">
+            {{ showCreateFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
+        </button>
 
-    <button type="submit">Créer</button>
-    <button type="button" (click)="cancelCreate()">Annuler</button>
-</form>
-
-<!-- Liste des actualités -->
-<div *ngFor="let news of newsList">
-    <div *ngIf="editingNewsId !== news.news_id">
-        <h3>{{ news.title }}</h3>
-        <div *ngIf="news.file?.file_id">
-            <img [src]="apiUrl + '/files/' + news.file?.file_id + '/download'" alt="{{ news.title }}" width="100" />
-        </div>
-        <p>{{ news.content }}</p>
-
-        <button (click)="startEdit(news)">✏️ Modifier</button>
-        <button (click)="deleteNews(news.news_id)">🗑️ Supprimer</button>
-    </div>
-
-    <!-- Formulaire de modification -->
-    <form *ngIf="editingNewsId === news.news_id" [formGroup]="editForm" (ngSubmit)="saveEdit(news)">
-        <input type="text" formControlName="title" placeholder="Titre" />
-        <textarea formControlName="content" placeholder="Contenu"></textarea>
-
-        <div>
-            <label>Image liée :</label>
-            <app-file-selector [files]="files" [selectedFileId]="editForm.value.file_id"
+        <div *ngIf="showCreateFileSelector">
+            <app-file-selector [files]="files" [selectedFileId]="createForm.value.file_id"
                 (fileSelected)="onFileSelect($event)">
             </app-file-selector>
         </div>
 
-        <button type="submit">💾 Sauvegarder</button>
-        <button type="button" (click)="cancelEdit()">Annuler</button>
-    </form>
+        <button type="submit" [disabled]="createForm.invalid">Créer</button>
+    </div>
+</form>
+
+<!-- Liste des actualités -->
+<div *ngFor="let news of newsList" class="event-card">
+    <!-- Affichage normal -->
+    <ng-container *ngIf="editingNewsId !== news.news_id; else editTemplate">
+        <div class="event-content">
+            <strong class="event-year">{{ news.name }}</strong>
+            <p class="event-description">{{ news.description }}</p>
+            <div *ngIf="news.file?.file_id">
+                <img [src]="apiUrl + '/files/' + news.file?.file_id + '/download'" alt="{{ news.name }}" width="100" />
+            </div>
+        </div>
+        <div class="event-buttons">
+            <button (click)="startEdit(news)">✏️ Modifier</button>
+            <button (click)="deleteNews(news.news_id)">🗑️ Supprimer</button>
+        </div>
+    </ng-container>
+
+    <!-- Formulaire d’édition -->
+    <ng-template #editTemplate>
+        <form class="create-form" [formGroup]="editForm" (ngSubmit)="saveEdit(news)">
+            <input formControlName="name" type="text" placeholder="Titre" />
+            <textarea formControlName="description" placeholder="Contenu"></textarea>
+
+            <button type="button" (click)="showEditFileSelector = !showEditFileSelector">
+                {{ showEditFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
+            </button>
+
+            <div *ngIf="showEditFileSelector">
+                <app-file-selector [files]="files" [selectedFileId]="editForm.value.file_id"
+                    (fileSelected)="onFileSelect($event)">
+                </app-file-selector>
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" [disabled]="editForm.invalid">💾 Sauvegarder</button>
+                <button type="button" (click)="cancelEdit()">❌ Annuler</button>
+            </div>
+        </form>
+    </ng-template>
 </div>

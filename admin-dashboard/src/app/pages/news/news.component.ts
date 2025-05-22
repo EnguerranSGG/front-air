@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NewsService } from '../../services/news.service';
 import { News } from '../../models/news.model';
@@ -24,6 +29,9 @@ export class NewsComponent implements OnInit {
 
   createForm!: FormGroup;
   editForm!: FormGroup;
+  showForm = false;
+  showCreateFileSelector = false;
+  showEditFileSelector = false;
 
   constructor(
     private fb: FormBuilder,
@@ -40,9 +48,12 @@ export class NewsComponent implements OnInit {
 
   buildForm(news?: News): FormGroup {
     return this.fb.group({
-      title: [news?.title || '', [Validators.required, Validators.maxLength(100)]],
-      content: [news?.content || '', [Validators.required]],
-      file_id: [news?.file?.file_id || null]
+      name: [
+        news?.name || '',
+        [Validators.required, Validators.maxLength(100)],
+      ],
+      description: [news?.description || '', [Validators.required]],
+      file_id: [news?.file?.file_id || null],
     });
   }
 
@@ -62,8 +73,8 @@ export class NewsComponent implements OnInit {
   }
 
   loadNews(): void {
-    this.newsService.getAll().subscribe(data => {
-      this.newsList = data.sort((a, b) => a.title.localeCompare(b.title));
+    this.newsService.getAll().subscribe((data) => {
+      this.newsList = data.sort((a, b) => a.name.localeCompare(b.name));
     });
   }
 
