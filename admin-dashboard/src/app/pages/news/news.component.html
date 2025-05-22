@@ -2,9 +2,9 @@
 
 <!-- Bouton d'ajout -->
 <div class="filter-add-wrapper">
-    <button (click)="cancelCreate()">
+    <button (click)="showForm = !showForm">
         {{ showForm ? '❌ Annuler' : '➕ Ajouter une actualité' }}
-    </button>
+      </button>
 </div>
 
 <!-- Formulaire de création -->
