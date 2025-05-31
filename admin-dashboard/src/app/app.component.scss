@@ -1,0 +1,22 @@
+/* Styles pour les messages d'erreur dans les formulaires */
+.error {
+    color: #d32f2f; // Rouge distinct
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    display: block;
+  }
+  
+  /* Optionnel : un style visuel pour les champs invalides */
+  input.ng-invalid.ng-touched,
+  textarea.ng-invalid.ng-touched {
+    border-color: #d32f2f;
+    outline: none;
+  }
+  
+  input.ng-valid.ng-touched,
+  textarea.ng-valid.ng-touched {
+    border-color: #4caf50;
+  }
+  
