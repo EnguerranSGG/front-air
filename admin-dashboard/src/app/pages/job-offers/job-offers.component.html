@@ -8,30 +8,59 @@
 
 <!-- Formulaire harmonisé -->
 <form *ngIf="showForm" class="create-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <!-- Nom du poste -->
     <input formControlName="name" type="text" placeholder="Nom du poste" />
-    <input formControlName="job_type" type="text" placeholder="Type de contrat" />
-    <input formControlName="city" type="text" placeholder="Ville" />
-    <input formControlName="link" type="text" placeholder="Lien de l’offre" />
-    <textarea formControlName="description" placeholder="Description"></textarea>
-
-    <div class="form-buttons">
-        <!-- Bouton pour afficher/masquer les fichiers -->
-        <button type="button" (click)="showFileSelector = !showFileSelector">
-            {{ showFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
-        </button>
-
-        <!-- Sélecteur de fichier conditionnel -->
-        <div *ngIf="showFileSelector">
-            <app-file-selector [files]="files" [selectedFileId]="form.value.file_id"
-                (fileSelected)="form.patchValue({ file_id: $event })"></app-file-selector>
-        </div>
-        <button type="submit" [disabled]="form.invalid">
-            {{ editingId ? 'Modifier' : 'Créer' }}
-        </button>
-        <button type="button" (click)="reset(); showForm = false" *ngIf="editingId">❌ Annuler</button>
+    <div *ngIf="form.get('name')?.invalid && form.get('name')?.touched" class="error">
+      <span *ngIf="form.get('name')?.errors?.['required']">Le nom est obligatoire.</span>
+      <span *ngIf="form.get('name')?.errors?.['maxlength']">Le nom ne doit pas dépasser 60 caractères.</span>
     </div>
-</form>
-
+  
+    <!-- Type de contrat -->
+    <input formControlName="job_type" type="text" placeholder="Type de contrat" />
+    <div *ngIf="form.get('job_type')?.invalid && form.get('job_type')?.touched" class="error">
+      <span *ngIf="form.get('job_type')?.errors?.['required']">Le type de contrat est obligatoire.</span>
+      <span *ngIf="form.get('job_type')?.errors?.['maxlength']">Le type ne doit pas dépasser 60 caractères.</span>
+    </div>
+  
+    <!-- Ville -->
+    <input formControlName="city" type="text" placeholder="Ville" />
+    <div *ngIf="form.get('city')?.invalid && form.get('city')?.touched" class="error">
+      <span *ngIf="form.get('city')?.errors?.['maxlength']">La ville ne doit pas dépasser 50 caractères.</span>
+    </div>
+  
+    <!-- Lien -->
+    <input formControlName="link" type="text" placeholder="Lien de l’offre" />
+    <div *ngIf="form.get('link')?.invalid && form.get('link')?.touched" class="error">
+      <span *ngIf="form.get('link')?.errors?.['maxlength']">Le lien ne doit pas dépasser 255 caractères.</span>
+      <span *ngIf="form.get('link')?.errors?.['pattern']">Le lien doit commencer par http(s).</span>
+    </div>
+  
+    <!-- Description -->
+    <textarea formControlName="description" placeholder="Description"></textarea>
+    <div *ngIf="form.get('description')?.invalid && form.get('description')?.touched" class="error">
+      <span *ngIf="form.get('description')?.errors?.['required']">La description est obligatoire.</span>
+      <span *ngIf="form.get('description')?.errors?.['maxlength']">La description ne doit pas dépasser 350 caractères.</span>
+    </div>
+  
+    <!-- Fichier -->
+    <div class="form-buttons">
+      <button type="button" (click)="showFileSelector = !showFileSelector">
+        {{ showFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
+      </button>
+  
+      <div *ngIf="showFileSelector">
+        <app-file-selector [files]="files" [selectedFileId]="form.value.file_id"
+          (fileSelected)="form.patchValue({ file_id: $event })">
+        </app-file-selector>
+      </div>
+  
+      <button type="submit" [disabled]="form.invalid">
+        {{ editingId ? 'Modifier' : 'Créer' }}
+      </button>
+      <button type="button" (click)="reset(); showForm = false" *ngIf="editingId">❌ Annuler</button>
+    </div>
+  </form>
+  
 <div *ngFor="let offer of jobOffers" class="event-card">
     <!-- Si ce n’est pas l’offre en cours d’édition -->
     <ng-container *ngIf="editingId !== offer.job_offer_id; else editForm">
