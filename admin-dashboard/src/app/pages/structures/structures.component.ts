@@ -1,5 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+  FormArray,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { StructureService } from '../../services/structure.service';
 import { Structure } from '../../models/structure.model';
@@ -8,11 +14,13 @@ import { environment } from '../../../environments/environment';
 import { FileEntity } from '../../models/file.model';
 import { FileSelectorComponent } from '../files/files-selector.component';
 import { FileService } from '../../services/file.service';
+import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
+import { sanitize } from 'class-sanitizer';
 
 @Component({
   selector: 'app-structure',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FileSelectorComponent],
+  imports: [CommonModule, ReactiveFormsModule, FileSelectorComponent, SanitizePipe],
   templateUrl: './structures.component.html',
   styleUrls: ['./structures.component.scss'],
 })
@@ -47,7 +55,7 @@ export class StructureComponent implements OnInit {
       description: [structure?.description || '', [Validators.required, Validators.maxLength(330)]],
       address: [structure?.address || '', [Validators.maxLength(255)]],
       phone_number: [structure?.phone_number || '', [Validators.maxLength(25)]],
-      link: [structure?.link || '', [Validators.maxLength(500)]],
+      link: [structure?.link || '', [Validators.maxLength(255), Validators.pattern(/https?:\/\/.+/)]],
       file_id: [structure?.file?.file_id || null],
       missions: this.fb.array(
         structure?.missions?.map(m => this.fb.control(m.content, [Validators.maxLength(250)])) || []
@@ -56,16 +64,13 @@ export class StructureComponent implements OnInit {
   }
 
   onFileSelect(fileId: number): void {
-    if (this.editingStructureId !== null) {
-      this.editForm.patchValue({ file_id: fileId });
-    } else {
-      this.createForm.patchValue({ file_id: fileId });
-    }
+    const targetForm = this.editingStructureId !== null ? this.editForm : this.createForm;
+    targetForm.patchValue({ file_id: fileId });
   }
 
   getFiles(): void {
     this.fileService.getAll().subscribe({
-      next: (files) => (this.files = files),
+      next: files => this.files = files,
       error: () => this.toast.show('Erreur lors du chargement des fichiers'),
     });
   }
@@ -77,14 +82,19 @@ export class StructureComponent implements OnInit {
   }
 
   addStructure(): void {
-    const payload = this.formatMissions(this.createForm);
-    this.structureService.create(payload).subscribe({
-      next: () => {
+    if (this.createForm.invalid) {
+      this.toast.show('Veuillez corriger le formulaire avant de soumettre.');
+      return;
+    }
+
+    const payload = this.preparePayload(this.createForm.value);
+
+    this.structureService.create(payload).subscribe({      next: () => {
         this.toast.show('Structure ajoutée avec succès');
         this.loadStructures();
         this.showForm = false;
       },
-      error: err => this.toast.show('Erreur lors de l’ajout'),
+      error: () => this.toast.show("Erreur lors de l'ajout"),
     });
   }
 
@@ -99,14 +109,20 @@ export class StructureComponent implements OnInit {
   }
 
   saveEdit(structure: Structure): void {
-    const payload = this.formatMissions(this.editForm);
+    if (this.editForm.invalid) {
+      this.toast.show('Veuillez corriger le formulaire avant de soumettre.');
+      return;
+    }
+
+    const payload = this.preparePayload(this.editForm.value);
+
     this.structureService.update(structure.structure_id, payload).subscribe({
       next: () => {
         this.toast.show('Structure modifiée avec succès');
         this.editingStructureId = null;
         this.loadStructures();
       },
-      error: err => this.toast.show('Erreur lors de la modification'),
+      error: () => this.toast.show('Erreur lors de la modification'),
     });
   }
 
@@ -124,25 +140,39 @@ export class StructureComponent implements OnInit {
   }
 
   get editMissions(): FormArray {
-    return this.editForm.get('missions') as FormArray;
+    return this.editForm?.get('missions') as FormArray;
   }
 
   addMission(form: FormGroup): void {
-    const missions = form.get('missions') as FormArray;
-    missions.push(this.fb.control('', [Validators.maxLength(250)]));
+    (form.get('missions') as FormArray).push(this.fb.control('', [Validators.maxLength(250)]));
   }
 
   removeMission(form: FormGroup, index: number): void {
-    const missions = form.get('missions') as FormArray;
-    missions.removeAt(index);
+    (form.get('missions') as FormArray).removeAt(index);
   }
 
-  private formatMissions(form: FormGroup): any {
-    const values = { ...form.value };
-    values.missions = (form.get('missions') as FormArray).controls
-      .map(control => control.value)
-      .filter((val: string) => val.trim() !== '')
-      .map((val: string) => ({ content: val }));
-    return values;
+  private preparePayload(formValue: any): any {
+    console.log('preparePayload | formValue:', formValue);
+    console.log('preparePayload | typeof missions:', typeof formValue.missions);
+    console.log('preparePayload | missions:', formValue.missions);
+  
+    const sanitized = {
+      ...formValue,
+      name: sanitize(formValue.name),
+      description: sanitize(formValue.description),
+      address: formValue.address ? sanitize(formValue.address) : null,
+      phone_number: formValue.phone_number ? sanitize(formValue.phone_number) : null,
+      link: formValue.link ? sanitize(formValue.link) : null,
+      missions: (formValue.missions || []).map((content: string) => {
+        console.log('preparePayload | mapping content:', content);
+        return { content: sanitize(content) };
+      }),
+    };
+  
+    console.log('preparePayload | sanitized:', sanitized);
+    return sanitized;
   }
+  
+   
+  
 }

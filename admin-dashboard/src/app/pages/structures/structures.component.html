@@ -9,28 +9,55 @@
 
 <!-- Formulaire de création -->
 <form *ngIf="showForm" class="create-form" [formGroup]="createForm" (ngSubmit)="addStructure()">
+  <!-- Nom -->
   <input type="text" formControlName="name" placeholder="Nom" />
+  <div *ngIf="createForm.get('name')?.invalid && createForm.get('name')?.touched" class="error">
+    <span *ngIf="createForm.get('name')?.errors?.['required']">Le nom est obligatoire.</span>
+    <span *ngIf="createForm.get('name')?.errors?.['maxlength']">Le nom ne doit pas dépasser 60 caractères.</span>
+  </div>
 
+  <!-- Fichier -->
   <button type="button" (click)="showCreateFileSelector = !showCreateFileSelector">
     {{ showCreateFileSelector ? '❌ Fermer les images' : '📎 Lier un fichier' }}
   </button>
-
   <div *ngIf="showCreateFileSelector">
-    <app-file-selector
-      [files]="files"
-      [selectedFileId]="createForm.value.file_id"
-      (fileSelected)="onFileSelect($event)">
+    <app-file-selector [files]="files" [selectedFileId]="createForm.value.file_id" (fileSelected)="onFileSelect($event)">
     </app-file-selector>
   </div>
 
+  <!-- Description -->
   <textarea formControlName="description" placeholder="Description"></textarea>
-  <input type="text" formControlName="address" placeholder="Adresse" />
-  <input type="text" formControlName="phone_number" placeholder="Téléphone" />
-  <input type="text" formControlName="link" placeholder="Lien" />
+  <div *ngIf="createForm.get('description')?.invalid && createForm.get('description')?.touched" class="error">
+    <span *ngIf="createForm.get('description')?.errors?.['required']">La description est obligatoire.</span>
+    <span *ngIf="createForm.get('description')?.errors?.['maxlength']">La description ne doit pas dépasser 330 caractères.</span>
+  </div>
 
+  <!-- Adresse -->
+  <input type="text" formControlName="address" placeholder="Adresse" />
+  <div *ngIf="createForm.get('address')?.invalid && createForm.get('address')?.touched" class="error">
+    <span *ngIf="createForm.get('address')?.errors?.['maxlength']">L'adresse ne doit pas dépasser 255 caractères.</span>
+  </div>
+
+  <!-- Téléphone -->
+  <input type="text" formControlName="phone_number" placeholder="Téléphone" />
+  <div *ngIf="createForm.get('phone_number')?.invalid && createForm.get('phone_number')?.touched" class="error">
+    <span *ngIf="createForm.get('phone_number')?.errors?.['maxlength']">Le numéro ne doit pas dépasser 25 caractères.</span>
+  </div>
+
+  <!-- Lien -->
+  <input type="text" formControlName="link" placeholder="Lien" />
+  <div *ngIf="createForm.get('link')?.invalid && createForm.get('link')?.touched" class="error">
+    <span *ngIf="createForm.get('link')?.errors?.['maxlength']">Le lien ne doit pas dépasser 255 caractères.</span>
+    <span *ngIf="createForm.get('link')?.errors?.['pattern']">Le lien doit commencer par http(s).</span>
+  </div>
+
+  <!-- Missions -->
   <div formArrayName="missions">
     <div *ngFor="let mission of createMissions.controls; let i = index" class="mission-line">
       <input [formControlName]="i" placeholder="Mission" />
+      <div *ngIf="mission.invalid && mission.touched" class="error">
+        <span *ngIf="mission.errors?.['maxlength']">La mission ne doit pas dépasser 250 caractères.</span>
+      </div>
       <button type="button" (click)="removeMission(createForm, i)">❌</button>
     </div>
     <button type="button" (click)="addMission(createForm)">➕ Ajouter une mission</button>
@@ -43,26 +70,20 @@
 
 <!-- Liste des structures -->
 <div *ngFor="let structure of structures" class="event-card">
-  <!-- Affichage classique -->
   <ng-container *ngIf="editingStructureId !== structure.structure_id; else editTemplate">
     <div class="event-content">
-      <strong class="event-year">{{ structure.name }}</strong>
+      <strong class="event-year">{{ structure.name | sanitize }}</strong>
       <div *ngIf="structure.file?.file_id">
-        <img
-          [src]="apiUrl + '/files/' + structure.file?.file_id + '/download'"
-          [alt]="structure.name"
-          width="100"
-        />
+        <img [src]="apiUrl + '/files/' + structure.file?.file_id + '/download'" [alt]="structure.name" width="100" />
       </div>
-      <p class="event-description">{{ structure.description }}</p>
-      <p *ngIf="structure.address"><strong>Adresse :</strong> {{ structure.address }}</p>
-      <p *ngIf="structure.phone_number"><strong>Téléphone :</strong> {{ structure.phone_number }}</p>
+      <p class="event-description">{{ structure.description | sanitize }}</p>
+      <p *ngIf="structure.address"><strong>Adresse :</strong> {{ structure.address | sanitize }}</p>
+      <p *ngIf="structure.phone_number"><strong>Téléphone :</strong> {{ structure.phone_number | sanitize }}</p>
       <p *ngIf="structure.link">
-        <strong>Lien :</strong>
-        <a [href]="structure.link" target="_blank">{{ structure.link }}</a>
+        <strong>Lien :</strong> <a [href]="structure.link" target="_blank">{{ structure.link | sanitize }}</a>
       </p>
       <ul *ngIf="structure.missions?.length">
-        <li *ngFor="let mission of structure.missions">{{ mission.content }}</li>
+        <li *ngFor="let mission of structure.missions">{{ mission.content | sanitize }}</li>
       </ul>
     </div>
     <div class="event-buttons">
@@ -75,35 +96,55 @@
   <ng-template #editTemplate>
     <form class="create-form" [formGroup]="editForm" (ngSubmit)="saveEdit(structure)">
       <input type="text" formControlName="name" placeholder="Nom" />
+      <div *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched" class="error">
+        <span *ngIf="editForm.get('name')?.errors?.['required']">Le nom est obligatoire.</span>
+        <span *ngIf="editForm.get('name')?.errors?.['maxlength']">Le nom ne doit pas dépasser 60 caractères.</span>
+      </div>
 
       <button type="button" (click)="showEditFileSelector = !showEditFileSelector">
         {{ showEditFileSelector ? '❌ Fermer les images' : '📎 Lier un fichier' }}
       </button>
-
       <div *ngIf="showEditFileSelector">
-        <app-file-selector
-          [files]="files"
-          [selectedFileId]="editForm.value.file_id"
-          (fileSelected)="onFileSelect($event)">
+        <app-file-selector [files]="files" [selectedFileId]="editForm.value.file_id" (fileSelected)="onFileSelect($event)">
         </app-file-selector>
       </div>
 
       <textarea formControlName="description" placeholder="Description"></textarea>
+      <div *ngIf="editForm.get('description')?.invalid && editForm.get('description')?.touched" class="error">
+        <span *ngIf="editForm.get('description')?.errors?.['required']">La description est obligatoire.</span>
+        <span *ngIf="editForm.get('description')?.errors?.['maxlength']">La description ne doit pas dépasser 330 caractères.</span>
+      </div>
+
       <input type="text" formControlName="address" placeholder="Adresse" />
+      <div *ngIf="editForm.get('address')?.invalid && editForm.get('address')?.touched" class="error">
+        <span *ngIf="editForm.get('address')?.errors?.['maxlength']">L'adresse ne doit pas dépasser 255 caractères.</span>
+      </div>
+
       <input type="text" formControlName="phone_number" placeholder="Téléphone" />
+      <div *ngIf="editForm.get('phone_number')?.invalid && editForm.get('phone_number')?.touched" class="error">
+        <span *ngIf="editForm.get('phone_number')?.errors?.['maxlength']">Le numéro ne doit pas dépasser 25 caractères.</span>
+      </div>
+
       <input type="text" formControlName="link" placeholder="Lien" />
+      <div *ngIf="editForm.get('link')?.invalid && editForm.get('link')?.touched" class="error">
+        <span *ngIf="editForm.get('link')?.errors?.['maxlength']">Le lien ne doit pas dépasser 255 caractères.</span>
+        <span *ngIf="editForm.get('link')?.errors?.['pattern']">Le lien doit commencer par http(s).</span>
+      </div>
 
       <div formArrayName="missions">
         <div *ngFor="let mission of editMissions.controls; let i = index" class="mission-line">
           <input [formControlName]="i" placeholder="Mission" />
+          <div *ngIf="mission.invalid && mission.touched" class="error">
+            <span *ngIf="mission.errors?.['maxlength']">La mission ne doit pas dépasser 250 caractères.</span>
+          </div>
           <button type="button" (click)="removeMission(editForm, i)">❌</button>
         </div>
         <button type="button" (click)="addMission(editForm)">➕ Ajouter une mission</button>
       </div>
 
       <div class="form-buttons">
-        <button type="submit">💾 Sauvegarder</button>
-        <button type="button" (click)="cancelEdit()">Annuler</button>
+        <button type="submit" [disabled]="editForm.invalid">💾 Sauvegarder</button>
+        <button type="button" (click)="cancelEdit()">❌ Annuler</button>
       </div>
     </form>
   </ng-template>
