@@ -38,11 +38,16 @@ export class FileComponent implements OnInit {
 
   // Récupère les fichiers existants
   getFiles(): void {
+    const PROTECTED_FILE_IDS = [8, 11, 16, 17, 18];
+  
     this.fileService.getAll().subscribe({
-      next: (files) => (this.files = files),
+      next: (files) => {
+        this.files = files.filter(file => !PROTECTED_FILE_IDS.includes(file.file_id));
+      },
       error: () => this.toastService.show('Erreur lors du chargement des fichiers'),
     });
   }
+  
 
   // Gère la sélection de fichier
   onFileSelected(event: Event): void {

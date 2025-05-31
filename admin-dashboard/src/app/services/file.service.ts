@@ -13,6 +13,10 @@ export class FileService {
 
   constructor(private http: HttpClient) {}
 
+  getApiUrl(): string {
+    return this.apiUrl;
+  }
+
   getAll(): Observable<FileEntity[]> {
     return this.http.get<FileEntity[]>(`${this.apiUrl}/all`);
   }
