@@ -33,7 +33,7 @@ export class LoginComponent {
         console.log('Access Token:', tokens.accessToken);
         localStorage.setItem('accessToken', tokens.accessToken);
         localStorage.setItem('refreshToken', tokens.refreshToken);
-        this.router.navigate(['/news']);
+        this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         this.errorMessage = 'Échec de la connexion';

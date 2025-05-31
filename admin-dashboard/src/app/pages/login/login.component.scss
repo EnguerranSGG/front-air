@@ -1,61 +1,73 @@
+body {
+  background-image: url('/assets/image-accueil.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
+  width: 100vw;
+}
+
 .login-form {
-    max-width: 400px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background-color: #e6ebf5; /* gris clair */
-    border-radius: 1rem;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-  }
-  
-  .form-title {
-    color: #0046a4; /* bleu foncé */
-    text-align: center;
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .form-label {
-    display: block;
-    margin-bottom: 1rem;
-    color: #111;
-    font-weight: 500;
-  }
-  
-  .form-input {
-    width: 100%;
-    padding: 0.6rem;
-    border: 1px solid #ccc;
-    border-radius: 0.5rem;
-    margin-top: 0.3rem;
-    font-size: 1rem;
-  }
-  
-  .form-input:focus {
-    outline: none;
-    border-color: #0275d8; /* bleu moyen */
-    box-shadow: 0 0 0 2px rgba(2, 117, 216, 0.2);
-  }
-  
-  .form-button {
-    width: 100%;
-    background-color: #5a007a; /* violet foncé */
-    color: white;
-    padding: 0.75rem;
-    border: none;
-    border-radius: 999px;
-    font-weight: bold;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-top: 1rem;
-  }
-  
-  .form-button:hover {
-    background-color: #3a005c;
-  }
-  
-  .form-error {
-    color: #c00;
-    text-align: center;
-    margin-top: 1rem;
-  }
-  
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #e6ebf5;
+  /* gris clair */
+  border-radius: 1rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.form-title {
+  color: #0046a4;
+  /* bleu foncé */
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 1rem;
+  color: #111;
+  font-weight: 500;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  margin-top: 0.3rem;
+  font-size: 1rem;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #0275d8;
+  /* bleu moyen */
+  box-shadow: 0 0 0 2px rgba(2, 117, 216, 0.2);
+}
+
+.form-button {
+  width: 100%;
+  background-color: #5a007a;
+  /* violet foncé */
+  color: white;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 999px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.form-button:hover {
+  background-color: #3a005c;
+}
+
+.form-error {
+  color: #c00;
+  text-align: center;
+  margin-top: 1rem;
+}
