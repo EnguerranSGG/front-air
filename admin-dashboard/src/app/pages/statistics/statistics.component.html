@@ -5,7 +5,7 @@
   <select (change)="onTypeFilterChange($event)">
     <option value="">Toutes les statistiques</option>
     <option *ngFor="let type of types" [value]="type.type_id">
-      {{ type.name }}
+      {{ type.name | sanitize }}
     </option>
   </select>
 
@@ -15,31 +15,57 @@
 </div>
 
 <!-- Formulaire d'ajout -->
-<form
-  *ngIf="showCreate"
-  class="create-form"
-  [formGroup]="createForm"
-  (ngSubmit)="addStatistic()"
->
+<form *ngIf="showCreate" class="create-form" [formGroup]="createForm" (ngSubmit)="addStatistic()">
+  <!-- Label -->
   <input formControlName="label" placeholder="Label" />
+  <div *ngIf="createForm.get('label')?.invalid && createForm.get('label')?.touched" class="error">
+    <span *ngIf="createForm.get('label')?.errors?.['required']">Le label est obligatoire.</span>
+    <span *ngIf="createForm.get('label')?.errors?.['maxlength']">Le label ne doit pas dépasser 100 caractères.</span>
+  </div>
+
+  <!-- Valeur -->
   <input type="number" formControlName="value" placeholder="Valeur" />
+  <div *ngIf="createForm.get('value')?.invalid && createForm.get('value')?.touched" class="error">
+    <span *ngIf="createForm.get('value')?.errors?.['required']">La valeur est obligatoire.</span>
+    <span *ngIf="createForm.get('value')?.errors?.['min']">La valeur doit être positive.</span>
+  </div>
+
+  <!-- Année -->
   <input type="number" formControlName="year" placeholder="Année" />
+  <div *ngIf="createForm.get('year')?.invalid && createForm.get('year')?.touched" class="error">
+    <span *ngIf="createForm.get('year')?.errors?.['required']">L'année est obligatoire.</span>
+    <span *ngIf="createForm.get('year')?.errors?.['min']">L'année ne peut pas être inférieure à 1900.</span>
+    <span *ngIf="createForm.get('year')?.errors?.['max']">L'année ne peut pas dépasser 2100.</span>
+  </div>
+
+  <!-- Pourcentage -->
+  <label>Est-ce un pourcentage ?</label>
+  <select formControlName="is_percentage">
+    <option [ngValue]="false">Non</option>
+    <option [ngValue]="true">Oui</option>
+  </select>
+
+  <!-- Type -->
   <select formControlName="type_id">
     <option [value]="null" disabled>Sélectionner un type</option>
-    <option *ngFor="let type of types" [value]="type.type_id">
-      {{ type.name }}
-    </option>
+    <option *ngFor="let type of types" [value]="type.type_id">{{ type.name | sanitize }}</option>
   </select>
+  <div *ngIf="createForm.get('type_id')?.invalid && createForm.get('type_id')?.touched" class="error">
+    <span *ngIf="createForm.get('type_id')?.errors?.['required']">Le type est obligatoire.</span>
+    <span *ngIf="createForm.get('type_id')?.errors?.['min']">Veuillez sélectionner un type valide.</span>
+  </div>
+
   <div class="form-buttons">
-    <button type="submit" [disabled]="createForm.invalid">Ajouter</button>
+    <button type="submit" [disabled]="createForm.invalid">➕ Ajouter</button>
   </div>
 </form>
+
 
 <!-- Liste des statistiques -->
 <div *ngFor="let stat of filteredStatistics" class="event-card">
   <div *ngIf="editingId !== stat.statistic_id">
     <div class="event-content">
-      <strong class="event-year">{{ stat.label }}</strong>
+      <strong class="event-year">{{ stat.label | sanitize }}</strong>
       <p class="event-description">
         {{ stat.value }} ({{ stat.year }}) - {{ stat.type?.name }}
       </p>
@@ -51,18 +77,50 @@
   </div>
 
   <!-- Formulaire d’édition -->
-  <form *ngIf="editingId === stat.statistic_id" [formGroup]="editForm" (ngSubmit)="saveEdit(stat)">
-    <input formControlName="label" />
-    <input type="number" formControlName="value" />
-    <input type="number" formControlName="year" />
-    <select formControlName="type_id">
-      <option *ngFor="let type of types" [value]="type.type_id">
-        {{ type.name }}
-      </option>
-    </select>
-    <div class="form-buttons">
-      <button type="submit" [disabled]="editForm.invalid">Valider</button>
-      <button type="button" (click)="cancelEdit()">Annuler</button>
-    </div>
-  </form>
+<form *ngIf="editingId === stat.statistic_id" class="create-form" [formGroup]="editForm" (ngSubmit)="saveEdit(editingId)">
+  <!-- Label -->
+  <input formControlName="label" placeholder="Label" />
+  <div *ngIf="editForm.get('label')?.invalid && editForm.get('label')?.touched" class="error">
+    <span *ngIf="editForm.get('label')?.errors?.['required']">Le label est obligatoire.</span>
+    <span *ngIf="editForm.get('label')?.errors?.['maxlength']">Le label ne doit pas dépasser 100 caractères.</span>
+  </div>
+
+  <!-- Valeur -->
+  <input type="number" formControlName="value" placeholder="Valeur" />
+  <div *ngIf="editForm.get('value')?.invalid && editForm.get('value')?.touched" class="error">
+    <span *ngIf="editForm.get('value')?.errors?.['required']">La valeur est obligatoire.</span>
+    <span *ngIf="editForm.get('value')?.errors?.['min']">La valeur doit être positive.</span>
+  </div>
+
+  <!-- Année -->
+  <input type="number" formControlName="year" placeholder="Année" />
+  <div *ngIf="editForm.get('year')?.invalid && editForm.get('year')?.touched" class="error">
+    <span *ngIf="editForm.get('year')?.errors?.['required']">L'année est obligatoire.</span>
+    <span *ngIf="editForm.get('year')?.errors?.['min']">L'année ne peut pas être inférieure à 1900.</span>
+    <span *ngIf="editForm.get('year')?.errors?.['max']">L'année ne peut pas dépasser 2100.</span>
+  </div>
+
+  <!-- Pourcentage -->
+  <label>Est-ce un pourcentage ?</label>
+  <select formControlName="is_percentage">
+    <option [ngValue]="false">Non</option>
+    <option [ngValue]="true">Oui</option>
+  </select>
+
+  <!-- Type -->
+  <select formControlName="type_id">
+    <option [value]="null" disabled>Sélectionner un type</option>
+    <option *ngFor="let type of types" [value]="type.type_id">{{ type.name }}</option>
+  </select>
+  <div *ngIf="editForm.get('type_id')?.invalid && editForm.get('type_id')?.touched" class="error">
+    <span *ngIf="editForm.get('type_id')?.errors?.['required']">Le type est obligatoire.</span>
+    <span *ngIf="editForm.get('type_id')?.errors?.['min']">Veuillez sélectionner un type valide.</span>
+  </div>
+
+  <div class="form-buttons">
+    <button type="submit" [disabled]="editForm.invalid">💾 Sauvegarder</button>
+    <button type="button" (click)="cancelEdit()">❌ Annuler</button>
+  </div>
+</form>
+
 </div>
