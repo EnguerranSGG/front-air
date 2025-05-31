@@ -1,18 +1,16 @@
 <nav *ngIf="isLoggedIn()" class="admin-header">
   <div class="nav-container">
     <div class="logo-wrapper">
-      <img src="assets/air-asso.png" alt="Logo AIR" class="logo" />
+      <a routerLink="/dashboard"><img src="assets/air-asso.png" alt="Logo AIR" class="logo" /></a>
       <span class="title">Back-office AIR</span>
     </div>
 
     <div class="nav-links">
-      <a routerLink="/news">Actualités</a>
       <a routerLink="/history">Historique</a>
       <a routerLink="/values">Valeurs</a>
       <a routerLink="/structures">Structures</a>
       <a routerLink="/statistics">Statistiques</a>
       <a routerLink="/steps">Étapes</a>
-      <a routerLink="/jobs">Jobs</a>
       <a routerLink="/job-offers">Offres d'emploi</a>
       <a routerLink="/files">Fichiers</a>
     </div>
