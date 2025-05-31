@@ -3,10 +3,168 @@
 
 <section class="hero">
   <div class="hero-container">
-    <img src="/assets/image-accueil.jpg" alt="Illustration accueil insertion" class="hero-image" />
+    <img src="/assets/image-accueil.jpg" alt="Illustration accueil insertion" class="hero-image animate-slide-up" />
 
-    <div class="hero-overlay">
-      <h4>Accueil Insertion Rencontre</h4>
+    <div class="hero-overlay animate-slide-right">
+      <h4 class="animate-fade-in-delayed">Accueil Insertion Rencontre</h4>
     </div>
   </div>
 </section>
+
+<style>
+  /* === ANIMATIONS ET STYLES POUR HERO-CONTAINER UNIQUEMENT === */
+  
+  /* Styles pour l'image avec animations - identique à FLE */
+  .hero-image {
+    transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out;
+  }
+
+  /* Centrage parfait de l'overlay - identique à FLE */
+  .hero-overlay {
+    transition: all 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Centrage parfait du titre dans l'overlay - identique à FLE */
+  .hero-overlay h4 {
+    transition: transform 0.3s ease-in-out;
+    margin: 0;
+    text-align: center;
+    width: 100%;
+  }
+
+  /* Ajuster les styles mobile pour correspondre exactement à FLE */
+  @media (max-width: 768px) {
+    .hero-container {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto;
+      overflow: hidden;
+      border-radius: 1rem;
+    }
+    
+    .hero-image {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+      border-radius: 1rem;
+    }
+    
+    .hero-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: auto;
+      top: auto;
+      transform: none;
+      background: rgba(0, 70, 164, 0.85);
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      border-bottom-left-radius: 1rem;
+      border-bottom-right-radius: 1rem;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+      min-width: auto;
+      max-width: none;
+      width: 100%;
+    }
+    
+    .hero-overlay h4 {
+      position: initial;
+      margin: 0;
+      font-size: 1.2rem;
+      line-height: 1.4;
+    }
+  }
+
+  /* === ANIMATIONS === */
+  .animate-slide-up {
+    opacity: 0;
+    transform: translateY(50px);
+    animation: slideUpFade 1.2s ease-out 0.5s forwards;
+  }
+
+  .animate-slide-right {
+    opacity: 0;
+    transform: translateX(50px);
+    animation: slideRightFade 1s ease-out 1s forwards;
+  }
+
+  .animate-fade-in-delayed {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: textFadeIn 0.8s ease-out 1.5s forwards;
+  }
+
+  @keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(50px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideRightFade {
+    from { opacity: 0; transform: translateX(50px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes textFadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* === EFFETS DE SURVOL === */
+  .hero-image:hover {
+    transform: scale(1.02);
+    filter: brightness(1.1);
+  }
+
+  .hero-overlay:hover {
+    background: rgba(0, 70, 164, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 70, 164, 0.3);
+  }
+
+  .hero-overlay:hover h4 {
+    transform: scale(1.05);
+  }
+
+  /* === RESPONSIVE MOBILE UNIQUEMENT === */
+  @media (max-width: 768px) {
+    /* Animations plus rapides sur mobile */
+    .animate-slide-up,
+    .animate-slide-right,
+    .animate-fade-in-delayed {
+      animation-duration: 0.8s;
+    }
+    
+    /* Effets de survol adaptés pour mobile */
+    .hero-image:hover {
+      transform: scale(1.01);
+    }
+    
+    .hero-overlay:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  /* === ACCESSIBILITÉ === */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-slide-up,
+    .animate-slide-right,
+    .animate-fade-in-delayed {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+    
+    .hero-image:hover,
+    .hero-overlay:hover,
+    .hero-overlay:hover h4 {
+      transform: none;
+    }
+  }
+</style>
