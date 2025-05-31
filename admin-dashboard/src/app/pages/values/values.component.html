@@ -9,13 +9,19 @@
 
 <!-- Formulaire de création -->
 <form *ngIf="showForm" class="create-form" [formGroup]="createForm" (ngSubmit)="addValue()">
+  <!-- Titre -->
   <input type="text" formControlName="name" placeholder="Titre" />
+  <div *ngIf="createForm.get('name')?.invalid && createForm.get('name')?.touched" class="error">
+    <span *ngIf="createForm.get('name')?.errors?.['required']">Le titre est obligatoire.</span>
+    <span *ngIf="createForm.get('name')?.errors?.['maxlength']">Le titre ne doit pas dépasser 20 caractères.</span>
+  </div>
 
+  <!-- Fichier -->
   <div class="form-buttons">
     <button type="button" (click)="showCreateFileSelector = !showCreateFileSelector">
       {{ showCreateFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
     </button>
-  
+
     <div *ngIf="showCreateFileSelector">
       <app-file-selector
         [files]="files"
@@ -23,9 +29,11 @@
         (fileSelected)="onFileSelect($event)">
       </app-file-selector>
     </div>
+
     <button type="submit" [disabled]="createForm.invalid">Créer</button>
   </div>
 </form>
+
 
 <!-- Liste des valeurs -->
 <div *ngFor="let value of values" class="event-card">
@@ -50,8 +58,14 @@
   <!-- Formulaire de modification -->
   <ng-template #editTemplate>
     <form class="create-form" [formGroup]="editForm" (ngSubmit)="saveEdit(value)">
+      <!-- Titre -->
       <input type="text" formControlName="name" placeholder="Titre" />
-
+      <div *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched" class="error">
+        <span *ngIf="editForm.get('name')?.errors?.['required']">Le titre est obligatoire.</span>
+        <span *ngIf="editForm.get('name')?.errors?.['maxlength']">Le titre ne doit pas dépasser 20 caractères.</span>
+      </div>
+  
+      <!-- Fichier -->
       <div class="form-buttons">
         <button type="button" (click)="showEditFileSelector = !showEditFileSelector">
           {{ showEditFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
@@ -64,9 +78,11 @@
             (fileSelected)="onFileSelect($event)">
           </app-file-selector>
         </div>
+  
         <button type="submit" [disabled]="editForm.invalid">💾 Sauvegarder</button>
-        <button type="button" (click)="cancelEdit()">Annuler</button>
+        <button type="button" (click)="cancelEdit()">❌ Annuler</button>
       </div>
     </form>
   </ng-template>
+  
 </div>

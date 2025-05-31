@@ -13,11 +13,13 @@ import { environment } from '../../../environments/environment';
 import { FileEntity } from '../../models/file.model';
 import { FileSelectorComponent } from '../files/files-selector.component';
 import { FileService } from '../../services/file.service';
+import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
+import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
 
 @Component({
   selector: 'app-value',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FileSelectorComponent],
+  imports: [CommonModule, ReactiveFormsModule, FileSelectorComponent, SanitizePipe],
   templateUrl: './values.component.html',
   styleUrls: ['./values.component.scss'],
 })
@@ -51,7 +53,7 @@ export class ValuesComponent implements OnInit {
     return this.fb.group({
       name: [
         value?.name || '',
-        [Validators.required, Validators.maxLength(100)],
+        [Validators.required, Validators.maxLength(20)],
       ],
       file_id: [value?.file?.file_id || null],
     });
@@ -90,7 +92,10 @@ export class ValuesComponent implements OnInit {
 
   addValue(): void {
     if (this.createForm.valid) {
-      this.valueService.create(this.createForm.value).subscribe({
+
+      const sanitizedPayload = sanitizeFormValue(this.createForm.value);
+
+      this.valueService.create(sanitizedPayload).subscribe({
         next: () => {
           this.toast.show('Valeur ajoutée');
           this.loadValues();
@@ -112,7 +117,10 @@ export class ValuesComponent implements OnInit {
 
   saveEdit(value: Value): void {
     if (this.editForm.valid) {
-      this.valueService.update(value.value_id, this.editForm.value).subscribe({
+
+      const sanitizedPayload = sanitizeFormValue(this.editForm.value);
+
+      this.valueService.update(value.value_id, sanitizedPayload).subscribe({
         next: () => {
           this.toast.show('Valeur modifiée');
           this.editingValueId = null;
