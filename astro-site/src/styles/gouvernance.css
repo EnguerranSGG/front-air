@@ -1,39 +1,11 @@
 .governance {
-    background: linear-gradient(to bottom, #6ea0d5, #dee1e6);
-    padding: 2rem;
-  }
-  
-  .governance-group h3 {
-    font-size: 1.2rem;
-    margin: 1.5rem 0 1rem;
-    color: #0f4ba4;
-  }
-  
-  .governance-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-  }
-  
-  .governance-item {
-    background-color: #2664b4;
-    color: white;
-    padding: 0.8rem 2rem;
-    border-radius: 1rem;
-    flex: 1 1 240px;
-    text-align: center;
-    font-weight: 500;
-  }
-  
-  @media (max-width: 768px) {
-    .governance-list {
-      flex-direction: column;
-      flex-wrap: nowrap;
-      gap: 0.8rem; 
-    }
-  
-    .governance-item {
-      flex: none;        
-    }
-  }
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.organigrame {
+  width: 95vw;
+  height: auto;
+}
