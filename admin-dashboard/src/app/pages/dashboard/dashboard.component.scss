@@ -1,0 +1,32 @@
+.dashboard-section h1 {
+    color: #0046a4;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.dashboard-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.dashboard-section div {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 60vh 60vh 60vh;
+    gap: 1rem;
+    width: 100%;
+}
+
+.dashboard-section > div > app-news,
+.dashboard-section > div > app-governance {
+  height: 100%;
+  display: flex;
+}
+
+.dashboard-section > div > app-news > *,
+.dashboard-section > div > app-governance > * {
+  height: 100%;
+}
