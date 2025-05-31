@@ -74,11 +74,41 @@ h4 {
     border-radius: 999px;
     margin: 0.5rem;
     text-decoration: none;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .download-btn:hover {
     background-color: #003080;
+    transform: translateY(-1px);
+}
+
+.download-btn svg {
+    flex-shrink: 0;
+}
+
+.social-btn {
+    background-color: #1877f2;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px;
+    margin: 0.5rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.social-btn:hover {
+    background-color: #166fe5;
+    transform: translateY(-1px);
+}
+
+.social-btn svg {
+    flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
