@@ -16,6 +16,8 @@ import { environment } from '../../../environments/environment';
 import { FileEntity } from '../../models/file.model';
 import { FileService } from '../../services/file.service';
 import { FileSelectorComponent } from '../files/files-selector.component';
+import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
+import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
 
 @Component({
   selector: 'app-step',
@@ -25,6 +27,7 @@ import { FileSelectorComponent } from '../files/files-selector.component';
     ReactiveFormsModule,
     FormsModule,
     FileSelectorComponent,
+    SanitizePipe
   ],
   templateUrl: './steps.component.html',
   styleUrls: ['./steps.component.scss'],
@@ -60,12 +63,13 @@ export class StepComponent implements OnInit {
 
   buildForm(step?: Step): FormGroup {
     return this.fb.group({
-      name: [step?.name || '', [Validators.required]],
-      description: [step?.description || '', [Validators.required]],
-      path_id: [step?.path_id || null, [Validators.required]],
-      file_id: [step?.file?.file_id || null],
+      name: [step?.name || '', [Validators.required, Validators.maxLength(100)]],
+      description: [step?.description || '', [Validators.required, Validators.maxLength(390)]],
+      path_id: [step?.path_id || null, [Validators.required, Validators.min(1)]],
+      file_id: [step?.file?.file_id || null]
     });
   }
+  
 
   getFiles(): void {
     this.fileService.getAll().subscribe({
@@ -108,7 +112,10 @@ export class StepComponent implements OnInit {
 
   addStep(): void {
     if (this.createForm.valid) {
-      this.stepService.create(this.createForm.value).subscribe(() => {
+
+      const sanitizedPayload = sanitizeFormValue(this.createForm.value);
+
+      this.stepService.create(sanitizedPayload).subscribe(() => {
         this.toast.show('Étape ajoutée');
         this.createForm.reset();
         this.loadSteps();
@@ -126,9 +133,13 @@ export class StepComponent implements OnInit {
   }
 
   saveEdit(step: Step): void {
+    
     if (this.editForm.valid) {
+
+      const sanitizedPayload = sanitizeFormValue(this.editForm.value);
+
       this.stepService
-        .update(step.step_id, this.editForm.value)
+        .update(step.step_id, sanitizedPayload)
         .subscribe(() => {
           this.toast.show('Étape modifiée');
           this.editingId = null;
@@ -153,4 +164,5 @@ export class StepComponent implements OnInit {
       this.createForm.patchValue({ file_id: fileId });
     }
   }
+  
 }

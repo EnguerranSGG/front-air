@@ -5,7 +5,7 @@
   <select (change)="onPathFilterChange($event)">
     <option value="">Toutes les étapes</option>
     <option *ngFor="let path of paths" [value]="path.path_id">
-      {{ path.name }}
+      {{ path.name | sanitize }}
     </option>
   </select>
 
@@ -16,24 +16,40 @@
 
 <!-- Formulaire d'ajout -->
 <form *ngIf="showCreate" class="create-form" [formGroup]="createForm" (ngSubmit)="addStep()">
+  <!-- Nom de l’étape -->
   <input formControlName="name" placeholder="Nom de l’étape" />
-  <textarea formControlName="description" placeholder="Description"></textarea>
+  <div *ngIf="createForm.get('name')?.invalid && createForm.get('name')?.touched" class="error">
+    <span *ngIf="createForm.get('name')?.errors?.['required']">Le nom est obligatoire.</span>
+    <span *ngIf="createForm.get('name')?.errors?.['maxlength']">Le nom ne doit pas dépasser 100 caractères.</span>
+  </div>
 
+  <!-- Description -->
+  <textarea formControlName="description" placeholder="Description"></textarea>
+  <div *ngIf="createForm.get('description')?.invalid && createForm.get('description')?.touched" class="error">
+    <span *ngIf="createForm.get('description')?.errors?.['required']">La description est obligatoire.</span>
+    <span *ngIf="createForm.get('description')?.errors?.['maxlength']">La description ne doit pas dépasser 390
+      caractères.</span>
+  </div>
+
+  <!-- Parcours -->
   <select formControlName="path_id" required>
     <option [ngValue]="null" disabled>Choisir un parcours</option>
     <option *ngFor="let path of paths" [ngValue]="path.path_id">
       {{ path.name }}
     </option>
   </select>
+  <div *ngIf="createForm.get('path_id')?.invalid && createForm.get('path_id')?.touched" class="error">
+    <span *ngIf="createForm.get('path_id')?.errors?.['required']">Le parcours est obligatoire.</span>
+    <span *ngIf="createForm.get('path_id')?.errors?.['min']">Veuillez sélectionner un parcours valide.</span>
+  </div>
 
+  <!-- Fichier -->
   <button type="button" (click)="showCreateFileSelector = !showCreateFileSelector">
     {{ showCreateFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
   </button>
 
   <div *ngIf="showCreateFileSelector">
-    <app-file-selector
-      [files]="files"
-      [selectedFileId]="createForm.value.file_id"
+    <app-file-selector [files]="files" [selectedFileId]="createForm.value.file_id"
       (fileSelected)="onFileSelect($event)">
     </app-file-selector>
   </div>
@@ -43,19 +59,16 @@
   </div>
 </form>
 
+
 <!-- Liste des étapes -->
 <div *ngFor="let step of steps" class="event-card">
   <div *ngIf="editingId !== step.step_id">
     <div class="event-content">
-      <strong class="event-year">{{ step.name }}</strong>
-      <p class="event-description">{{ step.description }}</p>
+      <strong class="event-year">{{ step.name | sanitize }}</strong>
+      <p class="event-description">{{ step.description | sanitize }}</p>
       <p class="event-description"><em>Parcours :</em> {{ getPathName(step.path_id) }}</p>
       <div *ngIf="step.file?.file_id">
-        <img
-          [src]="apiUrl + '/files/' + step.file?.file_id + '/download'"
-          alt="{{ step.name }}"
-          width="100"
-        />
+        <img [src]="apiUrl + '/files/' + step.file?.file_id + '/download'" alt="{{ step.name | sanitize }}" width="100" />
       </div>
     </div>
     <div class="event-buttons">
@@ -67,7 +80,17 @@
   <!-- Formulaire de modification -->
   <form *ngIf="editingId === step.step_id" class="create-form" [formGroup]="editForm" (ngSubmit)="saveEdit(step)">
     <input formControlName="name" placeholder="Nom de l’étape" />
+    <div *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched" class="error">
+      <span *ngIf="editForm.get('name')?.errors?.['required']">Le nom est obligatoire.</span>
+      <span *ngIf="editForm.get('name')?.errors?.['maxlength']">Le nom ne doit pas dépasser 100 caractères.</span>
+    </div>
+
     <textarea formControlName="description" placeholder="Description"></textarea>
+    <div *ngIf="editForm.get('description')?.invalid && editForm.get('description')?.touched" class="error">
+      <span *ngIf="editForm.get('description')?.errors?.['required']">La description est obligatoire.</span>
+      <span *ngIf="editForm.get('description')?.errors?.['maxlength']">La description ne doit pas dépasser 390
+        caractères.</span>
+    </div>
 
     <select formControlName="path_id" required>
       <option [ngValue]="null" disabled>Choisir un parcours</option>
@@ -75,15 +98,17 @@
         {{ path.name }}
       </option>
     </select>
+    <div *ngIf="editForm.get('path_id')?.invalid && editForm.get('path_id')?.touched" class="error">
+      <span *ngIf="editForm.get('path_id')?.errors?.['required']">Le parcours est obligatoire.</span>
+      <span *ngIf="editForm.get('path_id')?.errors?.['min']">Veuillez sélectionner un parcours valide.</span>
+    </div>
 
     <button type="button" (click)="showEditFileSelector = !showEditFileSelector">
       {{ showEditFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
     </button>
 
     <div *ngIf="showEditFileSelector">
-      <app-file-selector
-        [files]="files"
-        [selectedFileId]="editForm.value.file_id"
+      <app-file-selector [files]="files" [selectedFileId]="editForm.value.file_id"
         (fileSelected)="onFileSelect($event)">
       </app-file-selector>
     </div>
@@ -93,4 +118,5 @@
       <button type="button" (click)="cancelEdit()">❌ Annuler</button>
     </div>
   </form>
+
 </div>
