@@ -1,0 +1,29 @@
+<div class="fle-illustration-section">
+  <div>
+    <img [src]="fleIllustrationUrl" alt="Illustration du FLE" class="illustration" />
+  </div>
+  <div>
+    <button (click)="openModal()">✏️ Modifier l'image du FLE</button>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" *ngIf="isModalOpen">
+  <div class="modal">
+    <h3>Modifier l’image du FLE</h3>
+
+    <label class="file-upload">
+      📎 Sélectionner un fichier
+      <input type="file" (change)="onFileSelected($event)" accept="image/*" />
+    </label>
+
+    <div class="file-selected-name" *ngIf="selectedFile">
+      Fichier sélectionné : {{ selectedFile.name | sanitize }}
+    </div>
+
+    <div class="form-buttons">
+      <button type="button" (click)="updateFleIllustration()">💾 Sauvegarder</button>
+      <button type="button" (click)="closeModal()">❌ Annuler</button>
+    </div>
+  </div>
+</div>
