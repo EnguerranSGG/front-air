@@ -7,14 +7,14 @@ try {
   const res = await fetch(import.meta.env.PUBLIC_API_URL + '/times/all');
   const data = await res.json();
   events = Array.isArray(data)
-    ? data.sort((a, b) => a.year - b.year) // tri chronologique
+    ? data.sort((a, b) => b.year - a.year) // tri chronologique
     : [];
 } catch (err) {
   console.error('Erreur lors du fetch des événements temporels :', err);
 }
 ---
 <section class="timeline-section">
-  <h2>Historique de l’association</h2>
+  <h2>Historique de l'association</h2>
   <div class="timeline">
     {events.map((event, index) => (
       <div class={`timeline-item ${index % 2 === 0 ? 'left' : 'right'}`} key={index}>
@@ -24,3 +24,23 @@ try {
     ))}
   </div>
 </section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate');
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    });
+
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    timelineItems.forEach((item) => {
+      observer.observe(item);
+    });
+  });
+</script>
