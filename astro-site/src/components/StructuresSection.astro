@@ -13,11 +13,55 @@ try {
 }
 ---
 
-<h2>Nos différentes structures</h2>
+<section class="structures-section">
+  <h2>Nos différentes structures</h2>
 
-{structures?.length > 0 ? (
-  structures.map((structure) => structure && <StructureCard structure={structure} />)
-) : (
-  <p>Aucune structure disponible pour le moment.</p>
-)}
+  {structures?.length > 0 ? (
+    structures.map((structure) => structure && <StructureCard structure={structure} />)
+  ) : (
+    <p>Aucune structure disponible pour le moment.</p>
+  )}
+</section>
+
+<script>
+  // Animation au scroll avec Intersection Observer
+  function initScrollAnimations() {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          // Ajouter un délai pour créer un effet de cascade
+          const delay = Array.from(entry.target.parentElement?.children || []).indexOf(entry.target) * 150;
+          
+          setTimeout(() => {
+            entry.target.classList.add('animate-in');
+          }, delay);
+          
+          // Arrêter d'observer cet élément une fois qu'il est animé
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    // Observer toutes les cartes de structures
+    const structureCards = document.querySelectorAll('.structure-card[data-animate="true"]');
+    structureCards.forEach((card) => {
+      observer.observe(card);
+    });
+  }
+
+  // Initialiser les animations quand le DOM est chargé
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScrollAnimations);
+  } else {
+    initScrollAnimations();
+  }
+
+  // Réinitialiser les animations si nécessaire (par exemple lors de navigation SPA)
+  document.addEventListener('astro:page-load', initScrollAnimations);
+</script>
 
