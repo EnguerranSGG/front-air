@@ -1,69 +1,62 @@
-<h2>📰 Gestion des actualités</h2>
-
-<!-- Bouton d'ajout -->
-<div class="filter-add-wrapper">
-    <button (click)="showForm = !showForm">
-        {{ showForm ? '❌ Annuler' : '➕ Ajouter une actualité' }}
-      </button>
-</div>
-
-<!-- Formulaire de création -->
-<form *ngIf="showForm" class="create-form" [formGroup]="createForm" (ngSubmit)="addNews()">
-    <input formControlName="name" type="text" placeholder="Titre" />
-    <textarea formControlName="description" placeholder="Contenu"></textarea>
-
-    <div class="form-buttons">
-        <button type="button" (click)="showCreateFileSelector = !showCreateFileSelector">
-            {{ showCreateFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
-        </button>
-
-        <div *ngIf="showCreateFileSelector">
-            <app-file-selector [files]="files" [selectedFileId]="createForm.value.file_id"
-                (fileSelected)="onFileSelect($event)">
-            </app-file-selector>
-        </div>
-
-        <button type="submit" [disabled]="createForm.invalid">Créer</button>
-    </div>
-</form>
-
 <!-- Liste des actualités -->
 <div *ngFor="let news of newsList" class="event-card">
-    <!-- Affichage normal -->
-    <ng-container *ngIf="editingNewsId !== news.news_id; else editTemplate">
-        <div class="event-content">
-            <strong class="event-year">{{ news.name }}</strong>
-            <p class="event-description">{{ news.description }}</p>
-            <div *ngIf="news.file?.file_id">
-                <img [src]="apiUrl + '/files/' + news.file?.file_id + '/download'" alt="{{ news.name }}" width="100" />
-            </div>
+    <div class="event-content">
+      <strong class="event-year">{{ news.name | sanitize }}</strong>
+      <p class="event-description">{{ news.description | sanitize }}</p>
+      <div *ngIf="news.file?.file_id">
+        <img [src]="apiUrl + '/files/' + news.file?.file_id + '/download'" alt="{{ news.name | sanitize }}" width="100" />
+      </div>
+    </div>
+    <div class="event-buttons">
+      <button (click)="openEditModal(news)">✏️ Modifier cette actualité</button>
+    </div>
+  </div>
+  
+  <!-- Modal Édition -->
+  <div class="modal-overlay" *ngIf="isEditModalOpen">
+    <div class="modal">
+      <h3>Modifier une actualité</h3>
+      <form [formGroup]="editForm">
+        
+        <!-- Champ Titre -->
+        <input formControlName="name" type="text" placeholder="Titre de l'actualité" />
+        <div *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched" class="error">
+          <span *ngIf="editForm.get('name')?.errors?.['required']">Le titre est obligatoire.</span>
+          <span *ngIf="editForm.get('name')?.errors?.['maxlength']">Le titre ne doit pas dépasser 100 caractères.</span>
         </div>
-        <div class="event-buttons">
-            <button (click)="startEdit(news)">✏️ Modifier</button>
-            <button (click)="deleteNews(news.news_id)">🗑️ Supprimer</button>
+  
+        <!-- Champ Description -->
+        <textarea formControlName="description" placeholder="Contenu de l'actualité"></textarea>
+        <div *ngIf="editForm.get('description')?.invalid && editForm.get('description')?.touched" class="error">
+          <span *ngIf="editForm.get('description')?.errors?.['required']">La description est obligatoire.</span>
+          <span *ngIf="editForm.get('description')?.errors?.['maxlength']">La description ne doit pas dépasser 300 caractères.</span>
         </div>
-    </ng-container>
-
-    <!-- Formulaire d’édition -->
-    <ng-template #editTemplate>
-        <form class="create-form" [formGroup]="editForm" (ngSubmit)="saveEdit(news)">
-            <input formControlName="name" type="text" placeholder="Titre" />
-            <textarea formControlName="description" placeholder="Contenu"></textarea>
-
-            <button type="button" (click)="showEditFileSelector = !showEditFileSelector">
-                {{ showEditFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
-            </button>
-
-            <div *ngIf="showEditFileSelector">
-                <app-file-selector [files]="files" [selectedFileId]="editForm.value.file_id"
-                    (fileSelected)="onFileSelect($event)">
-                </app-file-selector>
-            </div>
-
-            <div class="form-buttons">
-                <button type="submit" [disabled]="editForm.invalid">💾 Sauvegarder</button>
-                <button type="button" (click)="cancelEdit()">❌ Annuler</button>
-            </div>
-        </form>
-    </ng-template>
-</div>
+  
+        <!-- Champ Lien (optionnel) -->
+        <input formControlName="link" type="url" placeholder="Lien externe (facultatif)" />
+        <div *ngIf="editForm.get('link')?.invalid && editForm.get('link')?.touched" class="error">
+          <span *ngIf="editForm.get('link')?.errors?.['pattern']">Le lien doit commencer par http:// ou https://</span>
+          <span *ngIf="editForm.get('link')?.errors?.['maxlength']">Le lien ne doit pas dépasser 255 caractères.</span>
+        </div>
+  
+        <!-- Sélecteur de fichier -->
+        <button type="button" (click)="showEditFileSelector = !showEditFileSelector">
+          {{ showEditFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
+        </button>
+  
+        <div *ngIf="showEditFileSelector">
+          <app-file-selector
+            [files]="files"
+            [selectedFileId]="editForm.value.file_id"
+            (fileSelected)="onFileSelect($event)"
+          ></app-file-selector>
+        </div>
+  
+        <div class="form-buttons">
+          <button type="button" (click)="saveEdit()" [disabled]="editForm.invalid">💾 Sauvegarder</button>
+          <button type="button" (click)="closeEditModal()">❌ Annuler</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
