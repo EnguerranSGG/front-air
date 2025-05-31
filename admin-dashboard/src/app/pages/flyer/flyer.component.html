@@ -1,0 +1,29 @@
+<div class="flyer-section">
+  <div class="flyer-container">
+    <pdf-viewer *ngIf="flyerUrl" [src]="flyerUrl" [render-text]="true" style="width: 45vw; height: 45vh;"></pdf-viewer>
+  </div>
+  <div>
+    <button (click)="openModal()">✏️ Modifier le flyer</button>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" *ngIf="isModalOpen">
+  <div class="modal">
+    <h3>Modifier l’organigramme</h3>
+
+    <label class="file-upload">
+      📎 Sélectionner un fichier
+      <input type="file" (change)="onFileSelected($event)" accept="application/pdf" />
+    </label>
+
+    <div class="file-selected-name" *ngIf="selectedFile">
+      Fichier sélectionné : {{ selectedFile.name | sanitize }}
+    </div>
+
+    <div class="form-buttons">
+      <button type="button" (click)="updateFlyer()">💾 Sauvegarder</button>
+      <button type="button" (click)="closeModal()">❌ Annuler</button>
+    </div>
+  </div>
+</div>
