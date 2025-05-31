@@ -10,14 +10,237 @@ try {
   console.error("Erreur fetch statistiques AIR :", err);
 }
 ---
-<h2 class="stats-title">Nos dernières actualités</h2>
-<section class="stats">
+<section class="stats air-stats-section animate-fade-in">
   <div class="stats-list">
-    {stats.map((stat) => (
-      <div class="stat-item" key={stat.statistic_id}>
-        <p class="stat-value">{stat.value}</p>
+    {stats.map((stat, index) => (
+      <div class="stat-item animate-slide-up" key={stat.statistic_id} style={`animation-delay: ${0.8 + index * 0.2}s`}>
+        <strong class="air-stat-value" data-target={stat.value}>{stat.is_percentage ? "0%" : "0"}</strong>
         <p class="stat-label">{stat.label}<br/>en {stat.year}</p>
       </div>
     ))}
   </div>
 </section>
+<h2>Notre dernière actualité</h2>
+
+<style>
+  /* === ANIMATIONS ET STYLES POUR STATS AIR === */
+  
+  /* Animation de la section */
+  .animate-fade-in {
+    opacity: 0;
+    animation: fadeInSection 0.8s ease-out 0.3s forwards;
+  }
+
+  /* Animation des éléments de stats */
+  .animate-slide-up {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: slideUpFade 0.6s ease-out forwards;
+  }
+
+  /* Styles modernes pour les stats */
+  .stats {
+    padding: 3rem 2rem;
+    text-align: center;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 20px;
+    margin: 2rem auto;
+    box-shadow: 0 4px 20px rgba(0, 70, 164, 0.1);
+  }
+
+  .stats-list {
+    display: flex;
+    justify-content: center;
+    gap: 4rem;
+    flex-wrap: wrap;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .stat-item {
+    background: white;
+    padding: 2rem 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 6px 25px rgba(0, 70, 164, 0.15);
+    transition: all 0.3s ease;
+    min-width: 180px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0046a4, #1a73e8);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+  }
+
+  .stat-item:hover::before {
+    transform: translateX(0);
+  }
+
+  .stat-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 35px rgba(0, 70, 164, 0.25);
+  }
+
+  .air-stat-value {
+    display: block;
+    font-size: 2.5rem;
+    color: #0046a4;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    line-height: 1;
+    background: linear-gradient(135deg, #0046a4, #1a73e8);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .stat-label {
+    color: #64748b;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    margin: 0;
+    font-weight: 500;
+  }
+
+  /* === ANIMATIONS === */
+  @keyframes fadeInSection {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 768px) {
+    .stats {
+      padding: 2rem 1rem;
+      margin: 1rem;
+      border-radius: 15px;
+    }
+
+    .stats-list {
+      gap: 2rem;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-item {
+      min-width: 150px;
+      padding: 1.5rem 1rem;
+    }
+
+    .air-stat-value {
+      font-size: 2rem;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+    }
+
+    /* Animations plus rapides sur mobile */
+    .animate-slide-up {
+      animation-duration: 0.4s;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .stats-list {
+      gap: 1.5rem;
+    }
+
+    .stat-item {
+      min-width: 130px;
+      padding: 1.2rem 0.8rem;
+    }
+
+    .air-stat-value {
+      font-size: 1.8rem;
+    }
+  }
+
+  /* === ACCESSIBILITÉ === */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in,
+    .animate-slide-up {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+    
+    .stat-item:hover {
+      transform: none;
+    }
+  }
+</style>
+
+<script is:inline>
+document.addEventListener('DOMContentLoaded', () => {
+  const airStatsSection = document.querySelector('.air-stats-section');
+  if (!airStatsSection) return;
+  
+  const statValues = airStatsSection.querySelectorAll('.air-stat-value');
+
+  // Animation de compteur avec easing
+  function animateCounter(element, target, duration = 2000) {
+    const isPercentage = element.textContent.includes('%');
+    let current = 0;
+    const startTime = performance.now();
+
+    function updateCounter(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Easing function (ease-out cubic)
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      
+      current = Math.round(target * easedProgress);
+      element.textContent = isPercentage ? `${current}%` : current;
+
+      if (progress < 1) {
+        requestAnimationFrame(updateCounter);
+      } else {
+        element.textContent = isPercentage ? `${target}%` : target;
+      }
+    }
+
+    requestAnimationFrame(updateCounter);
+  }
+
+  // Observer pour détecter quand les stats entrent dans le viewport
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        // Déclencher l'animation pour chaque statistique de cette section uniquement
+        statValues.forEach((statElement, index) => {
+          const target = parseInt(statElement.getAttribute('data-target'));
+          if (!isNaN(target)) {
+            setTimeout(() => {
+              animateCounter(statElement, target);
+            }, index * 200); // Délai progressif pour un effet plus dynamique
+          }
+        });
+        
+        // Arrêter d'observer une fois l'animation déclenchée
+        observer.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.5 // Se déclenche quand 50% de la section est visible
+  });
+
+  if (airStatsSection) {
+    observer.observe(airStatsSection);
+  }
+});
+</script>
