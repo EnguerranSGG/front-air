@@ -8,6 +8,7 @@ export interface StatisticType {
     label: string;
     value: number;
     year: number;
+    is_percentage: boolean;
     type_id: number;
     type?: StatisticType;
   }
