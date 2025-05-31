@@ -18,7 +18,7 @@ try {
 ---
 
 <section class="da-steps-section">
-  <h2>Accompagnement du demandeur d’asile</h2>
+  <h2>Accompagnement du demandeur d'asile</h2>
   <div class="da-steps-timeline">
     {steps.map((step, index) => (
       <div class={`da-step-item ${index % 2 === 0 ? 'left' : 'right'}`} key={step.step_id}>
@@ -36,3 +36,23 @@ try {
     ))}
   </div>
 </section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate');
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    });
+
+    const stepItems = document.querySelectorAll('.da-step-item');
+    stepItems.forEach((item) => {
+      observer.observe(item);
+    });
+  });
+</script>
