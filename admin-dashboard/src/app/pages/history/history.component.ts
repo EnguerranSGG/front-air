@@ -5,14 +5,15 @@ import { Time } from '../../models/time.model';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { Validators } from '@angular/forms';
+import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
+import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, SanitizePipe],
   templateUrl: './history.component.html',
   styleUrls: ['./history.component.scss'],
 })
-
 export class HistoryComponent implements OnInit {
   times: Time[] = [];
   editingTimeId: number | null = null;
@@ -20,12 +21,19 @@ export class HistoryComponent implements OnInit {
   createForm!: FormGroup;
   isCreating = false;
 
-  constructor(private timeService: TimeService, private fb: FormBuilder, private toastService: ToastService) {}
+  constructor(
+    private timeService: TimeService,
+    private fb: FormBuilder,
+    private toastService: ToastService
+  ) {}
 
   ngOnInit(): void {
     this.loadTimes();
     this.createForm = this.fb.group({
-      year: ['', [Validators.required, Validators.min(1900), Validators.max(2100)]],
+      year: [
+        '',
+        [Validators.required, Validators.min(1900), Validators.max(2200)],
+      ],
       event_description: ['', [Validators.required, Validators.maxLength(175)]],
     });
   }
@@ -46,23 +54,36 @@ export class HistoryComponent implements OnInit {
   }
 
   addTime(): void {
-    if (this.createForm.valid) {
-      this.timeService.create(this.createForm.value).subscribe({
-        next: () => {
-          this.loadTimes();
-          this.isCreating = false;
-          this.toastService.show('Evénement ajouté avec succès ✅');
-        },
-        error: (err) => console.error('Erreur lors de l’ajout:', err),
-      });
+    if (this.createForm.invalid) {
+      this.toastService.show(
+        'Veuillez corriger le formulaire avant de soumettre.'
+      );
+      return;
     }
+
+    const sanitizedPayload = sanitizeFormValue(this.createForm.value);
+    this.timeService.create(sanitizedPayload).subscribe({
+      next: () => {
+        this.loadTimes();
+        this.isCreating = false;
+        this.createForm.reset();
+        this.toastService.show('Evénement ajouté avec succès ✅');
+      },
+      error: (err) => console.error('Erreur lors de l’ajout:', err),
+    });
   }
 
   startEdit(time: Time): void {
     this.editingTimeId = time.time_id;
     this.editForm = this.fb.group({
-      year: [time.year, [Validators.required, Validators.min(1900), Validators.max(2100)]],
-      event_description: [time.event_description, [Validators.required, Validators.maxLength(175)]],
+      year: [
+        time.year,
+        [Validators.required, Validators.min(1900), Validators.max(2200)],
+      ],
+      event_description: [
+        time.event_description,
+        [Validators.required, Validators.maxLength(175)],
+      ],
     });
   }
 
@@ -71,24 +92,28 @@ export class HistoryComponent implements OnInit {
   }
 
   saveEdit(time: Time): void {
-    if (this.editForm.valid) {
-      const updated = this.editForm.value;
-      this.timeService.update(time.time_id, updated).subscribe({
-        next: (updatedTime) => {
-          console.log('Mise à jour réussie:', updatedTime);
-          const index = this.times.findIndex((t) => t.time_id === time.time_id);
-          if (index !== -1) {
-            this.times[index] = { ...this.times[index], ...updatedTime };
-          }
-          this.editingTimeId = null;
-          this.loadTimes();
-          this.toastService.show('Événement modifié avec succès ✏️');
-        },
-        error: (err) => {
-          console.error('Erreur de mise à jour:', err);
-        },
-      });
+    if (this.editForm.invalid) {
+      this.toastService.show(
+        'Veuillez corriger le formulaire avant de soumettre.'
+      );
+      return;
     }
+    const sanitizedPayload = sanitizeFormValue(this.editForm.value);
+
+    this.timeService.update(time.time_id, sanitizedPayload).subscribe({
+      next: (updatedTime) => {
+        console.log('Mise à jour réussie:', updatedTime);
+        const index = this.times.findIndex((t) => t.time_id === time.time_id);
+        if (index !== -1) {
+          this.times[index] = { ...this.times[index], ...updatedTime };
+        }
+        this.editingTimeId = null;
+        this.loadTimes();
+        this.editForm.reset();
+        this.toastService.show('Événement modifié avec succès ✏️');
+      },
+      error: () => console.error('Erreur lors de la modification:'),
+    });
   }
 
   deleteTime(time_id: number): void {
@@ -97,5 +122,4 @@ export class HistoryComponent implements OnInit {
       this.toastService.show('Événement supprimé avec succès 🗑️');
     }
   }
-  
 }
