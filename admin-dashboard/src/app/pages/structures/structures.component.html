@@ -1,151 +1,284 @@
-<h2>🏢 Gestion des structures</h2>
+<h2>Gestion des structures</h2>
 
-<!-- Bouton d’ajout -->
+<!-- Bouton d'ajout modernisé -->
 <div class="filter-add-wrapper">
-  <button (click)="showForm = !showForm">
-    {{ showForm ? '❌ Annuler' : '➕ Ajouter une structure' }}
+  <button (click)="showForm = !showForm" class="add-button">
+    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="!showForm">
+      <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+    </svg>
+    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="showForm">
+      <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+    </svg>
+    {{ showForm ? 'Annuler' : 'Ajouter une structure' }}
   </button>
 </div>
 
-<!-- Formulaire de création -->
-<form *ngIf="showForm" class="create-form" [formGroup]="createForm" (ngSubmit)="addStructure()">
-  <!-- Nom -->
-  <input type="text" formControlName="name" placeholder="Nom" />
-  <div *ngIf="createForm.get('name')?.invalid && createForm.get('name')?.touched" class="error">
-    <span *ngIf="createForm.get('name')?.errors?.['required']">Le nom est obligatoire.</span>
-    <span *ngIf="createForm.get('name')?.errors?.['maxlength']">Le nom ne doit pas dépasser 60 caractères.</span>
-  </div>
-
-  <!-- Fichier -->
-  <button type="button" (click)="showCreateFileSelector = !showCreateFileSelector">
-    {{ showCreateFileSelector ? '❌ Fermer les images' : '📎 Lier un fichier' }}
-  </button>
-  <div *ngIf="showCreateFileSelector">
-    <app-file-selector [files]="files" [selectedFileId]="createForm.value.file_id" (fileSelected)="onFileSelect($event)">
-    </app-file-selector>
-  </div>
-
-  <!-- Description -->
-  <textarea formControlName="description" placeholder="Description"></textarea>
-  <div *ngIf="createForm.get('description')?.invalid && createForm.get('description')?.touched" class="error">
-    <span *ngIf="createForm.get('description')?.errors?.['required']">La description est obligatoire.</span>
-    <span *ngIf="createForm.get('description')?.errors?.['maxlength']">La description ne doit pas dépasser 330 caractères.</span>
-  </div>
-
-  <!-- Adresse -->
-  <input type="text" formControlName="address" placeholder="Adresse" />
-  <div *ngIf="createForm.get('address')?.invalid && createForm.get('address')?.touched" class="error">
-    <span *ngIf="createForm.get('address')?.errors?.['maxlength']">L'adresse ne doit pas dépasser 255 caractères.</span>
-  </div>
-
-  <!-- Téléphone -->
-  <input type="text" formControlName="phone_number" placeholder="Téléphone" />
-  <div *ngIf="createForm.get('phone_number')?.invalid && createForm.get('phone_number')?.touched" class="error">
-    <span *ngIf="createForm.get('phone_number')?.errors?.['maxlength']">Le numéro ne doit pas dépasser 25 caractères.</span>
-  </div>
-
-  <!-- Lien -->
-  <input type="text" formControlName="link" placeholder="Lien" />
-  <div *ngIf="createForm.get('link')?.invalid && createForm.get('link')?.touched" class="error">
-    <span *ngIf="createForm.get('link')?.errors?.['maxlength']">Le lien ne doit pas dépasser 255 caractères.</span>
-    <span *ngIf="createForm.get('link')?.errors?.['pattern']">Le lien doit commencer par http(s).</span>
-  </div>
-
-  <!-- Missions -->
-  <div formArrayName="missions">
-    <div *ngFor="let mission of createMissions.controls; let i = index" class="mission-line">
-      <input [formControlName]="i" placeholder="Mission" />
-      <div *ngIf="mission.invalid && mission.touched" class="error">
-        <span *ngIf="mission.errors?.['maxlength']">La mission ne doit pas dépasser 250 caractères.</span>
+<!-- Formulaire de création modernisé -->
+<div *ngIf="showForm" class="create-form">
+  <h3>
+    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24" class="title-icon">
+      <path d="M12,3C7.58,3 4,6.58 4,11C4,16.55 12,22 12,22C12,22 20,16.55 20,11C20,6.58 16.42,3 12,3M12,13.5C10.62,13.5 9.5,12.38 9.5,11C9.5,9.62 10.62,8.5 12,8.5C13.38,8.5 14.5,9.62 14.5,11C14.5,12.38 13.38,13.5 12,13.5Z"/>
+    </svg>
+    Nouvelle structure
+  </h3>
+  <form [formGroup]="createForm" (ngSubmit)="addStructure()">
+    <div class="form-group">
+      <input type="text" formControlName="name" placeholder="Nom de la structure" class="modern-input" />
+      <div *ngIf="createForm.get('name')?.invalid && createForm.get('name')?.touched" class="error">
+        <span *ngIf="createForm.get('name')?.errors?.['required']">Le nom est obligatoire.</span>
+        <span *ngIf="createForm.get('name')?.errors?.['maxlength']">Le nom ne doit pas dépasser 60 caractères.</span>
       </div>
-      <button type="button" (click)="removeMission(createForm, i)">❌</button>
     </div>
-    <button type="button" (click)="addMission(createForm)">➕ Ajouter une mission</button>
-  </div>
 
-  <div class="form-buttons">
-    <button type="submit" [disabled]="createForm.invalid">Créer</button>
-  </div>
-</form>
+    <!-- Sélecteur de fichier modernisé -->
+    <div class="file-section">
+      <button type="button" (click)="showCreateFileSelector = !showCreateFileSelector" class="file-toggle-button">
+        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="!showCreateFileSelector">
+          <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+        </svg>
+        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="showCreateFileSelector">
+          <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+        </svg>
+        {{ showCreateFileSelector ? 'Fermer les images' : 'Lier un fichier' }}
+      </button>
+      <div *ngIf="showCreateFileSelector" class="file-selector-container">
+        <app-file-selector [files]="files" [selectedFileId]="createForm.value.file_id" (fileSelected)="onFileSelect($event)">
+        </app-file-selector>
+      </div>
+    </div>
 
-<!-- Liste des structures -->
+    <div class="form-group">
+      <textarea formControlName="description" placeholder="Description de la structure" class="modern-textarea"></textarea>
+      <div *ngIf="createForm.get('description')?.invalid && createForm.get('description')?.touched" class="error">
+        <span *ngIf="createForm.get('description')?.errors?.['required']">La description est obligatoire.</span>
+        <span *ngIf="createForm.get('description')?.errors?.['maxlength']">La description ne doit pas dépasser 330 caractères.</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <input type="text" formControlName="address" placeholder="Adresse" class="modern-input" />
+      <div *ngIf="createForm.get('address')?.invalid && createForm.get('address')?.touched" class="error">
+        <span *ngIf="createForm.get('address')?.errors?.['maxlength']">L'adresse ne doit pas dépasser 255 caractères.</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <input type="text" formControlName="phone_number" placeholder="Téléphone" class="modern-input" />
+      <div *ngIf="createForm.get('phone_number')?.invalid && createForm.get('phone_number')?.touched" class="error">
+        <span *ngIf="createForm.get('phone_number')?.errors?.['maxlength']">Le numéro ne doit pas dépasser 25 caractères.</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <input type="text" formControlName="link" placeholder="Lien web" class="modern-input" />
+      <div *ngIf="createForm.get('link')?.invalid && createForm.get('link')?.touched" class="error">
+        <span *ngIf="createForm.get('link')?.errors?.['maxlength']">Le lien ne doit pas dépasser 255 caractères.</span>
+        <span *ngIf="createForm.get('link')?.errors?.['pattern']">Le lien doit commencer par http(s).</span>
+      </div>
+    </div>
+
+    <!-- Section missions modernisée -->
+    <div class="missions-section" formArrayName="missions">
+      <h4>
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" class="title-icon">
+          <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z"/>
+        </svg>
+        Missions
+      </h4>
+      <div *ngFor="let mission of createMissions.controls; let i = index" class="mission-line">
+        <input [formControlName]="i" placeholder="Décrivez une mission" class="modern-input" />
+        <button type="button" (click)="removeMission(createForm, i)" class="remove-mission-button">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+          </svg>
+        </button>
+        <div *ngIf="mission.invalid && mission.touched" class="error">
+          <span *ngIf="mission.errors?.['maxlength']">La mission ne doit pas dépasser 250 caractères.</span>
+        </div>
+      </div>
+      <button type="button" (click)="addMission(createForm)" class="add-mission-button">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+        </svg>
+        Ajouter une mission
+      </button>
+    </div>
+
+    <div class="form-buttons">
+      <button type="submit" [disabled]="createForm.invalid" class="save-button">
+        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/>
+        </svg>
+        Créer
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Liste des structures modernisée -->
 <div *ngFor="let structure of structures" class="event-card">
   <ng-container *ngIf="editingStructureId !== structure.structure_id; else editTemplate">
-    <div class="event-content">
-      <strong class="event-year">{{ structure.name | sanitize }}</strong>
-      <div *ngIf="structure.file?.file_id">
-        <img [src]="apiUrl + '/files/' + structure.file?.file_id + '/download'" [alt]="structure.name" width="100" />
+    <div class="event-display">
+      <div class="event-content">
+        <strong class="event-year">{{ structure.name | sanitize }}</strong>
+        <div *ngIf="structure.file?.file_id" class="structure-image-container">
+          <img [src]="apiUrl + '/files/' + structure.file?.file_id + '/download'" [alt]="structure.name" loading="lazy" />
+        </div>
+        <p class="event-description">{{ structure.description | sanitize }}</p>
+        <div class="structure-details">
+          <p *ngIf="structure.address" class="detail-item">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="detail-icon">
+              <path d="M12,3C7.58,3 4,6.58 4,11C4,16.55 12,22 12,22C12,22 20,16.55 20,11C20,6.58 16.42,3 12,3M12,13.5C10.62,13.5 9.5,12.38 9.5,11C9.5,9.62 10.62,8.5 12,8.5C13.38,8.5 14.5,9.62 14.5,11C14.5,12.38 13.38,13.5 12,13.5Z"/>
+            </svg>
+            <strong>Adresse :</strong> {{ structure.address | sanitize }}
+          </p>
+          <p *ngIf="structure.phone_number" class="detail-item">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="detail-icon">
+              <path d="M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z"/>
+            </svg>
+            <strong>Téléphone :</strong> {{ structure.phone_number | sanitize }}
+          </p>
+          <p *ngIf="structure.link" class="detail-item">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="detail-icon">
+              <path d="M10.59,13.41C11,13.8 11,14.4 10.59,14.81C10.2,15.2 9.6,15.2 9.2,14.81L5.81,11.41C5.4,11 5.4,10.4 5.81,10L9.2,6.58C9.6,6.17 10.2,6.17 10.59,6.58C11,6.99 11,7.59 10.59,8L8.83,9.75H17C17.55,9.75 18,10.2 18,10.75S17.55,11.75 17,11.75H8.83L10.59,13.41M3,3H5V5H3V3M19,3H21V5H19V3M19,19H21V21H19V19M3,19H5V21H3V19Z"/>
+            </svg>
+            <strong>Lien :</strong> <a [href]="structure.link" target="_blank" class="external-link">{{ structure.link | sanitize }}</a>
+          </p>
+        </div>
+        <div *ngIf="structure.missions?.length" class="missions-list">
+          <h5>
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" class="title-icon">
+              <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z"/>
+            </svg>
+            Missions
+          </h5>
+          <ul>
+            <li *ngFor="let mission of structure.missions">{{ mission.content | sanitize }}</li>
+          </ul>
+        </div>
       </div>
-      <p class="event-description">{{ structure.description | sanitize }}</p>
-      <p *ngIf="structure.address"><strong>Adresse :</strong> {{ structure.address | sanitize }}</p>
-      <p *ngIf="structure.phone_number"><strong>Téléphone :</strong> {{ structure.phone_number | sanitize }}</p>
-      <p *ngIf="structure.link">
-        <strong>Lien :</strong> <a [href]="structure.link" target="_blank">{{ structure.link | sanitize }}</a>
-      </p>
-      <ul *ngIf="structure.missions?.length">
-        <li *ngFor="let mission of structure.missions">{{ mission.content | sanitize }}</li>
-      </ul>
-    </div>
-    <div class="event-buttons">
-      <button (click)="startEdit(structure)">✏️ Modifier</button>
-      <button (click)="deleteStructure(structure.structure_id)">🗑️ Supprimer</button>
+      <div class="event-buttons">
+        <button (click)="startEdit(structure)" class="edit-button">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+          </svg>
+          Modifier
+        </button>
+        <button (click)="deleteStructure(structure.structure_id)" class="delete-button">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z"/>
+          </svg>
+          Supprimer
+        </button>
+      </div>
     </div>
   </ng-container>
 
-  <!-- Formulaire de modification -->
+  <!-- Formulaire de modification modernisé -->
   <ng-template #editTemplate>
-    <form class="create-form" [formGroup]="editForm" (ngSubmit)="saveEdit(structure)">
-      <input type="text" formControlName="name" placeholder="Nom" />
-      <div *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched" class="error">
-        <span *ngIf="editForm.get('name')?.errors?.['required']">Le nom est obligatoire.</span>
-        <span *ngIf="editForm.get('name')?.errors?.['maxlength']">Le nom ne doit pas dépasser 60 caractères.</span>
-      </div>
-
-      <button type="button" (click)="showEditFileSelector = !showEditFileSelector">
-        {{ showEditFileSelector ? '❌ Fermer les images' : '📎 Lier un fichier' }}
-      </button>
-      <div *ngIf="showEditFileSelector">
-        <app-file-selector [files]="files" [selectedFileId]="editForm.value.file_id" (fileSelected)="onFileSelect($event)">
-        </app-file-selector>
-      </div>
-
-      <textarea formControlName="description" placeholder="Description"></textarea>
-      <div *ngIf="editForm.get('description')?.invalid && editForm.get('description')?.touched" class="error">
-        <span *ngIf="editForm.get('description')?.errors?.['required']">La description est obligatoire.</span>
-        <span *ngIf="editForm.get('description')?.errors?.['maxlength']">La description ne doit pas dépasser 330 caractères.</span>
-      </div>
-
-      <input type="text" formControlName="address" placeholder="Adresse" />
-      <div *ngIf="editForm.get('address')?.invalid && editForm.get('address')?.touched" class="error">
-        <span *ngIf="editForm.get('address')?.errors?.['maxlength']">L'adresse ne doit pas dépasser 255 caractères.</span>
-      </div>
-
-      <input type="text" formControlName="phone_number" placeholder="Téléphone" />
-      <div *ngIf="editForm.get('phone_number')?.invalid && editForm.get('phone_number')?.touched" class="error">
-        <span *ngIf="editForm.get('phone_number')?.errors?.['maxlength']">Le numéro ne doit pas dépasser 25 caractères.</span>
-      </div>
-
-      <input type="text" formControlName="link" placeholder="Lien" />
-      <div *ngIf="editForm.get('link')?.invalid && editForm.get('link')?.touched" class="error">
-        <span *ngIf="editForm.get('link')?.errors?.['maxlength']">Le lien ne doit pas dépasser 255 caractères.</span>
-        <span *ngIf="editForm.get('link')?.errors?.['pattern']">Le lien doit commencer par http(s).</span>
-      </div>
-
-      <div formArrayName="missions">
-        <div *ngFor="let mission of editMissions.controls; let i = index" class="mission-line">
-          <input [formControlName]="i" placeholder="Mission" />
-          <div *ngIf="mission.invalid && mission.touched" class="error">
-            <span *ngIf="mission.errors?.['maxlength']">La mission ne doit pas dépasser 250 caractères.</span>
+    <div class="edit-form">
+      <h4>
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" class="title-icon">
+          <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+        </svg>
+        Modifier la structure
+      </h4>
+      <form [formGroup]="editForm" (ngSubmit)="saveEdit(structure)">
+        <div class="form-group">
+          <input type="text" formControlName="name" placeholder="Nom de la structure" class="modern-input" />
+          <div *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched" class="error">
+            <span *ngIf="editForm.get('name')?.errors?.['required']">Le nom est obligatoire.</span>
+            <span *ngIf="editForm.get('name')?.errors?.['maxlength']">Le nom ne doit pas dépasser 60 caractères.</span>
           </div>
-          <button type="button" (click)="removeMission(editForm, i)">❌</button>
         </div>
-        <button type="button" (click)="addMission(editForm)">➕ Ajouter une mission</button>
-      </div>
 
-      <div class="form-buttons">
-        <button type="submit" [disabled]="editForm.invalid">💾 Sauvegarder</button>
-        <button type="button" (click)="cancelEdit()">❌ Annuler</button>
-      </div>
-    </form>
+        <div class="file-section">
+          <button type="button" (click)="showEditFileSelector = !showEditFileSelector" class="file-toggle-button">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="!showEditFileSelector">
+              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="showEditFileSelector">
+              <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+            </svg>
+            {{ showEditFileSelector ? 'Fermer les images' : 'Lier un fichier' }}
+          </button>
+          <div *ngIf="showEditFileSelector" class="file-selector-container">
+            <app-file-selector [files]="files" [selectedFileId]="editForm.value.file_id" (fileSelected)="onFileSelect($event)">
+            </app-file-selector>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <textarea formControlName="description" placeholder="Description de la structure" class="modern-textarea"></textarea>
+          <div *ngIf="editForm.get('description')?.invalid && editForm.get('description')?.touched" class="error">
+            <span *ngIf="editForm.get('description')?.errors?.['required']">La description est obligatoire.</span>
+            <span *ngIf="editForm.get('description')?.errors?.['maxlength']">La description ne doit pas dépasser 330 caractères.</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="text" formControlName="address" placeholder="Adresse" class="modern-input" />
+          <div *ngIf="editForm.get('address')?.invalid && editForm.get('address')?.touched" class="error">
+            <span *ngIf="editForm.get('address')?.errors?.['maxlength']">L'adresse ne doit pas dépasser 255 caractères.</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="text" formControlName="phone_number" placeholder="Téléphone" class="modern-input" />
+          <div *ngIf="editForm.get('phone_number')?.invalid && editForm.get('phone_number')?.touched" class="error">
+            <span *ngIf="editForm.get('phone_number')?.errors?.['maxlength']">Le numéro ne doit pas dépasser 25 caractères.</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="text" formControlName="link" placeholder="Lien web" class="modern-input" />
+          <div *ngIf="editForm.get('link')?.invalid && editForm.get('link')?.touched" class="error">
+            <span *ngIf="editForm.get('link')?.errors?.['maxlength']">Le lien ne doit pas dépasser 255 caractères.</span>
+            <span *ngIf="editForm.get('link')?.errors?.['pattern']">Le lien doit commencer par http(s).</span>
+          </div>
+        </div>
+
+        <div class="missions-section" formArrayName="missions">
+          <h4>
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" class="title-icon">
+              <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z"/>
+            </svg>
+            Missions
+          </h4>
+          <div *ngFor="let mission of editMissions.controls; let i = index" class="mission-line">
+            <input [formControlName]="i" placeholder="Décrivez une mission" class="modern-input" />
+            <button type="button" (click)="removeMission(editForm, i)" class="remove-mission-button">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+              </svg>
+            </button>
+            <div *ngIf="mission.invalid && mission.touched" class="error">
+              <span *ngIf="mission.errors?.['maxlength']">La mission ne doit pas dépasser 250 caractères.</span>
+            </div>
+          </div>
+          <button type="button" (click)="addMission(editForm)" class="add-mission-button">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+            </svg>
+            Ajouter une mission
+          </button>
+        </div>
+
+        <div class="form-buttons">
+          <button type="submit" [disabled]="editForm.invalid" class="save-button">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/>
+            </svg>
+            Sauvegarder
+          </button>
+          <button type="button" (click)="cancelEdit()" class="cancel-button">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+            </svg>
+            Annuler
+          </button>
+        </div>
+      </form>
+    </div>
   </ng-template>
 </div>
