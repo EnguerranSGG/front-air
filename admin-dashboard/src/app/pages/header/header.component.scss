@@ -359,18 +359,3 @@ $shadow-light: rgba(0, 0, 0, 0.1);
         }
     }
 }
-
-// Ajustement pour le contenu principal
-:host-context(body) {
-    @media (min-width: 769px) {
-        main, router-outlet + * {
-            margin-left: 280px;
-        }
-    }
-
-    @media (max-width: 768px) {
-        main, router-outlet + * {
-            margin-top: 70px;
-        }
-    }
-}
