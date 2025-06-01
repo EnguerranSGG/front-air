@@ -64,7 +64,7 @@ h2 {
   }
 }
 
-// Wrapper filtre et bouton d'ajout - STYLE EXACT JOB-OFFERS avec filtre
+// Wrapper filtre et bouton d'ajout - STYLE EXACT STEPS
 .filter-add-wrapper {
   display: flex;
   gap: 15px;
@@ -74,12 +74,12 @@ h2 {
   flex-wrap: wrap;
 
   @media (max-width: 768px) {
-    justify-content: center;
     flex-direction: column;
+    align-items: stretch;
   }
 }
 
-// Sélecteur moderne - STYLE EXACT JOB-OFFERS
+// Sélecteur moderne - STYLE EXACT STEPS
 .modern-select {
   background: rgba($white, 0.9);
   border: 2px solid rgba($primary-blue, 0.2);
@@ -92,7 +92,6 @@ h2 {
   cursor: pointer;
   outline: none;
   min-width: 200px;
-  flex: 1;
 
   &:focus {
     border-color: $primary-blue;
