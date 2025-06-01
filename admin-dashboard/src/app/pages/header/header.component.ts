@@ -15,6 +15,8 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent {
+  isMobileMenuOpen = false;
+
   constructor(private authService: AuthService, private router: Router) {}
 
   logout(): void {
@@ -23,5 +25,13 @@ export class HeaderComponent {
 
   isLoggedIn(): boolean {
     return this.authService.isAuthenticated();
+  }
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen = false;
   }
 }
