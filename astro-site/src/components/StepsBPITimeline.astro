@@ -11,6 +11,9 @@ try {
     const resSteps = await fetch(`${import.meta.env.PUBLIC_API_URL}/steps/by-path/${pathId}`);
     const data = await resSteps.json();
     steps = Array.isArray(data) ? data : [];
+    
+    // Trier les étapes par step_id croissant (du plus petit au plus grand)
+    steps.sort((a, b) => a.step_id - b.step_id);
   }
 } catch (err) {
   console.error("Erreur lors du fetch des étapes :", err);

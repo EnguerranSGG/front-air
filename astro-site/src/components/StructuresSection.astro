@@ -8,6 +8,9 @@ try {
   const data = await res.json();
   console.log('Structures récupérées :', data);
   structures = Array.isArray(data) ? data : [];
+  
+  // Trier les structures par structure_id croissant (du plus petit au plus grand)
+  structures.sort((a, b) => a.structure_id - b.structure_id);
 } catch (err) {
   console.error('Erreur lors du fetch des structures :', err);
 }
