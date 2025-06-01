@@ -1,12 +1,20 @@
 ---
+let title = '';
+
+try {
+  const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/files/8/title`);
+  title = await response.text();
+} catch (err) {
+  console.error("Erreur fetch lors de la récupération du titre :", err);
+}
 ---
 
 <section class="hero">
   <div class="hero-container">
-    <img src="/assets/image-accueil.jpg" alt="Illustration accueil insertion" class="hero-image animate-slide-up" />
+    <img src={`${import.meta.env.PUBLIC_ASSET_URL}/files/8/download`} alt="Illustration accueil insertion" class="hero-image animate-slide-up" />
 
     <div class="hero-overlay animate-slide-right">
-      <h4 class="animate-fade-in-delayed">Accueil Insertion Rencontre</h4>
+      <h4 class="animate-fade-in-delayed">{title}}</h4>
     </div>
   </div>
 </section>

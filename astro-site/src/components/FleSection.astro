@@ -1,5 +1,13 @@
 ---
 let stats = [];
+let title = '';
+
+try {
+  const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/files/11/title`);
+  title = await response.text();
+} catch (err) {
+  console.error("Erreur fetch lors de la récupération du titre :", err);
+}
 
 try {
   const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/statistics/by-type-name/FLE`);
@@ -8,6 +16,7 @@ try {
 } catch (err) {
   console.error("Erreur fetch statistiques AIR :", err);
 }
+
 ---
 
 <section class="fle-section">
@@ -18,7 +27,7 @@ try {
       class="fle-image animate-slide-up"
     />
     <div class="overlay animate-slide-right">
-      <h4 class="animate-fade-in-delayed">Formations<br />Français Langue Étrangère</h4>
+      <h4 class="animate-fade-in-delayed">{title}</h4>
     </div>
   </div>
 
