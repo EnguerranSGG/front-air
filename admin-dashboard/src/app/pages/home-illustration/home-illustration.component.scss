@@ -1,134 +1,523 @@
+// Variables cohérentes avec les autres composants
+$primary-blue: #0046a4;
+$primary-purple: #4c3575;
+$light-blue: #3498db;
+$green: #27ae60;
+$red: #e74c3c;
+$orange: #f39c12;
+$dark-gray: #333;
+$gray: #666;
+$light-gray: #eee;
+$ultra-light-gray: #f9f9f9;
+$white: #fff;
+
+// Gradients sophistiqués
+$primary-gradient: linear-gradient(135deg, $primary-blue 0%, $primary-purple 100%);
+$subtle-gradient: linear-gradient(135deg, rgba($primary-blue, 0.1) 0%, rgba($primary-purple, 0.1) 100%);
+$button-hover-gradient: linear-gradient(135deg, lighten($primary-blue, 10%) 0%, lighten($primary-purple, 10%) 100%);
+
+// Ombres modernes
+$glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+$card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+$button-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+$subtle-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+// Container principal
 :host {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
-  }
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px;
+}
 
-.home-illustration-section {
-    text-align: center;
-    width: 100%;
-    height: 100%;
-    border-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-  }
+// Card principale de l'illustration
+.illustration-card {
+  background: rgba($white, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: $card-shadow;
+  border: 1px solid rgba($primary-blue, 0.1);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-  .home-illustration-section button {
-    background-color: #4c3575;
-    color: white;
-    border: none;
-    padding: 0.4rem 1rem;
-    font-size: 0.95rem;
-    border-radius: 999px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-bottom: 1rem;
-  }
-  
-  .home-illustration-section button:hover {
-    background-color: #3a005c;
-  }
-  
-  .illustration {
-    max-width: 100%;
-    max-height: 50vh;
-  }
-
-  
-  /* MODAL - Overlay */
-  .modal-overlay {
-    position: fixed;
+  &::before {
+    content: '';
+    position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
+    width: 4px;
     height: 100%;
-    background: rgba(17, 17, 17, 0.75);
-    display: flex;
+    background: $primary-gradient;
+    opacity: 0.7;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Titre sobre pour la vitrine - STYLE DISCRET
+h3.illustration-title {
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: $gray;
+  margin-bottom: 20px;
+  text-align: center;
+  opacity: 0.8;
+  
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+  }
+}
+
+// Wrapper filtre et bouton d'ajout - STYLE EXACT JOB-OFFERS
+.filter-add-wrapper {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
     justify-content: center;
+  }
+}
+
+// Bouton d'ajout principal - STYLE HARMONISÉ STEPS EXACT
+.add-button {
+  background: $primary-gradient;
+  color: $white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: $button-shadow;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+
+  &:hover {
+    background: $button-hover-gradient;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  svg {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover svg {
+    transform: scale(1.1);
+  }
+}
+
+// Container de l'illustration
+.illustration-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba($ultra-light-gray, 0.5);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 2px dashed rgba($primary-blue, 0.2);
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: rgba($primary-blue, 0.4);
+    background: rgba($ultra-light-gray, 0.8);
+  }
+
+  .illustration {
+    max-width: 100%;
+    max-height: 40vh;
+    border-radius: 8px;
+    box-shadow: $subtle-shadow;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
+}
+
+// Actions de la card - Bouton en bas à gauche
+.card-actions {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+// Bouton d'édition - STYLE HARMONISÉ
+.edit-button {
+  background: rgba($light-blue, 0.1);
+  color: $light-blue;
+  border: 2px solid rgba($light-blue, 0.3);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+
+  &:hover {
+    background: rgba($light-blue, 0.2);
+    border-color: $light-blue;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba($light-blue, 0.3);
+  }
+
+  svg {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover svg {
+    transform: scale(1.1);
+  }
+}
+
+// Modal overlay - STYLE HARMONISÉ
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+// Modal contenu - STYLE HARMONISÉ AVEC FORMULAIRES
+.modal {
+  background: rgba($white, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: $glass-shadow;
+  border: 1px solid rgba($primary-blue, 0.1);
+  position: relative;
+  overflow: hidden;
+  animation: slideIn 0.3s ease-out;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: $primary-gradient;
+  }
+
+  h3 {
+    display: flex;
     align-items: center;
-    z-index: 1000;
-    padding: 1rem;
-  }
-  
-  /* MODAL - Contenu */
-  .modal {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 1rem;
-    max-width: 500px;
-    width: 100%;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-    animation: fadeIn 0.3s ease-out;
+    gap: 10px;
+    margin-bottom: 25px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: $primary-blue;
     text-align: center;
+    justify-content: center;
+
+    .title-icon {
+      color: $primary-purple;
+    }
   }
-  
-  .modal h3 {
-    color: #4c3575;
-    font-size: 1.4rem;
-    margin-bottom: 1.2rem;
+}
+
+// Groupes de formulaires - STYLE EXACT JOB-OFFERS
+.form-group {
+  margin-bottom: 20px;
+
+  .form-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: $dark-gray;
+    font-size: 14px;
+
+    .label-icon {
+      color: $primary-blue;
+    }
   }
-  
-  .file-upload {
-    display: inline-block;
-    background-color: #4c3575;
-    color: #fff;
-    padding: 0.6rem 1.2rem;
-    border-radius: 999px;
-    cursor: pointer;
-    margin-bottom: 1rem;
-    transition: background-color 0.3s ease;
+}
+
+// Inputs modernes - STYLE EXACT JOB-OFFERS
+.modern-input, .modern-textarea {
+  width: 100%;
+  background: rgba($white, 0.9);
+  border: 2px solid rgba($primary-blue, 0.2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 14px;
+  color: $dark-gray;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: $subtle-shadow;
+  resize: vertical;
+
+  &::placeholder {
+    color: rgba($gray, 0.7);
   }
-  
-  .file-upload:hover {
-    background-color: #3a005c;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-blue;
+    box-shadow: 0 0 0 4px rgba($primary-blue, 0.15);
+    transform: translateY(-1px);
+    background: $white;
   }
-  
-  .file-upload input[type="file"] {
+
+  &:hover {
+    border-color: rgba($primary-blue, 0.4);
+  }
+}
+
+.modern-textarea {
+  min-height: 100px;
+  font-family: inherit;
+}
+
+// Section upload de fichier - STYLE HARMONISÉ FILES
+.file-upload-section {
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.file-upload-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba($orange, 0.1);
+  color: $orange;
+  border: 2px solid rgba($orange, 0.3);
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 15px;
+
+  &:hover {
+    background: rgba($orange, 0.2);
+    border-color: $orange;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba($orange, 0.3);
+  }
+
+  input[type="file"] {
     display: none;
   }
-  
-  .file-selected-name {
-    font-size: 0.95rem;
-    color: #444;
-    margin-bottom: 1rem;
+
+  svg {
+    transition: transform 0.3s ease;
   }
-  
-  /* Boutons de la modale */
-  .modal .form-buttons {
-    display: flex;
+
+  &:hover svg {
+    transform: rotate(5deg);
+  }
+}
+
+// Info fichier sélectionné - STYLE HARMONISÉ FILES
+.file-selected-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  padding: 12px 20px;
+  background: rgba($green, 0.1);
+  border: 2px solid rgba($green, 0.3);
+  border-radius: 10px;
+  color: $green;
+  font-weight: 500;
+
+  .success-icon {
+    color: $green;
+    flex-shrink: 0;
+  }
+}
+
+// Boutons de formulaire - STYLES HARMONISÉS STEPS EXACTS
+.form-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.save-button {
+  background: linear-gradient(135deg, $green 0%, lighten($green, 10%) 100%);
+  color: $white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: $button-shadow;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba($green, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  svg {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover:not(:disabled) svg {
+    transform: scale(1.1);
+  }
+}
+
+.cancel-button {
+  background: rgba($gray, 0.1);
+  color: $gray;
+  border: 2px solid rgba($gray, 0.3);
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover {
+    background: rgba($gray, 0.2);
+    border-color: $gray;
+    transform: translateY(-2px);
+  }
+
+  svg {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover svg {
+    transform: scale(1.1);
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// Animations pour les icônes SVG
+svg {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:hover svg {
+  transform: scale(1.1);
+}
+
+// Responsivité globale
+@media (max-width: 768px) {
+  :host {
+    padding: 15px;
+  }
+
+  h3.illustration-title {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+  }
+
+  .modal {
+    padding: 25px;
+  }
+
+  .form-buttons {
+    flex-direction: column;
+  }
+
+  .add-button {
+    width: 100%;
     justify-content: center;
-    gap: 1rem;
   }
-  
-  .modal .form-buttons button {
-    background-color: #4c3575;
-    color: white;
-    border: none;
-    padding: 0.4rem 1rem;
-    font-size: 0.95rem;
-    border-radius: 999px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+
+  .illustration-container {
+    padding: 15px;
   }
-  
-  .modal .form-buttons button:hover {
-    background-color: #3a005c;
+
+  .illustration-card {
+    padding: 20px;
   }
-  
-  /* Animation d'apparition */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+}
+
+// Effets de focus améliorés pour l'accessibilité
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid $primary-blue;
+  outline-offset: 2px;
+}
+
+// Animation de chargement pour les boutons
+button:active {
+  transform: scale(0.98);
+}
+
+// Amélioration des transitions
+* {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
   
