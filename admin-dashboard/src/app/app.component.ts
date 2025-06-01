@@ -4,6 +4,7 @@ import { HeaderComponent } from './pages/header/header.component';
 import { CommonModule } from '@angular/common';
 import { ToastComponent } from './utils/toast/toast.component';
 import { ToastService } from './utils/toast/toast.service';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -16,10 +17,18 @@ export class AppComponent {
 
   @ViewChild(ToastComponent) toast!: ToastComponent;
 
-  constructor(private router: Router, private toastService: ToastService) {}
+  constructor(
+    private router: Router, 
+    private toastService: ToastService,
+    private authService: AuthService
+  ) {}
 
   shouldShowHeader(): boolean {
-    return this.router.url !== '/login';
+    return this.router.url !== '/login' && this.authService.isAuthenticated();
+  }
+
+  shouldShowContent(): boolean {
+    return this.router.url === '/login' || this.authService.isAuthenticated();
   }
 
   ngAfterViewInit(): void {

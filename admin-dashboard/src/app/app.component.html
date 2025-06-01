@@ -1,5 +1,5 @@
 <app-header *ngIf="shouldShowHeader()"></app-header>
-<div class="main-content" [class.with-header]="shouldShowHeader()">
+<div class="main-content" [class.with-header]="shouldShowHeader()" *ngIf="shouldShowContent()">
   <router-outlet></router-outlet>
 </div>
 <app-toast></app-toast>
