@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FileService } from '../../services/file.service';
 import { ToastService } from '../../utils/toast/toast.service';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
 import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
+import { FileEntity } from '../../models/file.model';
 
 @Component({
   selector: 'app-certificate',
@@ -16,13 +17,38 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
 export class CertificateComponent implements OnInit {
   certificateId = 18;
   certificateUrl = '';
+  certificateFile: FileEntity | null = null;
   selectedFile: File | null = null;
   isModalOpen = false;
+  updateForm!: FormGroup;
 
-  constructor(private fileService: FileService, private toast: ToastService) {}
+  constructor(
+    private fileService: FileService, 
+    private toast: ToastService,
+    private fb: FormBuilder
+  ) {}
 
   ngOnInit(): void {
     this.refreshCertificate();
+    this.loadFileInfo();
+    this.initForm();
+  }
+
+  initForm(): void {
+    this.updateForm = this.fb.group({
+      // Pas de champ titre pour le certificat
+    });
+  }
+
+  loadFileInfo(): void {
+    this.fileService.getById(this.certificateId).subscribe({
+      next: (file) => {
+        this.certificateFile = file;
+      },
+      error: () => {
+        // Silent error, file info is not critical
+      }
+    });
   }
 
   openModal(): void {
@@ -31,6 +57,8 @@ export class CertificateComponent implements OnInit {
 
   closeModal(): void {
     this.isModalOpen = false;
+    this.selectedFile = null;
+    this.updateForm.reset();
   }
 
   onFileSelected(event: Event): void {
@@ -41,7 +69,7 @@ export class CertificateComponent implements OnInit {
   }
 
   updateCertificate(): void {
-
+    // Vérifier qu'un fichier est sélectionné
     if (!this.selectedFile) {
       this.toast.show('Veuillez sélectionner un fichier');
       return;
@@ -54,6 +82,7 @@ export class CertificateComponent implements OnInit {
       next: () => {
         this.toast.show('Certificat mis à jour');
         this.refreshCertificate();
+        this.loadFileInfo();
         this.selectedFile = null;
         this.closeModal();
       },
