@@ -1,3 +1,15 @@
+// Variables cohérentes avec les autres composants
+$primary-blue: #0046a4;
+$primary-purple: #4c3575;
+$white: #fff;
+
+// Gradients sophistiqués
+$primary-gradient: linear-gradient(135deg, $primary-blue 0%, $primary-purple 100%);
+$button-hover-gradient: linear-gradient(135deg, lighten($primary-blue, 10%) 0%, lighten($primary-purple, 10%) 100%);
+
+// Ombres modernes
+$button-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+
 :host {
   display: block;
   min-height: 100vh;
@@ -69,47 +81,42 @@
   background-color: #ffffff;
 }
 
-.form-button {
+// Bouton de connexion - STYLE EXACT DU BOUTON ADD DE JOB-OFFERS
+.add-button {
   width: 100%;
-  background: linear-gradient(135deg, #5a007a, #7a1a9a);
-  color: white;
-  padding: 1rem;
+  background: $primary-gradient;
+  color: $white;
   border: none;
-  border-radius: 0.75rem;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 14px;
   font-weight: 600;
-  font-size: 1.1rem;
   cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: $button-shadow;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
   margin-top: 1.5rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(90, 0, 122, 0.3);
-  position: relative;
-  overflow: hidden;
-}
 
-.form-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s ease;
-}
+  &:hover {
+    background: $button-hover-gradient;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
 
-.form-button:hover::before {
-  left: 100%;
-}
+  &:active {
+    transform: translateY(0);
+  }
 
-.form-button:hover {
-  background: linear-gradient(135deg, #3a005c, #5a1a7a);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(90, 0, 122, 0.4);
-}
+  svg {
+    transition: transform 0.3s ease;
+  }
 
-.form-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(90, 0, 122, 0.3);
+  &:hover svg {
+    transform: scale(1.1);
+  }
 }
 
 .form-error {
