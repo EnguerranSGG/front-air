@@ -1,32 +1,73 @@
-.dashboard-section h1 {
+.dashboard-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  max-width: 100%;
+  overflow-x: hidden;
+
+  h1 {
     color: #0046a4;
     font-size: 1.8rem;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
     text-align: center;
-}
+    max-width: 100%;
+  }
 
-.dashboard-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.dashboard-section div {
+  .dashboard-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 60vh 60vh 60vh;
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
     width: 100%;
+    max-width: 100%;
+    
+    // Pour écrans moyens à larges
+    @media (min-width: 1200px) {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: repeat(3, minmax(300px, 1fr));
+    }
+    
+    // Pour tablettes
+    @media (max-width: 1199px) and (min-width: 769px) {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    // Pour mobiles
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      padding: 0 0.5rem;
+    }
+
+    // Composants enfants
+    app-news,
+    app-home-illustration,
+    app-fle-illustration,
+    app-governance,
+    app-flyer,
+    app-certificate {
+      height: 100%;
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
+      
+      // S'assurer que le contenu s'adapte
+      > * {
+        height: 100%;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+    }
+  }
 }
 
-.dashboard-section > div > app-news,
-.dashboard-section > div > app-governance {
-  height: 100%;
-  display: flex;
-}
-
-.dashboard-section > div > app-news > *,
-.dashboard-section > div > app-governance > * {
-  height: 100%;
+// Ajustements spécifiques pour les composants qui peuvent déborder
+:host {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
