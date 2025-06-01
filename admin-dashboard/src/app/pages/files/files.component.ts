@@ -56,10 +56,8 @@ export class FileComponent implements OnInit {
       this.selectedFile = input.files[0];
       this.fileForm.patchValue({ file: this.selectedFile });
   
-      // Remplir automatiquement le nom si ce n'est pas une édition
-      if (!this.editingFileId) {
-        this.fileForm.patchValue({ name: this.selectedFile.name });
-      }
+      // Remplir automatiquement le nom avec le nom du fichier (toujours)
+      this.fileForm.patchValue({ name: this.selectedFile.name });
     }
   }
   
@@ -92,7 +90,14 @@ export class FileComponent implements OnInit {
   // Prépare le formulaire pour modification
   onEdit(file: any): void {
     this.editingFileId = file.file_id;
-    this.fileForm.patchValue({ name: file.name });
+    // Le nom sera automatiquement défini lors de la sélection du nouveau fichier
+    this.fileForm.patchValue({ name: '' });
+    
+    // Scroll smooth vers le haut de la page pour accéder au formulaire
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   }
 
   // Supprime un fichier
