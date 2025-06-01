@@ -19,4 +19,41 @@
   textarea.ng-valid.ng-touched {
     border-color: #4caf50;
   }
+
+// Layout principal ajusté pour la navigation
+.main-content {
+  transition: all 0.3s ease;
+  min-height: 100vh;
+  
+  &.with-header {
+    @media (min-width: 769px) {
+      margin-left: 280px;
+      padding: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+      margin-top: 70px;
+      padding: 1rem;
+    }
+  }
+  
+  &:not(.with-header) {
+    // Pour la page de login sans header
+    margin: 0;
+    padding: 0;
+  }
+}
+
+// Style global pour router-outlet
+router-outlet + * {
+  transition: all 0.3s ease;
+  
+  @media (min-width: 769px) {
+    margin-left: 280px;
+  }
+  
+  @media (max-width: 768px) {
+    margin-top: 70px;
+  }
+}
   
