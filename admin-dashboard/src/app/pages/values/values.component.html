@@ -1,88 +1,153 @@
-<h2>🎯 Gestion des valeurs</h2>
+<h2>Gestion des valeurs</h2>
 
-<!-- Bouton d’ajout -->
+<!-- Bouton d'ajout modernisé -->
 <div class="filter-add-wrapper">
-  <button (click)="showForm = !showForm">
-    {{ showForm ? '❌ Annuler' : '➕ Ajouter une valeur' }}
+  <button (click)="showForm = !showForm" class="add-button">
+    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="!showForm">
+      <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+    </svg>
+    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="showForm">
+      <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+    </svg>
+    {{ showForm ? 'Annuler' : 'Ajouter une valeur' }}
   </button>
 </div>
 
-<!-- Formulaire de création -->
-<form *ngIf="showForm" class="create-form" [formGroup]="createForm" (ngSubmit)="addValue()">
-  <!-- Titre -->
-  <input type="text" formControlName="name" placeholder="Titre" />
-  <div *ngIf="createForm.get('name')?.invalid && createForm.get('name')?.touched" class="error">
-    <span *ngIf="createForm.get('name')?.errors?.['required']">Le titre est obligatoire.</span>
-    <span *ngIf="createForm.get('name')?.errors?.['maxlength']">Le titre ne doit pas dépasser 20 caractères.</span>
-  </div>
-
-  <!-- Fichier -->
-  <div class="form-buttons">
-    <button type="button" (click)="showCreateFileSelector = !showCreateFileSelector">
-      {{ showCreateFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
-    </button>
-
-    <div *ngIf="showCreateFileSelector">
-      <app-file-selector
-        [files]="files"
-        [selectedFileId]="createForm.value.file_id"
-        (fileSelected)="onFileSelect($event)">
-      </app-file-selector>
-    </div>
-
-    <button type="submit" [disabled]="createForm.invalid">Créer</button>
-  </div>
-</form>
-
-
-<!-- Liste des valeurs -->
-<div *ngFor="let value of values" class="event-card">
-  <!-- Affichage classique -->
-  <ng-container *ngIf="editingValueId !== value.value_id; else editTemplate">
-    <div class="event-content">
-      <strong class="event-year">{{ value.name }}</strong>
-      <div *ngIf="value.file?.file_id">
-        <img
-          [src]="apiUrl + '/files/' + value.file?.file_id + '/download'"
-          alt="Illustration"
-          width="100"
-        />
+<!-- Formulaire de création modernisé -->
+<div *ngIf="showForm" class="create-form">
+  <h3>
+    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24" class="title-icon">
+      <path d="M12,2A3,3 0 0,1 15,5V7H20A1,1 0 0,1 21,8V10A1,1 0 0,1 20,11H19V19A3,3 0 0,1 16,22H8A3,3 0 0,1 5,19V11H4A1,1 0 0,1 3,10V8A1,1 0 0,1 4,7H9V5A3,3 0 0,1 12,2M12,4A1,1 0 0,0 11,5V7H13V5A1,1 0 0,0 12,4M7,11V19A1,1 0 0,0 8,20H16A1,1 0 0,0 17,19V11H7Z"/>
+    </svg>
+    Nouvelle valeur
+  </h3>
+  <form [formGroup]="createForm" (ngSubmit)="addValue()">
+    <div class="form-group">
+      <input type="text" formControlName="name" placeholder="Titre de la valeur" class="modern-input" />
+      <div *ngIf="createForm.get('name')?.invalid && createForm.get('name')?.touched" class="error">
+        <span *ngIf="createForm.get('name')?.errors?.['required']">Le titre est obligatoire.</span>
+        <span *ngIf="createForm.get('name')?.errors?.['maxlength']">Le titre ne doit pas dépasser 20 caractères.</span>
       </div>
     </div>
-    <div class="event-buttons">
-      <button (click)="startEdit(value)">✏️ Modifier</button>
-      <button (click)="deleteValue(value.value_id)">🗑️ Supprimer</button>
+
+    <!-- Sélecteur de fichier modernisé -->
+    <div class="file-section">
+      <button type="button" (click)="showCreateFileSelector = !showCreateFileSelector" class="file-toggle-button">
+        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="!showCreateFileSelector">
+          <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+        </svg>
+        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="showCreateFileSelector">
+          <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+        </svg>
+        {{ showCreateFileSelector ? 'Fermer les images' : 'Lier une image' }}
+      </button>
+
+      <div *ngIf="showCreateFileSelector" class="file-selector-container">
+        <app-file-selector
+          [files]="files"
+          [selectedFileId]="createForm.value.file_id"
+          (fileSelected)="onFileSelect($event)">
+        </app-file-selector>
+      </div>
+    </div>
+
+    <div class="form-buttons">
+      <button type="submit" [disabled]="createForm.invalid" class="save-button">
+        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/>
+        </svg>
+        Créer
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Liste des valeurs modernisée -->
+<div *ngFor="let value of values" class="event-card">
+  <!-- Affichage normal -->
+  <ng-container *ngIf="editingValueId !== value.value_id; else editTemplate">
+    <div class="event-display">
+      <div class="event-content">
+        <strong class="event-year">{{ value.name }}</strong>
+        <div *ngIf="value.file?.file_id" class="value-image-container">
+          <img
+            [src]="apiUrl + '/files/' + value.file?.file_id + '/download'"
+            [alt]="value.name"
+            loading="lazy"
+          />
+        </div>
+      </div>
+      <div class="event-buttons">
+        <button (click)="startEdit(value)" class="edit-button">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+          </svg>
+          Modifier
+        </button>
+        <button (click)="deleteValue(value.value_id)" class="delete-button">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z"/>
+          </svg>
+          Supprimer
+        </button>
+      </div>
     </div>
   </ng-container>
 
-  <!-- Formulaire de modification -->
+  <!-- Formulaire de modification modernisé -->
   <ng-template #editTemplate>
-    <form class="create-form" [formGroup]="editForm" (ngSubmit)="saveEdit(value)">
-      <!-- Titre -->
-      <input type="text" formControlName="name" placeholder="Titre" />
-      <div *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched" class="error">
-        <span *ngIf="editForm.get('name')?.errors?.['required']">Le titre est obligatoire.</span>
-        <span *ngIf="editForm.get('name')?.errors?.['maxlength']">Le titre ne doit pas dépasser 20 caractères.</span>
-      </div>
-  
-      <!-- Fichier -->
-      <div class="form-buttons">
-        <button type="button" (click)="showEditFileSelector = !showEditFileSelector">
-          {{ showEditFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
-        </button>
-  
-        <div *ngIf="showEditFileSelector">
-          <app-file-selector
-            [files]="files"
-            [selectedFileId]="editForm.value.file_id"
-            (fileSelected)="onFileSelect($event)">
-          </app-file-selector>
+    <div class="edit-form">
+      <h4>
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" class="title-icon">
+          <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+        </svg>
+        Modifier la valeur
+      </h4>
+      <form [formGroup]="editForm" (ngSubmit)="saveEdit(value)">
+        <div class="form-group">
+          <input type="text" formControlName="name" placeholder="Titre de la valeur" class="modern-input" />
+          <div *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched" class="error">
+            <span *ngIf="editForm.get('name')?.errors?.['required']">Le titre est obligatoire.</span>
+            <span *ngIf="editForm.get('name')?.errors?.['maxlength']">Le titre ne doit pas dépasser 20 caractères.</span>
+          </div>
         </div>
-  
-        <button type="submit" [disabled]="editForm.invalid">💾 Sauvegarder</button>
-        <button type="button" (click)="cancelEdit()">❌ Annuler</button>
-      </div>
-    </form>
+    
+        <!-- Sélecteur de fichier modernisé -->
+        <div class="file-section">
+          <button type="button" (click)="showEditFileSelector = !showEditFileSelector" class="file-toggle-button">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="!showEditFileSelector">
+              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="showEditFileSelector">
+              <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+            </svg>
+            {{ showEditFileSelector ? 'Fermer les images' : 'Lier une image' }}
+          </button>
+    
+          <div *ngIf="showEditFileSelector" class="file-selector-container">
+            <app-file-selector
+              [files]="files"
+              [selectedFileId]="editForm.value.file_id"
+              (fileSelected)="onFileSelect($event)">
+            </app-file-selector>
+          </div>
+        </div>
+    
+        <div class="form-buttons">
+          <button type="submit" [disabled]="editForm.invalid" class="save-button">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/>
+            </svg>
+            Sauvegarder
+          </button>
+          <button type="button" (click)="cancelEdit()" class="cancel-button">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+            </svg>
+            Annuler
+          </button>
+        </div>
+      </form>
+    </div>
   </ng-template>
-  
 </div>
