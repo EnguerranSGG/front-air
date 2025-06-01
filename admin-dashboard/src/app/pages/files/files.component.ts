@@ -56,8 +56,11 @@ export class FileComponent implements OnInit {
       this.selectedFile = input.files[0];
       this.fileForm.patchValue({ file: this.selectedFile });
   
-      // Remplir automatiquement le nom avec le nom du fichier (toujours)
+      // Nom automatique du fichier (non modifiable)
       this.fileForm.patchValue({ name: this.selectedFile.name });
+      
+      // Forcer la mise à jour du champ name
+      this.fileForm.get('name')?.updateValueAndValidity();
     }
   }
   
@@ -68,9 +71,10 @@ export class FileComponent implements OnInit {
 
     const formData = new FormData();
     formData.append('file', this.selectedFile);
-
+    
+    // Pour la création seulement, ajouter le nom
     if (!this.editingFileId) {
-      formData.append('name', this.fileForm.value.name);
+      formData.append('name', this.selectedFile.name);
     }
 
     const request = this.editingFileId
@@ -90,14 +94,25 @@ export class FileComponent implements OnInit {
   // Prépare le formulaire pour modification
   onEdit(file: any): void {
     this.editingFileId = file.file_id;
-    // Le nom sera automatiquement défini lors de la sélection du nouveau fichier
+    // Vider le champ nom - il sera rempli lors de la sélection du fichier
     this.fileForm.patchValue({ name: '' });
     
-    // Scroll smooth vers le haut de la page pour accéder au formulaire
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
+    // Scroll vers le haut - méthode simplifiée et fiable
+    setTimeout(() => {
+      const formElement = document.querySelector('.create-form');
+      if (formElement) {
+        formElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start',
+          inline: 'nearest'
+        });
+      } else {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      }
+    }, 100);
   }
 
   // Supprime un fichier
