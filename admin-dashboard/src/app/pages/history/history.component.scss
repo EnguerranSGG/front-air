@@ -7,6 +7,30 @@ $text-color: #2d3748;
 $shadow-light: rgba(0, 0, 0, 0.1);
 $shadow-medium: rgba(0, 0, 0, 0.15);
 
+// Variables cohérentes avec les autres composants
+$primary-blue: #0046a4;
+$primary-purple: #4c3575;
+$light-blue: #3498db;
+$green: #27ae60;
+$red: #e74c3c;
+$orange: #f39c12;
+$dark-gray: #333;
+$gray: #666;
+$light-gray: #eee;
+$ultra-light-gray: #f9f9f9;
+$white: #fff;
+
+// Gradients sophistiqués
+$primary-gradient: linear-gradient(135deg, $primary-blue 0%, $primary-purple 100%);
+$subtle-gradient: linear-gradient(135deg, rgba($primary-blue, 0.1) 0%, rgba($primary-purple, 0.1) 100%);
+$button-hover-gradient: linear-gradient(135deg, lighten($primary-blue, 10%) 0%, lighten($primary-purple, 10%) 100%);
+
+// Ombres modernes
+$glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+$card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+$button-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+$subtle-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
 :host {
   display: flex;
   flex-direction: column;
@@ -25,404 +49,421 @@ h2 {
   letter-spacing: -0.02em;
 }
 
-// Conteneur pour le bouton d'ajout
-.add-button-wrapper {
+// Conteneur pour le bouton d'ajout - STYLE EXACT JOB-OFFERS
+.filter-add-wrapper {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   max-width: 800px;
   margin: 0 auto 2rem;
-  display: flex;
-  justify-content: flex-end;
+
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
 }
 
+// Bouton d'ajout principal - STYLE HARMONISÉ STEPS EXACT
 .add-button {
-  background: linear-gradient(135deg, $primary-blue, #2563eb);
-  color: white;
+  background: $primary-gradient;
+  color: $white;
   border: none;
-  padding: 0.75rem 1.5rem;
-  font-size: 0.95rem;
-  border-radius: 2rem;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 70, 164, 0.3);
-  position: relative;
-  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: $button-shadow;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-
-  svg {
-    transition: all 0.3s ease;
-    flex-shrink: 0;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s ease;
-  }
+  gap: 8px;
+  white-space: nowrap;
 
   &:hover {
-    background: linear-gradient(135deg, #003a7a, #1d4ed8);
+    background: $button-hover-gradient;
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 70, 164, 0.4);
-
-    svg {
-      transform: scale(1.1);
-    }
-
-    &::before {
-      left: 100%;
-    }
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
   }
 
   &:active {
     transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(0, 70, 164, 0.3);
+  }
+
+  svg {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover svg {
+    transform: scale(1.1);
   }
 }
 
-// Formulaire de création moderne
-.create-form {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
+// Formulaires (création et édition) - STYLE EXACT JOB-OFFERS
+.create-form, .edit-form {
+  background: rgba($white, 0.95);
   backdrop-filter: blur(20px);
-  padding: 2.5rem;
-  margin: 0 auto 2rem;
-  border-radius: 1.5rem;
-  max-width: 800px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 20px 40px $shadow-light, 0 8px 16px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: $glass-shadow;
+  border: 1px solid rgba($primary-blue, 0.1);
   position: relative;
   overflow: hidden;
+  max-width: 800px;
+  margin: 0 auto 2rem;
 
   &::before {
     content: '';
     position: absolute;
     top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(76, 53, 117, 0.05), transparent);
-    transition: left 0.6s ease;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: $primary-gradient;
   }
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 25px 50px $shadow-medium, 0 10px 20px $shadow-light;
-
-    &::before {
-      left: 100%;
-    }
-  }
-
-  h3 {
-    color: $primary-blue;
-    font-size: 1.4rem;
-    margin-bottom: 2rem;
-    text-align: center;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+  h3, h4 {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: $primary-blue;
 
     .title-icon {
-      color: $primary-blue;
-      transition: transform 0.3s ease;
+      color: $primary-purple;
     }
-  }
-
-  form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
   }
 }
 
-// Cartes d'événements modernisées
+// Cartes d'événements modernisées - STYLE EXACT JOB-OFFERS
 .event-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
+  background: rgba($white, 0.95);
   backdrop-filter: blur(20px);
-  padding: 2rem;
-  margin: 0 auto 1.5rem;
-  border-radius: 1.5rem;
-  width: 700px;
-  max-width: calc(100vw - 320px);
-  min-height: 200px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 10px 30px $shadow-light, 0 4px 12px $shadow-medium;
-  transition: all 0.3s ease;
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 20px;
+  box-shadow: $card-shadow;
+  border: 1px solid rgba($primary-blue, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  max-width: 800px;
+  margin: 0 auto 1.5rem;
 
   &::before {
     content: '';
     position: absolute;
     top: 0;
-    left: -100%;
-    width: 100%;
+    left: 0;
+    width: 4px;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(76, 53, 117, 0.05), transparent);
-    transition: left 0.6s ease;
+    background: $primary-gradient;
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 40px $shadow-medium, 0 8px 20px $shadow-light;
-    
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+
     &::before {
-      left: 100%;
+      opacity: 1;
     }
   }
 }
 
-// Affichage des événements
+// Affichage des événements - STYLE EXACT JOB-OFFERS
 .event-display {
   display: flex;
-  flex-direction: column;
   justify-content: space-between;
-  height: 100%;
-  min-height: 156px;
+  align-items: flex-start;
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 15px;
+  }
 }
 
 .event-content {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  margin-bottom: 1.5rem;
 
   .event-year {
-    color: $primary-blue;
-    font-weight: 700;
     font-size: 1.3rem;
-    margin-bottom: 1rem;
+    font-weight: 700;
+    color: $primary-blue;
+    margin-bottom: 10px;
     display: block;
-    line-height: 1.2;
   }
 
   .event-description {
-    color: $text-color;
-    font-size: 1rem;
+    color: $gray;
     line-height: 1.6;
-    margin: 0;
-    flex: 1;
+    margin-bottom: 15px;
+    font-size: 14px;
   }
 }
 
-.event-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-top: auto;
+// Détails de l'événement - STYLE EXACT JOB-OFFERS
+.offer-details {
+  margin-bottom: 15px;
 }
 
-// Formulaire d'édition dans les cartes
-.edit-form {
+.detail-item {
   display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 156px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: $gray;
 
-  h4 {
+  .detail-icon {
     color: $primary-blue;
-    font-size: 1.2rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    justify-content: center;
+    flex-shrink: 0;
+  }
 
-    .title-icon {
-      color: $primary-blue;
-      transition: transform 0.3s ease;
+  .external-link {
+    color: $primary-blue;
+    text-decoration: none;
+    font-weight: 500;
+    
+    &:hover {
+      text-decoration: underline;
+      color: $primary-purple;
     }
   }
+}
 
-  form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+// Boutons d'action - STYLES HARMONISÉS STEPS EXACTS
+.event-buttons {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
     width: 100%;
-    flex: 1;
     justify-content: space-between;
   }
 }
 
-// Groupes de formulaire
-.form-group {
-  width: 100%;
-  max-width: 600px;
-  margin-bottom: 1.5rem;
-}
-
-// Inputs modernes
-.modern-input {
-  width: 100%;
-  padding: 1rem 1.2rem;
-  margin-bottom: 0.5rem;
-  font-size: 1rem;
-  border: 2px solid $border-color;
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-  outline: none;
-  box-sizing: border-box;
-
-  &:focus {
-    border-color: $primary-blue;
-    background: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 0 0 3px rgba(2, 117, 216, 0.1);
-    transform: translateY(-1px);
-  }
-
-  &:hover:not(:focus) {
-    border-color: #cbd5e0;
-    background: rgba(255, 255, 255, 0.9);
-  }
-
-  &::placeholder {
-    color: #a0aec0;
-    font-weight: 500;
-  }
-}
-
-// Boutons d'action modernes
-button {
-  background: linear-gradient(135deg, $primary-purple, #5a1a7a);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  font-size: 0.95rem;
-  border-radius: 2rem;
-  font-weight: 600;
+.edit-button {
+  background: rgba($light-blue, 0.1);
+  color: $light-blue;
+  border: 2px solid rgba($light-blue, 0.3);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(76, 53, 117, 0.3);
-  position: relative;
-  overflow: hidden;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 6px;
+  font-weight: 500;
+
+  &:hover {
+    background: rgba($light-blue, 0.2);
+    border-color: $light-blue;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba($light-blue, 0.3);
+  }
 
   svg {
-    transition: all 0.3s ease;
-    flex-shrink: 0;
+    transition: transform 0.3s ease;
   }
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s ease;
-  }
-
-  &:hover {
-    background: linear-gradient(135deg, #3a005c, #4a1a6a);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(76, 53, 117, 0.4);
-
-    svg {
-      transform: scale(1.1);
-    }
-
-    &::before {
-      left: 100%;
-    }
-  }
-
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(76, 53, 117, 0.3);
-  }
-
-  &:disabled {
-    background: linear-gradient(135deg, #a0a0a0, #888888);
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-
-    &:hover {
-      transform: none;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      
-      svg {
-        transform: none;
-      }
-    }
-  }
-}
-
-// Variations de boutons spécifiques
-.edit-button {
-  background: linear-gradient(135deg, $primary-blue, #2563eb);
-  
-  &:hover {
-    background: linear-gradient(135deg, #003a7a, #1d4ed8);
+  &:hover svg {
+    transform: scale(1.1);
   }
 }
 
 .delete-button {
-  background: linear-gradient(135deg, #dc2626, #ef4444);
-  
+  background: rgba($red, 0.1);
+  color: $red;
+  border: 2px solid rgba($red, 0.3);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+
   &:hover {
-    background: linear-gradient(135deg, #b91c1c, #dc2626);
+    background: rgba($red, 0.2);
+    border-color: $red;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba($red, 0.3);
+  }
+
+  svg {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover svg {
+    transform: scale(1.1);
+  }
+}
+
+// Groupes de formulaire - STYLE EXACT JOB-OFFERS
+.form-group {
+  margin-bottom: 20px;
+
+  .form-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: $dark-gray;
+    font-size: 14px;
+
+    .label-icon {
+      color: $primary-blue;
+    }
+  }
+}
+
+// Inputs modernes - STYLE EXACT JOB-OFFERS
+.modern-input, .modern-textarea {
+  width: 100%;
+  background: rgba($white, 0.9);
+  border: 2px solid rgba($primary-blue, 0.2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 14px;
+  color: $dark-gray;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: $subtle-shadow;
+  resize: vertical;
+
+  &::placeholder {
+    color: rgba($gray, 0.7);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $primary-blue;
+    box-shadow: 0 0 0 4px rgba($primary-blue, 0.15);
+    transform: translateY(-1px);
+    background: $white;
+  }
+
+  &:hover {
+    border-color: rgba($primary-blue, 0.4);
+  }
+}
+
+.modern-textarea {
+  min-height: 100px;
+  font-family: inherit;
+}
+
+// Boutons de formulaire - STYLES HARMONISÉS STEPS EXACTS
+.form-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+  justify-content: flex-end;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
   }
 }
 
 .save-button {
-  background: linear-gradient(135deg, #059669, #10b981);
-  
-  &:hover {
-    background: linear-gradient(135deg, #047857, #059669);
+  background: linear-gradient(135deg, $green 0%, lighten($green, 10%) 100%);
+  color: $white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: $button-shadow;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba($green, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  svg {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover:not(:disabled) svg {
+    transform: scale(1.1);
   }
 }
 
 .cancel-button {
-  background: linear-gradient(135deg, #6b7280, #9ca3af);
-  
+  background: rgba($gray, 0.1);
+  color: $gray;
+  border: 2px solid rgba($gray, 0.3);
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
   &:hover {
-    background: linear-gradient(135deg, #4b5563, #6b7280);
+    background: rgba($gray, 0.2);
+    border-color: $gray;
+    transform: translateY(-2px);
+  }
+
+  svg {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover svg {
+    transform: scale(1.1);
   }
 }
 
-// Conteneur des boutons
-.form-buttons {
+// Messages d'erreur - STYLE EXACT JOB-OFFERS
+.error {
+  color: $red;
+  font-size: 12px;
+  margin-top: 5px;
   display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  margin-top: 2rem;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+
+  &::before {
+    content: '⚠️';
+    font-size: 14px;
+  }
 }
 
-// Messages d'erreur modernes
-.error {
-  color: #e53e3e;
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  background-color: rgba(254, 215, 215, 0.8);
-  border: 1px solid #feb2b2;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  backdrop-filter: blur(10px);
+// Animations pour les icônes SVG
+svg {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:hover svg {
+  transform: scale(1.1);
 }
 
 // Responsive design
@@ -437,7 +478,7 @@ button {
     border-radius: 1rem;
   }
 
-  .add-button-wrapper {
+  .filter-add-wrapper {
     max-width: calc(100% - 2rem);
     width: auto;
     margin-left: 1rem;
@@ -466,5 +507,24 @@ button {
     font-size: 1.5rem;
     margin-bottom: 1.5rem;
   }
+}
+
+// Effets de focus améliorés pour l'accessibilité
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid $primary-blue;
+  outline-offset: 2px;
+}
+
+// Animation de chargement pour les boutons
+button:active {
+  transform: scale(0.98);
+}
+
+// Amélioration des transitions
+* {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
   
