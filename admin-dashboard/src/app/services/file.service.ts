@@ -29,6 +29,12 @@ export class FileService {
     return this.http.put<FileEntity>(`${this.apiUrl}/${id}`, formData);
   }
 
+  updateMetadata(id: number, title: string): Observable<FileEntity> {
+    const formData = new FormData();
+    formData.append('title', title);
+    return this.http.put<FileEntity>(`${this.apiUrl}/${id}/metadata`, formData);
+  }
+
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
