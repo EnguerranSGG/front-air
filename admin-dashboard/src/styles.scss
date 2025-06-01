@@ -1,1 +1,66 @@
 /* You can add global styles to this file, and also import other style files */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+app-news,
+app-home-illustration,
+app-fle-illustration,
+app-governance,
+app-flyer,
+app-certificate {
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  pdf-viewer {
+    max-width: 100% !important;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+  }
+}
+
+pdf-viewer,
+.ng2-pdf-viewer-container {
+  position: relative;
+  z-index: 1 !important;
+  max-width: 100%;
+  overflow: hidden;
+  
+  canvas[style*="position: fixed"],
+  .hiddenCanvasElement,
+  canvas.hiddenCanvasElement {
+    position: relative !important;
+    z-index: 1 !important;
+    max-width: 100% !important;
+    display: none !important;
+  }
+}
+
+canvas {
+  max-width: 100% !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+canvas[style*="position: fixed"] {
+  position: relative !important;
+  z-index: 1 !important;
+}
