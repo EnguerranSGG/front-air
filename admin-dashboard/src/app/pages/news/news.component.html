@@ -1,62 +1,127 @@
 <!-- Liste des actualités -->
 <div *ngFor="let news of newsList" class="event-card">
-    <div class="event-content">
-      <strong class="event-year">{{ news.name | sanitize }}</strong>
-      <p class="event-description">{{ news.description | sanitize }}</p>
-      <div *ngIf="news.file?.file_id">
-        <img [src]="apiUrl + '/files/' + news.file?.file_id + '/download'" alt="{{ news.name | sanitize }}" width="100" />
-      </div>
-    </div>
-    <div class="event-buttons">
-      <button (click)="openEditModal(news)">✏️ Modifier cette actualité</button>
+  <div class="event-content">
+    <strong class="event-year">{{ news.name | sanitize }}</strong>
+    <p class="event-description">{{ news.description | sanitize }}</p>
+    <div *ngIf="news.file?.file_id" class="news-image-container">
+      <img 
+        [src]="apiUrl + '/files/' + news.file?.file_id + '/download'" 
+        [alt]="news.name | sanitize" 
+        loading="lazy"
+      />
     </div>
   </div>
-  
-  <!-- Modal Édition -->
-  <div class="modal-overlay" *ngIf="isEditModalOpen">
-    <div class="modal">
-      <h3>Modifier une actualité</h3>
-      <form [formGroup]="editForm">
-        
-        <!-- Champ Titre -->
-        <input formControlName="name" type="text" placeholder="Titre de l'actualité" />
+  <div class="event-buttons">
+    <button (click)="openEditModal(news)" class="edit-button">
+      <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+      </svg>
+      Modifier cette actualité
+    </button>
+  </div>
+</div>
+
+<!-- Modal Édition modernisé -->
+<div class="modal-overlay" *ngIf="isEditModalOpen" (click)="closeEditModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>
+      <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24" class="title-icon">
+        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+      </svg>
+      Modifier une actualité
+    </h3>
+    <form [formGroup]="editForm">
+      
+      <!-- Champ Titre -->
+      <div class="form-group">
+        <input 
+          formControlName="name" 
+          type="text" 
+          placeholder="Titre de l'actualité"
+          class="modern-input"
+        />
         <div *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched" class="error">
           <span *ngIf="editForm.get('name')?.errors?.['required']">Le titre est obligatoire.</span>
           <span *ngIf="editForm.get('name')?.errors?.['maxlength']">Le titre ne doit pas dépasser 100 caractères.</span>
         </div>
-  
-        <!-- Champ Description -->
-        <textarea formControlName="description" placeholder="Contenu de l'actualité"></textarea>
+      </div>
+
+      <!-- Champ Description -->
+      <div class="form-group">
+        <textarea 
+          formControlName="description" 
+          placeholder="Contenu de l'actualité"
+          class="modern-textarea"
+        ></textarea>
         <div *ngIf="editForm.get('description')?.invalid && editForm.get('description')?.touched" class="error">
           <span *ngIf="editForm.get('description')?.errors?.['required']">La description est obligatoire.</span>
           <span *ngIf="editForm.get('description')?.errors?.['maxlength']">La description ne doit pas dépasser 300 caractères.</span>
         </div>
-  
-        <!-- Champ Lien (optionnel) -->
-        <input formControlName="link" type="url" placeholder="Lien externe (facultatif)" />
+      </div>
+
+      <!-- Champ Lien (optionnel) -->
+      <div class="form-group">
+        <input 
+          formControlName="link" 
+          type="url" 
+          placeholder="Lien externe (facultatif)"
+          class="modern-input"
+        />
         <div *ngIf="editForm.get('link')?.invalid && editForm.get('link')?.touched" class="error">
           <span *ngIf="editForm.get('link')?.errors?.['pattern']">Le lien doit commencer par http:// ou https://</span>
           <span *ngIf="editForm.get('link')?.errors?.['maxlength']">Le lien ne doit pas dépasser 255 caractères.</span>
         </div>
-  
-        <!-- Sélecteur de fichier -->
-        <button type="button" (click)="showEditFileSelector = !showEditFileSelector">
-          {{ showEditFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
+      </div>
+
+      <!-- Sélecteur de fichier -->
+      <div class="file-section">
+        <button 
+          type="button" 
+          (click)="showEditFileSelector = !showEditFileSelector"
+          class="file-toggle-button"
+        >
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="!showEditFileSelector">
+            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+          </svg>
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="showEditFileSelector">
+            <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+          </svg>
+          {{ showEditFileSelector ? 'Fermer les images' : 'Lier une image' }}
         </button>
-  
-        <div *ngIf="showEditFileSelector">
+
+        <div *ngIf="showEditFileSelector" class="file-selector-container">
           <app-file-selector
             [files]="files"
             [selectedFileId]="editForm.value.file_id"
             (fileSelected)="onFileSelect($event)"
           ></app-file-selector>
         </div>
-  
-        <div class="form-buttons">
-          <button type="button" (click)="saveEdit()" [disabled]="editForm.invalid">💾 Sauvegarder</button>
-          <button type="button" (click)="closeEditModal()">❌ Annuler</button>
-        </div>
-      </form>
-    </div>
+      </div>
+
+      <div class="form-buttons">
+        <button 
+          type="button" 
+          (click)="saveEdit()" 
+          [disabled]="editForm.invalid"
+          class="save-button"
+        >
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/>
+          </svg>
+          Sauvegarder
+        </button>
+        <button 
+          type="button" 
+          (click)="closeEditModal()"
+          class="cancel-button"
+        >
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+          </svg>
+          Annuler
+        </button>
+      </div>
+    </form>
   </div>
+</div>
   
