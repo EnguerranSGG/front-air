@@ -82,9 +82,13 @@ export class StepComponent implements OnInit {
     if (this.pathIdFilter) {
       this.stepService
         .getByPathId(this.pathIdFilter)
-        .subscribe((data) => (this.steps = data));
+        .subscribe((data) => {
+          this.steps = data.sort((a, b) => a.step_id - b.step_id);
+        });
     } else {
-      this.stepService.getAll().subscribe((data) => (this.steps = data));
+      this.stepService.getAll().subscribe((data) => {
+        this.steps = data.sort((a, b) => a.step_id - b.step_id);
+      });
     }
   }
 

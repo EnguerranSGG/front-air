@@ -77,7 +77,7 @@ export class StructureComponent implements OnInit {
 
   loadStructures(): void {
     this.structureService.getAll().subscribe(data => {
-      this.structures = data.sort((a, b) => a.name.localeCompare(b.name));
+      this.structures = data.sort((a, b) => a.structure_id - b.structure_id);
     });
   }
 
