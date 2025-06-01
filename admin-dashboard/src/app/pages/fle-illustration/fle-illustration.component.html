@@ -1,29 +1,71 @@
-<div class="fle-illustration-section">
-  <div>
+<div class="illustration-card">
+  <h3 class="illustration-title">{{ fleIllustrationFile?.title || fleIllustrationFile?.name || 'Illustration du FLE' }}</h3>
+
+  <div class="illustration-container">
     <img [src]="fleIllustrationUrl" alt="Illustration du FLE" class="illustration" />
   </div>
-  <div>
-    <button (click)="openModal()">✏️ Modifier l'image du FLE</button>
+
+  <div class="card-actions">
+    <button (click)="openModal()" class="edit-button">
+      <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+      </svg>
+      Modifier
+    </button>
   </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal modernisée avec champ title -->
 <div class="modal-overlay" *ngIf="isModalOpen">
   <div class="modal">
-    <h3>Modifier l’image du FLE</h3>
+    <h3>
+      <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24" class="title-icon">
+        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+      </svg>
+      Modifier l'image du FLE
+    </h3>
 
-    <label class="file-upload">
-      📎 Sélectionner un fichier
-      <input type="file" (change)="onFileSelected($event)" accept="image/*" />
-    </label>
+    <form [formGroup]="updateForm" (ngSubmit)="updateFleIllustration()">
+      <div class="form-group">
+        <input 
+          formControlName="title" 
+          type="text" 
+          placeholder="Titre de l'illustration (optionnel)" 
+          class="modern-input" 
+        />
+      </div>
 
-    <div class="file-selected-name" *ngIf="selectedFile">
-      Fichier sélectionné : {{ selectedFile.name | sanitize }}
-    </div>
+      <div class="file-upload-section">
+        <label class="file-upload-button">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+          </svg>
+          <span>Sélectionner un nouveau fichier (optionnel)</span>
+          <input type="file" (change)="onFileSelected($event)" accept="image/*" />
+        </label>
 
-    <div class="form-buttons">
-      <button type="button" (click)="updateFleIllustration()">💾 Sauvegarder</button>
-      <button type="button" (click)="closeModal()">❌ Annuler</button>
-    </div>
+        <div *ngIf="selectedFile" class="file-selected-info">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="success-icon">
+            <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z"/>
+          </svg>
+          <span><strong>{{ selectedFile.name | sanitize }}</strong></span>
+        </div>
+      </div>
+
+      <div class="form-buttons">
+        <button type="submit" class="save-button">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/>
+          </svg>
+          Sauvegarder
+        </button>
+        <button type="button" (click)="closeModal()" class="cancel-button">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+          </svg>
+          Annuler
+        </button>
+      </div>
+    </form>
   </div>
 </div>
