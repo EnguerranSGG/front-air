@@ -1,113 +1,202 @@
-<h2>💼 Gestion des offres d’emploi</h2>
+<h2>Gestion des offres d'emploi</h2>
 
 <div class="filter-add-wrapper">
-    <button (click)="showForm = !showForm">
-        {{ showForm ? '❌ Annuler' : '➕ Ajouter une offre' }}
+    <button (click)="showForm = !showForm" class="add-button">
+        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="!showForm">
+            <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+        </svg>
+        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="showForm">
+            <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+        </svg>
+        {{ showForm ? 'Annuler' : 'Ajouter une offre' }}
     </button>
 </div>
 
-<!-- Formulaire harmonisé -->
-<form *ngIf="showForm" class="create-form" [formGroup]="form" (ngSubmit)="onSubmit()">
-    <!-- Nom du poste -->
-    <input formControlName="name" type="text" placeholder="Nom du poste" />
-    <div *ngIf="form.get('name')?.invalid && form.get('name')?.touched" class="error">
-      <span *ngIf="form.get('name')?.errors?.['required']">Le nom est obligatoire.</span>
-      <span *ngIf="form.get('name')?.errors?.['maxlength']">Le nom ne doit pas dépasser 60 caractères.</span>
-    </div>
-  
-    <!-- Type de contrat -->
-    <input formControlName="job_type" type="text" placeholder="Type de contrat" />
-    <div *ngIf="form.get('job_type')?.invalid && form.get('job_type')?.touched" class="error">
-      <span *ngIf="form.get('job_type')?.errors?.['required']">Le type de contrat est obligatoire.</span>
-      <span *ngIf="form.get('job_type')?.errors?.['maxlength']">Le type ne doit pas dépasser 60 caractères.</span>
-    </div>
-  
-    <!-- Ville -->
-    <input formControlName="city" type="text" placeholder="Ville" />
-    <div *ngIf="form.get('city')?.invalid && form.get('city')?.touched" class="error">
-      <span *ngIf="form.get('city')?.errors?.['maxlength']">La ville ne doit pas dépasser 50 caractères.</span>
-    </div>
-  
-    <!-- Lien -->
-    <input formControlName="link" type="text" placeholder="Lien de l’offre" />
-    <div *ngIf="form.get('link')?.invalid && form.get('link')?.touched" class="error">
-      <span *ngIf="form.get('link')?.errors?.['maxlength']">Le lien ne doit pas dépasser 255 caractères.</span>
-      <span *ngIf="form.get('link')?.errors?.['pattern']">Le lien doit commencer par http(s).</span>
-    </div>
-  
-    <!-- Description -->
-    <textarea formControlName="description" placeholder="Description"></textarea>
-    <div *ngIf="form.get('description')?.invalid && form.get('description')?.touched" class="error">
-      <span *ngIf="form.get('description')?.errors?.['required']">La description est obligatoire.</span>
-      <span *ngIf="form.get('description')?.errors?.['maxlength']">La description ne doit pas dépasser 350 caractères.</span>
-    </div>
-  
-    <!-- Fichier -->
-    <div class="form-buttons">
-      <button type="button" (click)="showFileSelector = !showFileSelector">
-        {{ showFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
-      </button>
-  
-      <div *ngIf="showFileSelector">
-        <app-file-selector [files]="files" [selectedFileId]="form.value.file_id"
-          (fileSelected)="form.patchValue({ file_id: $event })">
-        </app-file-selector>
-      </div>
-  
-      <button type="submit" [disabled]="form.invalid">
-        {{ editingId ? 'Modifier' : 'Créer' }}
-      </button>
-      <button type="button" (click)="reset(); showForm = false" *ngIf="editingId">❌ Annuler</button>
-    </div>
-  </form>
-  
-<div *ngFor="let offer of jobOffers" class="event-card">
-    <!-- Si ce n’est pas l’offre en cours d’édition -->
-    <ng-container *ngIf="editingId !== offer.job_offer_id; else editForm">
-        <div class="event-content">
-            <strong class="event-year">{{ offer.name }}</strong>
-            <p class="event-description">{{ offer.job_type }} – {{ offer.city || 'Ville non renseignée' }}</p>
-            <p class="event-description">{{ offer.description }}</p>
-
-            <a *ngIf="offer.link" [href]="offer.link" target="_blank">🔗 Voir l’offre</a>
-
-            <div *ngIf="offer.file_id">
-                <img [src]="apiUrl + '/files/' + offer.file.file_id + '/download'" alt="Illustration" width="100" />
+<!-- Formulaire d'ajout modernisé -->
+<div *ngIf="showForm" class="create-form">
+    <h3>
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24" class="title-icon">
+            <path d="M20,6C20.58,6 21.05,6.2 21.42,6.59C21.8,7 22,7.45 22,8V19C22,19.55 21.8,20 21.42,20.41C21.05,20.8 20.58,21 20,21H4C3.42,21 2.95,20.8 2.58,20.41C2.2,20 2,19.55 2,19V8C2,7.45 2.2,7 2.58,6.59C2.95,6.2 3.42,6 4,6H8V4C8,3.42 8.2,2.95 8.58,2.58C8.95,2.2 9.42,2 10,2H14C14.58,2 15.05,2.2 15.42,2.58C15.8,2.95 16,3.42 16,4V6H20M14,6V4H10V6H14Z"/>
+        </svg>
+        Nouvelle offre d'emploi
+    </h3>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <input formControlName="name" type="text" placeholder="Nom du poste" class="modern-input" />
+            <div *ngIf="form.get('name')?.invalid && form.get('name')?.touched" class="error">
+                <span *ngIf="form.get('name')?.errors?.['required']">Le nom est obligatoire.</span>
+                <span *ngIf="form.get('name')?.errors?.['maxlength']">Le nom ne doit pas dépasser 60 caractères.</span>
             </div>
         </div>
 
-        <div class="event-buttons">
-            <button (click)="edit(offer)">✏️ Modifier</button>
-            <button (click)="delete(offer.job_offer_id)">🗑️ Supprimer</button>
+        <div class="form-group">
+            <input formControlName="job_type" type="text" placeholder="Type de contrat" class="modern-input" />
+            <div *ngIf="form.get('job_type')?.invalid && form.get('job_type')?.touched" class="error">
+                <span *ngIf="form.get('job_type')?.errors?.['required']">Le type de contrat est obligatoire.</span>
+                <span *ngIf="form.get('job_type')?.errors?.['maxlength']">Le type ne doit pas dépasser 60 caractères.</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <input formControlName="city" type="text" placeholder="Ville" class="modern-input" />
+            <div *ngIf="form.get('city')?.invalid && form.get('city')?.touched" class="error">
+                <span *ngIf="form.get('city')?.errors?.['maxlength']">La ville ne doit pas dépasser 50 caractères.</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <input formControlName="link" type="text" placeholder="Lien de l'offre" class="modern-input" />
+            <div *ngIf="form.get('link')?.invalid && form.get('link')?.touched" class="error">
+                <span *ngIf="form.get('link')?.errors?.['maxlength']">Le lien ne doit pas dépasser 255 caractères.</span>
+                <span *ngIf="form.get('link')?.errors?.['pattern']">Le lien doit commencer par http(s).</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <textarea formControlName="description" placeholder="Description" class="modern-textarea"></textarea>
+            <div *ngIf="form.get('description')?.invalid && form.get('description')?.touched" class="error">
+                <span *ngIf="form.get('description')?.errors?.['required']">La description est obligatoire.</span>
+                <span *ngIf="form.get('description')?.errors?.['maxlength']">La description ne doit pas dépasser 350 caractères.</span>
+            </div>
+        </div>
+
+        <!-- Sélecteur de fichier modernisé -->
+        <div class="file-section">
+            <button type="button" (click)="showFileSelector = !showFileSelector" class="file-toggle-button">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="!showFileSelector">
+                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                </svg>
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="showFileSelector">
+                    <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                </svg>
+                {{ showFileSelector ? 'Fermer les images' : 'Lier une image' }}
+            </button>
+
+            <div *ngIf="showFileSelector" class="file-selector-container">
+                <app-file-selector [files]="files" [selectedFileId]="form.value.file_id" (fileSelected)="form.patchValue({ file_id: $event })">
+                </app-file-selector>
+            </div>
+        </div>
+
+        <div class="form-buttons">
+            <button type="submit" [disabled]="form.invalid" class="save-button">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/>
+                </svg>
+                {{ editingId ? 'Modifier' : 'Créer' }}
+            </button>
+            <button type="button" (click)="reset(); showForm = false" *ngIf="editingId" class="cancel-button">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                </svg>
+                Annuler
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Liste des offres modernisée -->
+<div *ngFor="let offer of jobOffers" class="event-card">
+    <!-- Si ce n'est pas l'offre en cours d'édition -->
+    <ng-container *ngIf="editingId !== offer.job_offer_id; else editForm">
+        <div class="event-display">
+            <div class="event-content">
+                <strong class="event-year">{{ offer.name }}</strong>
+                <p class="event-description">{{ offer.job_type }} – {{ offer.city || 'Ville non renseignée' }}</p>
+                <p class="event-description">{{ offer.description }}</p>
+
+                <div class="offer-details">
+                    <div class="detail-item" *ngIf="offer.link">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="detail-icon">
+                            <path d="M3.9,12C3.9,10.29 5.29,8.9 7,8.9H11V7H7A5,5 0 0,0 2,12A5,5 0 0,0 7,17H11V15.1H7C5.29,15.1 3.9,13.71 3.9,12M8,13H16V11H8V13M17,7H13V8.9H17C18.71,8.9 20.1,10.29 20.1,12C20.1,13.71 18.71,15.1 17,15.1H13V17H17A5,5 0 0,0 22,12A5,5 0 0,0 17,7Z"/>
+                        </svg>
+                        <a [href]="offer.link" target="_blank" class="external-link">Voir l'offre</a>
+                    </div>
+                </div>
+
+                <div *ngIf="offer.file_id" class="offer-image-container">
+                    <img [src]="apiUrl + '/files/' + offer.file.file_id + '/download'" alt="Illustration" loading="lazy" />
+                </div>
+            </div>
+
+            <div class="event-buttons">
+                <button (click)="edit(offer)" class="edit-button">
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                    </svg>
+                    Modifier
+                </button>
+                <button (click)="delete(offer.job_offer_id)" class="delete-button">
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z"/>
+                    </svg>
+                    Supprimer
+                </button>
+            </div>
         </div>
     </ng-container>
 
-    <!-- Formulaire d'édition intégré à la carte -->
+    <!-- Formulaire d'édition modernisé -->
     <ng-template #editForm>
-        <form class="create-form" [formGroup]="form" (ngSubmit)="onSubmit()">
-            <input formControlName="name" type="text" placeholder="Nom du poste" />
-            <input formControlName="job_type" type="text" placeholder="Type de contrat" />
-            <input formControlName="city" type="text" placeholder="Ville" />
-            <input formControlName="link" type="text" placeholder="Lien de l’offre" />
-            <textarea formControlName="description" placeholder="Description"></textarea>
-
-            <div class="form-buttons">
-                <button type="button" (click)="showFileSelector = !showFileSelector">
-                    {{ showFileSelector ? '❌ Fermer les images' : '📎 Lier une image' }}
-                </button>
-
-                <div *ngIf="showFileSelector">
-                    <app-file-selector [files]="files" [selectedFileId]="form.value.file_id"
-                        (fileSelected)="form.patchValue({ file_id: $event })">
-                    </app-file-selector>
+        <div class="edit-form">
+            <h4>
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" class="title-icon">
+                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                </svg>
+                Modifier l'offre
+            </h4>
+            <form [formGroup]="form" (ngSubmit)="onSubmit()">
+                <div class="form-group">
+                    <input formControlName="name" type="text" placeholder="Nom du poste" class="modern-input" />
                 </div>
-                <button type="submit" [disabled]="form.invalid">💾 Sauvegarder</button>
-                <button type="button" (click)="reset()">❌ Annuler</button>
-            </div>
-        </form>
+                <div class="form-group">
+                    <input formControlName="job_type" type="text" placeholder="Type de contrat" class="modern-input" />
+                </div>
+                <div class="form-group">
+                    <input formControlName="city" type="text" placeholder="Ville" class="modern-input" />
+                </div>
+                <div class="form-group">
+                    <input formControlName="link" type="text" placeholder="Lien de l'offre" class="modern-input" />
+                </div>
+                <div class="form-group">
+                    <textarea formControlName="description" placeholder="Description" class="modern-textarea"></textarea>
+                </div>
+
+                <div class="file-section">
+                    <button type="button" (click)="showFileSelector = !showFileSelector" class="file-toggle-button">
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="!showFileSelector">
+                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                        </svg>
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="showFileSelector">
+                            <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                        </svg>
+                        {{ showFileSelector ? 'Fermer les images' : 'Lier une image' }}
+                    </button>
+
+                    <div *ngIf="showFileSelector" class="file-selector-container">
+                        <app-file-selector [files]="files" [selectedFileId]="form.value.file_id" (fileSelected)="form.patchValue({ file_id: $event })">
+                        </app-file-selector>
+                    </div>
+                </div>
+
+                <div class="form-buttons">
+                    <button type="submit" [disabled]="form.invalid" class="save-button">
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/>
+                        </svg>
+                        Sauvegarder
+                    </button>
+                    <button type="button" (click)="reset()" class="cancel-button">
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                        </svg>
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
     </ng-template>
 </div>
-
 
 <ng-template #noOffers>
     <p>Aucune offre disponible.</p>
