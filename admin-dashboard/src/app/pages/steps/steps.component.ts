@@ -118,6 +118,7 @@ export class StepComponent implements OnInit {
       this.stepService.create(sanitizedPayload).subscribe(() => {
         this.toast.show('Étape ajoutée');
         this.createForm.reset();
+        this.showCreate = false;
         this.loadSteps();
       });
     }
@@ -143,6 +144,7 @@ export class StepComponent implements OnInit {
         .subscribe(() => {
           this.toast.show('Étape modifiée');
           this.editingId = null;
+          this.editForm.reset();
           this.loadSteps();
         });
     }
