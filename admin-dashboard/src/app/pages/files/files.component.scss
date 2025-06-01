@@ -1,127 +1,556 @@
+// Variables cohérentes avec les autres composants
+$primary-blue: #0046a4;
+$primary-purple: #4c3575;
+$light-blue: #3498db;
+$green: #27ae60;
+$red: #e74c3c;
+$orange: #f39c12;
+$dark-gray: #333;
+$gray: #666;
+$light-gray: #eee;
+$ultra-light-gray: #f9f9f9;
+$white: #fff;
+
+// Gradients sophistiqués
+$primary-gradient: linear-gradient(135deg, $primary-blue 0%, $primary-purple 100%);
+$subtle-gradient: linear-gradient(135deg, rgba($primary-blue, 0.1) 0%, rgba($primary-purple, 0.1) 100%);
+$button-hover-gradient: linear-gradient(135deg, lighten($primary-blue, 10%) 0%, lighten($primary-purple, 10%) 100%);
+
+// Ombres modernes
+$glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+$card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+$button-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+$subtle-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+// Container principal
+.files-container {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+// Titre principal
 h2 {
-    color: #0046a4;
-    font-size: 1.8rem;
-    margin-bottom: 1rem;
-    text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  background: $primary-gradient;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 30px;
+  text-align: center;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: $primary-gradient;
+    border-radius: 2px;
   }
-  
-  .create-form {
-    background: #fff;
-    padding: 1rem 1.5rem;
-    margin: 1.2rem auto;
-    border-radius: 1rem;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
-    max-width: 800px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  input[type="text"],
-  input[type="file"],
-  textarea {
-    width: 100%;
-    max-width: 600px;
-    padding: 0.6rem;
-    margin-bottom: 1rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 0.5rem;
-    background: #fff;
-    transition: border-color 0.2s;
-  }
-  
-  input:focus,
-  textarea:focus {
-    border-color: #5a007a;
-    outline: none;
-  }
-  
-  .file-upload {
-    background: #f4eaff;
-    padding: 0.6rem 1rem;
-    border-radius: 1rem;
-    border: 1px dashed #ccc;
-    color: #444;
-    text-align: center;
-    cursor: pointer;
-    margin-bottom: 1rem;
-    max-width: 600px;
-    width: 100%;
-  }
-  
-  .file-upload input[type="file"] {
-    display: none;
+}
+
+// Formulaire de téléversement
+.create-form {
+  background: rgba($white, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: $glass-shadow;
+  border: 1px solid rgba($primary-blue, 0.1);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: $primary-gradient;
   }
 
-  .file-selected-name {
-    font-size: 0.95rem;
-    color: #0275d8;
-    margin: 0.5rem 0 1rem;
-  }
-    
-  .form-buttons {
+  h3 {
     display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 1rem;
-  }
-  
-  button {
-    background-color: #4c3575;
-    color: white;
-    border: none;
-    padding: 0.4rem 1rem;
-    font-size: 0.95rem;
-    border-radius: 999px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  button:hover {
-    background-color: #3a005c;
-  }
-  
-  .event-card {
-    background: #fff;
-    padding: 1rem 1.5rem;
-    margin: 1.2rem auto;
-    border-radius: 1rem;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
-    max-width: 800px;
-  }
-  
-  .event-content {
-    margin-bottom: 0.75rem;
-  }
-  
-  .event-year {
-    color: #0046a4;
-    font-weight: bold;
-    font-size: 1.1rem;
-  }
-  
-  .event-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
     align-items: center;
-  }
-  
-  @media (max-width: 600px) {
-    .create-form {
-      padding: 1rem;
-      margin: 1rem;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: $primary-blue;
+
+    .title-icon {
+      color: $primary-purple;
     }
-  
+  }
+}
+
+// Section de téléversement de fichier
+.file-upload-section {
+  margin-bottom: 20px;
+}
+
+.file-upload-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: $subtle-gradient;
+  border: 2px dashed rgba($primary-blue, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: $primary-blue;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+
+  input[type="file"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, rgba($primary-blue, 0.15) 0%, rgba($primary-purple, 0.15) 100%);
+    border-color: $primary-blue;
+    transform: translateY(-2px);
+    box-shadow: $button-shadow;
+  }
+
+  svg {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover svg {
+    transform: scale(1.1);
+  }
+}
+
+// Information fichier sélectionné
+.file-selected-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 15px;
+  padding: 12px 16px;
+  background: rgba($green, 0.1);
+  border: 1px solid rgba($green, 0.3);
+  border-radius: 10px;
+  color: $green;
+  font-size: 14px;
+
+  .success-icon {
+    color: $green;
+    flex-shrink: 0;
+  }
+}
+
+// Groupes de formulaires
+.form-group {
+  margin-bottom: 20px;
+}
+
+// Inputs modernes
+.modern-input {
+  width: 100%;
+  background: rgba($white, 0.9);
+  border: 2px solid rgba($primary-blue, 0.2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 14px;
+  color: $dark-gray;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: $subtle-shadow;
+
+  &::placeholder {
+    color: rgba($gray, 0.7);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $primary-blue;
+    box-shadow: 0 0 0 4px rgba($primary-blue, 0.15);
+    transform: translateY(-1px);
+    background: $white;
+  }
+
+  &:hover {
+    border-color: rgba($primary-blue, 0.4);
+  }
+
+  &[readonly] {
+    background: rgba($light-gray, 0.5);
+    cursor: not-allowed;
+  }
+}
+
+// Boutons de formulaire - STYLES HARMONISÉS STEPS
+.form-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+  justify-content: flex-end;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.save-button {
+  background: linear-gradient(135deg, $green 0%, lighten($green, 10%) 100%);
+  color: $white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: $button-shadow;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba($green, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  svg {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover:not(:disabled) svg {
+    transform: scale(1.1);
+  }
+}
+
+.cancel-button {
+  background: rgba($gray, 0.1);
+  color: $gray;
+  border: 2px solid rgba($gray, 0.3);
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover {
+    background: rgba($gray, 0.2);
+    border-color: $gray;
+    transform: translateY(-2px);
+  }
+
+  svg {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover svg {
+    transform: scale(1.1);
+  }
+}
+
+// Cartes de fichiers
+.event-card {
+  background: rgba($white, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 20px;
+  box-shadow: $card-shadow;
+  border: 1px solid rgba($primary-blue, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: $primary-gradient;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+
+    &::before {
+      opacity: 1;
+    }
+  }
+}
+
+.event-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 15px;
+  }
+}
+
+.event-content {
+  flex: 1;
+
+  .event-year {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: $primary-blue;
+    margin-bottom: 10px;
+    display: block;
+  }
+}
+
+// Détails du fichier
+.file-details {
+  margin-top: 10px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: $gray;
+
+  .detail-icon {
+    color: $primary-blue;
+    flex-shrink: 0;
+  }
+}
+
+// Boutons d'action - STYLES HARMONISÉS STEPS
+.event-buttons {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+}
+
+.download-button {
+  background: rgba($orange, 0.1);
+  color: $orange;
+  border: 2px solid rgba($orange, 0.3);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+
+  &:hover {
+    background: rgba($orange, 0.2);
+    border-color: $orange;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba($orange, 0.3);
+  }
+
+  svg {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover svg {
+    transform: scale(1.1);
+  }
+}
+
+.edit-button {
+  background: rgba($light-blue, 0.1);
+  color: $light-blue;
+  border: 2px solid rgba($light-blue, 0.3);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+
+  &:hover {
+    background: rgba($light-blue, 0.2);
+    border-color: $light-blue;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba($light-blue, 0.3);
+  }
+
+  svg {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover svg {
+    transform: scale(1.1);
+  }
+}
+
+.delete-button {
+  background: rgba($red, 0.1);
+  color: $red;
+  border: 2px solid rgba($red, 0.3);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+
+  &:hover {
+    background: rgba($red, 0.2);
+    border-color: $red;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba($red, 0.3);
+  }
+
+  svg {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover svg {
+    transform: scale(1.1);
+  }
+}
+
+// Message "aucun contenu"
+.no-content {
+  text-align: center;
+  padding: 40px 20px;
+  color: $gray;
+
+  .no-content-icon {
+    opacity: 0.5;
+    margin-bottom: 15px;
+  }
+
+  p {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0;
+  }
+}
+
+// Animations pour les icônes SVG
+svg {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Responsivité globale
+@media (max-width: 768px) {
+  .files-container {
+    padding: 15px;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+  }
+
+  .create-form {
+    padding: 20px;
+  }
+
+  .event-card {
+    padding: 20px;
+  }
+
+  .form-buttons {
+    flex-direction: column;
+  }
+
+  .event-buttons {
+    flex-direction: column;
+    gap: 8px;
+
     button {
       width: 100%;
-    }
-  
-    .event-card {
-      margin: 1rem;
+      justify-content: center;
     }
   }
+}
+
+// Effets de focus améliorés pour l'accessibilité
+button:focus-visible,
+input:focus-visible,
+label:focus-visible {
+  outline: 2px solid $primary-blue;
+  outline-offset: 2px;
+}
+
+// Animation de chargement pour les boutons
+button:active {
+  transform: scale(0.98);
+}
+
+// Amélioration des transitions
+* {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Drag & Drop enhancements
+.file-upload-button {
+  &.dragover {
+    background: linear-gradient(135deg, rgba($primary-blue, 0.2) 0%, rgba($primary-purple, 0.2) 100%);
+    border-color: $primary-purple;
+    transform: scale(1.02);
+  }
+}
+
+// Animations d'apparition
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.event-card {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.create-form {
+  animation: fadeInUp 0.4s ease-out;
+}
   

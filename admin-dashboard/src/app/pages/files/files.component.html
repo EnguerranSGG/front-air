@@ -1,38 +1,101 @@
-<h2>📁 Gestion des fichiers</h2>
+<h2>Gestion des fichiers</h2>
 
-<!-- Formulaire de téléversement -->
-<form class="create-form" [formGroup]="fileForm" (ngSubmit)="onSubmit()" enctype="multipart/form-data">
+<!-- Formulaire de téléversement modernisé -->
+<div class="create-form">
+    <h3>
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24" class="title-icon">
+            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+        </svg>
+        Téléverser un nouveau fichier
+    </h3>
+    <form [formGroup]="fileForm" (ngSubmit)="onSubmit()" enctype="multipart/form-data">
+        <div class="file-upload-section">
+            <label class="file-upload-button">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                </svg>
+                <span>Sélectionner un fichier</span>
+                <input id="file" type="file" accept="image/*" (change)="onFileSelected($event)" />
+            </label>
 
-    <label class="file-upload">
-        <span>📎 Sélectionner un fichier</span>
-        <input id="file" type="file" accept="image/*" (change)="onFileSelected($event)" />
-    </label>
-    <!-- Affichage du nom du fichier sélectionné -->
-    <div *ngIf="selectedFile" class="file-selected-name">
-        ✅ Fichier sélectionné : <strong>{{ selectedFile.name }}</strong>
-    </div>
-    <input formControlName="name" type="text" placeholder="Nom du fichier" [readonly]="editingFileId !== null" />
-    <div class="form-buttons">
-        <button type="submit" [disabled]="fileForm.invalid || !selectedFile">
-            {{ editingFileId ? '💾 Mettre à jour' : '⬆️ Téléverser' }}
-        </button>
-        <button type="button" *ngIf="editingFileId !== null" (click)="cancelEdit()">❌ Annuler</button>
-    </div>
-</form>
+            <!-- Affichage du nom du fichier sélectionné -->
+            <div *ngIf="selectedFile" class="file-selected-info">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="success-icon">
+                    <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z"/>
+                </svg>
+                <span><strong>{{ selectedFile.name }}</strong></span>
+            </div>
+        </div>
 
+        <div class="form-group">
+            <input formControlName="name" type="text" placeholder="Nom du fichier" [readonly]="editingFileId !== null" class="modern-input" />
+        </div>
+
+        <div class="form-buttons">
+            <button type="submit" [disabled]="fileForm.invalid || !selectedFile" class="save-button">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="!editingFileId">
+                    <path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"/>
+                </svg>
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="editingFileId">
+                    <path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/>
+                </svg>
+                {{ editingFileId ? 'Mettre à jour' : 'Téléverser' }}
+            </button>
+            <button type="button" *ngIf="editingFileId !== null" (click)="cancelEdit()" class="cancel-button">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                </svg>
+                Annuler
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Liste des fichiers modernisée -->
 <div *ngIf="files.length > 0; else noFiles">
     <div *ngFor="let file of files" class="event-card">
-        <div class="event-content">
-            <strong class="event-year">{{ file.name }}</strong>
-        </div>
-        <div class="event-buttons">
-            <button href="#" (click)="onDownload(file); $event.preventDefault()">📥 Télécharger</button>
-            <button (click)="onEdit(file)">✏️ Modifier</button>
-            <button (click)="onDelete(file.file_id)">🗑️ Supprimer</button>
+        <div class="event-display">
+            <div class="event-content">
+                <strong class="event-year">{{ file.name }}</strong>
+                <div class="file-details">
+                    <div class="detail-item">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="detail-icon">
+                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                        </svg>
+                        <span>Fichier image</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="event-buttons">
+                <button (click)="onDownload(file); $event.preventDefault()" class="download-button">
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/>
+                    </svg>
+                    Télécharger
+                </button>
+                <button (click)="onEdit(file)" class="edit-button">
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                    </svg>
+                    Modifier
+                </button>
+                <button (click)="onDelete(file.file_id)" class="delete-button">
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z"/>
+                    </svg>
+                    Supprimer
+                </button>
+            </div>
         </div>
     </div>
 </div>
 
 <ng-template #noFiles>
-    <p>Aucun fichier disponible.</p>
+    <div class="no-content">
+        <svg width="48" height="48" fill="currentColor" viewBox="0 0 24 24" class="no-content-icon">
+            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+        </svg>
+        <p>Aucun fichier disponible.</p>
+    </div>
 </ng-template>
