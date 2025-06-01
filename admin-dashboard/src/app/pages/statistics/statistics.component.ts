@@ -105,6 +105,8 @@ export class StatisticsComponent implements OnInit {
   
     const payload = {
       ...this.editForm.value,
+      value: Number(this.editForm.value.value),
+      year: Number(this.editForm.value.year),
       type_id: Number(this.editForm.value.type_id),
     };
   
@@ -122,6 +124,8 @@ export class StatisticsComponent implements OnInit {
     if (this.createForm.valid) {
       const payload = {
         ...this.createForm.value,
+        value: Number(this.createForm.value.value),
+        year: Number(this.createForm.value.year),
         type_id: Number(this.createForm.value.type_id),
       };
 
@@ -130,6 +134,7 @@ export class StatisticsComponent implements OnInit {
       this.statisticService.create(sanitizedPayload).subscribe(() => {
         this.toast.show('Statistique ajoutée');
         this.createForm.reset();
+        this.showCreate = false;
         this.loadStatistics();
       });
     }
