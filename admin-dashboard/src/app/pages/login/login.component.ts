@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
 
 @Component({
   selector: 'app-login',
@@ -21,13 +22,25 @@ export class LoginComponent {
     private router: Router
   ) {
     this.loginForm = this.fb.group({
-      mail: [''],
-      password: ['']
+      mail: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
+      password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(128)]]
     });
   }
 
   onSubmit(): void {
-    const { mail, password } = this.loginForm.value;
+    if (this.loginForm.invalid) {
+      this.errorMessage = 'Veuillez remplir tous les champs';
+      return;
+    }
+
+    const sanitizedData = sanitizeFormValue(this.loginForm.value);
+    const { mail, password } = sanitizedData;
+
+    if (!mail || !password) {
+      this.errorMessage = 'Email et mot de passe requis';
+      return;
+    }
+
     this.authService.login(mail, password).subscribe({
       next: (tokens) => {
         console.log('Access Token:', tokens.accessToken);
