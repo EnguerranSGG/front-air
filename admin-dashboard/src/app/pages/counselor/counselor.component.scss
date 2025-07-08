@@ -1,0 +1,579 @@
+// Variables pour cohérence avec le design global
+$primary-blue: #0046a4;
+$primary-purple: #4c3575;
+$light-purple: #f4eaff;
+$border-color: #e6ebf5;
+$text-color: #2d3748;
+$shadow-light: rgba(0, 0, 0, 0.1);
+$shadow-medium: rgba(0, 0, 0, 0.15);
+
+// Variables cohérentes avec les autres composants
+$primary-blue: #0046a4;
+$primary-purple: #4c3575;
+$light-blue: #3498db;
+$green: #27ae60;
+$red: #e74c3c;
+$orange: #f39c12;
+$dark-gray: #333;
+$gray: #666;
+$light-gray: #eee;
+$ultra-light-gray: #f9f9f9;
+$white: #fff;
+
+// Gradients sophistiqués
+$primary-gradient: linear-gradient(135deg, $primary-blue 0%, $primary-purple 100%);
+$subtle-gradient: linear-gradient(135deg, rgba($primary-blue, 0.1) 0%, rgba($primary-purple, 0.1) 100%);
+$button-hover-gradient: linear-gradient(135deg, lighten($primary-blue, 10%) 0%, lighten($primary-purple, 10%) 100%);
+
+// Ombres modernes
+$glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+$card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+$button-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+$subtle-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+// Container principal
+.counselors-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+// Titre principal - STYLE EXACT JOB-OFFERS
+h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  background: $primary-gradient;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 30px;
+  text-align: center;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: $primary-gradient;
+    border-radius: 2px;
+  }
+}
+
+// Wrapper filtre et bouton d'ajout - STYLE EXACT JOB-OFFERS
+.filter-add-wrapper {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
+}
+
+// Bouton d'ajout principal - STYLE HARMONISÉ STEPS EXACT
+.add-button {
+  background: $primary-gradient;
+  color: $white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: $button-shadow;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+
+  &:hover {
+    background: $button-hover-gradient;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  svg {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover svg {
+    transform: scale(1.1);
+  }
+}
+
+// Formulaires (création et édition) - STYLE EXACT JOB-OFFERS
+.create-form, .edit-form {
+  background: rgba($white, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: $glass-shadow;
+  border: 1px solid rgba($primary-blue, 0.1);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: $primary-gradient;
+  }
+
+  h3, h4 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: $primary-blue;
+
+    .title-icon {
+      color: $primary-purple;
+    }
+  }
+}
+
+// Groupes de formulaires - STYLE EXACT JOB-OFFERS
+.form-group {
+  margin-bottom: 20px;
+
+  .form-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: $dark-gray;
+    font-size: 14px;
+
+    .label-icon {
+      color: $primary-blue;
+    }
+  }
+}
+
+// Inputs modernes - STYLE EXACT JOB-OFFERS
+.modern-input, .modern-textarea {
+  width: 100%;
+  background: rgba($white, 0.9);
+  border: 2px solid rgba($primary-blue, 0.2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 14px;
+  color: $dark-gray;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: $subtle-shadow;
+  resize: vertical;
+
+  &::placeholder {
+    color: rgba($gray, 0.7);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $primary-blue;
+    box-shadow: 0 0 0 4px rgba($primary-blue, 0.15);
+    transform: translateY(-1px);
+    background: $white;
+  }
+
+  &:hover {
+    border-color: rgba($primary-blue, 0.4);
+  }
+}
+
+.modern-textarea {
+  min-height: 100px;
+  line-height: 1.5;
+}
+
+// Messages d'erreur - STYLE EXACT JOB-OFFERS
+.error {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: rgba($red, 0.1);
+  border: 1px solid rgba($red, 0.2);
+  border-radius: 8px;
+  color: $red;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  &::before {
+    content: '⚠';
+    font-size: 14px;
+  }
+}
+
+// Boutons de formulaire - STYLE EXACT JOB-OFFERS
+.form-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.save-button, .cancel-button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+  justify-content: center;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+}
+
+.save-button {
+  background: $primary-gradient;
+  color: $white;
+  box-shadow: $button-shadow;
+
+  &:hover:not(:disabled) {
+    background: $button-hover-gradient;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+.cancel-button {
+  background: rgba($gray, 0.1);
+  color: $gray;
+  border: 2px solid rgba($gray, 0.2);
+
+  &:hover {
+    background: rgba($gray, 0.2);
+    border-color: rgba($gray, 0.3);
+    transform: translateY(-1px);
+  }
+}
+
+// Cartes d'événements - STYLE EXACT JOB-OFFERS
+.event-card {
+  background: rgba($white, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  margin-bottom: 20px;
+  box-shadow: $card-shadow;
+  border: 1px solid rgba($primary-blue, 0.1);
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.event-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 25px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+.event-content {
+  flex: 1;
+  min-width: 0;
+}
+
+// Styles spécifiques pour les conseillers
+.counselor-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 15px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+}
+
+.counselor-avatar {
+  flex-shrink: 0;
+}
+
+.avatar-placeholder {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: $primary-gradient;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba($primary-blue, 0.3);
+  transition: all 0.3s ease;
+
+  @media (max-width: 768px) {
+    width: 60px;
+    height: 60px;
+    font-size: 1.3rem;
+  }
+}
+
+.counselor-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.counselor-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: $primary-blue;
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+
+  @media (max-width: 768px) {
+    font-size: 1.3rem;
+  }
+}
+
+.counselor-function {
+  font-size: 1rem;
+  color: $primary-purple;
+  font-weight: 600;
+  margin: 0;
+  padding: 6px 12px;
+  background: rgba($primary-purple, 0.1);
+  border-radius: 20px;
+  display: inline-block;
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+  }
+}
+
+.counselor-presentation {
+  color: $dark-gray;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+  font-weight: 500;
+  background: rgba($light-gray, 0.3);
+  padding: 15px;
+  border-radius: 10px;
+  border-left: 4px solid $primary-blue;
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    padding: 12px;
+  }
+}
+
+// Boutons d'action - STYLE EXACT JOB-OFFERS
+.event-buttons {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.edit-button, .delete-button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 100px;
+  justify-content: center;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.edit-button {
+  background: rgba($light-blue, 0.1);
+  color: $light-blue;
+  border: 2px solid rgba($light-blue, 0.2);
+
+  &:hover {
+    background: rgba($light-blue, 0.2);
+    border-color: rgba($light-blue, 0.3);
+    box-shadow: 0 4px 12px rgba($light-blue, 0.2);
+  }
+}
+
+.delete-button {
+  background: rgba($red, 0.1);
+  color: $red;
+  border: 2px solid rgba($red, 0.2);
+
+  &:hover {
+    background: rgba($red, 0.2);
+    border-color: rgba($red, 0.3);
+    box-shadow: 0 4px 12px rgba($red, 0.2);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .counselors-container {
+    padding: 15px;
+  }
+
+  h2 {
+    font-size: 1.7rem;
+    margin-bottom: 25px;
+  }
+
+  .create-form, .edit-form {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .event-display {
+    padding: 20px;
+  }
+
+  .form-buttons {
+    gap: 10px;
+  }
+
+  .save-button, .cancel-button {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+
+  .edit-button, .delete-button {
+    padding: 8px 14px;
+    font-size: 12px;
+    min-width: 90px;
+  }
+}
+
+@media (max-width: 480px) {
+  .counselors-container {
+    padding: 10px;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .create-form, .edit-form {
+    padding: 15px;
+  }
+
+  .event-display {
+    padding: 15px;
+  }
+
+  .counselor-header {
+    gap: 12px;
+  }
+
+  .avatar-placeholder {
+    width: 50px;
+    height: 50px;
+    font-size: 1.1rem;
+  }
+
+  .counselor-name {
+    font-size: 1.2rem;
+  }
+
+  .counselor-function {
+    font-size: 0.85rem;
+    padding: 4px 10px;
+  }
+
+  .counselor-presentation {
+    font-size: 0.85rem;
+    padding: 10px;
+  }
+}
+
+// Animations et transitions
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.event-card {
+  animation: fadeIn 0.5s ease-out;
+}
+
+// Accessibilité
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// Focus visible pour l'accessibilité
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid $primary-blue;
+  outline-offset: 2px;
+}
