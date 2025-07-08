@@ -9,6 +9,7 @@ import { StepComponent } from './pages/steps/steps.component';
 import { JobOfferComponent } from './pages/job-offers/job-offers.component';
 import { FileComponent } from './pages/files/files.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { CounselorComponent } from './pages/counselor/counselor.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -21,5 +22,6 @@ export const routes: Routes = [
   { path: 'files', component: FileComponent, canActivate: [AuthGuard] },
   { path: 'job-offers', component: JobOfferComponent, canActivate: [AuthGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'counselors', component: CounselorComponent, canActivate: [AuthGuard] },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
 ];
