@@ -1,12 +1,12 @@
 ---
 const navLinks = [
   { name: 'Structures', href: '/structures' },
-  { name: 'Accompagnement', href: '/accompagnement' },
   { name: 'Formations', href: '/formations' },
-  { name: 'Historique', href: '/historique' }
 ];
 
 const teamDropdownLinks = [
+  { name: 'Présentation', href: '/#presentation' },
+  { name: 'Historique', href: '/historique' },
   { name: 'Gouvernance', href: '/gouvernance' },
   { name: 'Nous rejoindre', href: '/recrutement' }
 ];
@@ -26,7 +26,7 @@ const teamDropdownLinks = [
       <!-- Menu déroulant Notre équipe -->
       <div class="dropdown">
         <button class="dropdown-button" type="button">
-          Notre équipe
+          Qui sommes-nous ?
           <svg class="dropdown-arrow" width="12" height="8" viewBox="0 0 12 8" fill="currentColor">
             <path d="M6 8L0 0h12L6 8z"/>
           </svg>
@@ -75,6 +75,11 @@ const teamDropdownLinks = [
 </header>
 
 <style>
+  /* Scroll smooth pour toute la page */
+  html {
+    scroll-behavior: smooth;
+  }
+
   /* Styles pour le menu déroulant desktop */
   .dropdown {
     position: relative;
