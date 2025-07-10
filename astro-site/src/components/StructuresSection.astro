@@ -19,12 +19,53 @@ try {
 <section class="structures-section">
   <h2>Nos différentes structures</h2>
 
-  {structures?.length > 0 ? (
-    structures.map((structure) => structure && <StructureCard structure={structure} />)
-  ) : (
-    <p>Aucune structure disponible pour le moment.</p>
-  )}
+  <div class="structures-grid">
+    {structures?.length > 0 ? (
+      structures.map((structure) => structure && <StructureCard structure={structure} />)
+    ) : (
+      <p>Aucune structure disponible pour le moment.</p>
+    )}
+  </div>
 </section>
+
+<style>
+  .structures-section {
+    padding: 4rem 2rem;
+    background: #f8f9fa;
+  }
+
+  .structures-section h2 {
+    text-align: center;
+    margin-bottom: 3rem;
+    font-size: 2.5rem;
+    color: #333;
+  }
+
+  .structures-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Version mobile */
+  @media (max-width: 768px) {
+    .structures-section {
+      padding: 2rem 1rem;
+    }
+
+    .structures-section h2 {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .structures-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+</style>
 
 <script>
   // Animation au scroll avec Intersection Observer
