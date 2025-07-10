@@ -1,5 +1,5 @@
 ---
-// src/components/HistoryTimeline.astro
+import PresentationCard from './PresentationCard.astro';
 
 let events = [];
 
@@ -14,6 +14,9 @@ try {
 }
 ---
 <section class="timeline-section">
+  <h2>Naissance de l'association</h2>
+  <PresentationCard id="2" />
+  
   <h2>Historique de l'association</h2>
   <div class="timeline">
     {events.map((event, index) => (
