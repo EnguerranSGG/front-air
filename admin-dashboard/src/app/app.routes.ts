@@ -5,7 +5,6 @@ import { ValuesComponent } from './pages/values/values.component';
 import { AuthGuard } from './auth.guard';
 import { StructureComponent } from './pages/structures/structures.component';
 import { StatisticsComponent } from './pages/statistics/statistics.component';
-import { StepComponent } from './pages/steps/steps.component';
 import { JobOfferComponent } from './pages/job-offers/job-offers.component';
 import { FileComponent } from './pages/files/files.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
@@ -19,7 +18,6 @@ export const routes: Routes = [
   { path: 'values', component: ValuesComponent, canActivate: [AuthGuard] },
   { path: 'structures', component: StructureComponent, canActivate: [AuthGuard] },
   { path: 'statistics', component: StatisticsComponent, canActivate: [AuthGuard] },
-  { path: 'steps', component: StepComponent, canActivate: [AuthGuard] },
   { path: 'files', component: FileComponent, canActivate: [AuthGuard] },
   { path: 'job-offers', component: JobOfferComponent, canActivate: [AuthGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
