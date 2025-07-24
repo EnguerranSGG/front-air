@@ -1,10 +1,22 @@
 ---
 let stats = [];
-let title = '';
+let mainTitle = '';
+let satisfactionTitle = '';
+let codeRouteTitle1 = '';
+let codeRouteTitle2 = '';
+let fleProNumTitle1 = '';
+let fleProNumTitle2 = '';
 
 try {
   const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/files/11/title`);
-  title = await response.text();
+  mainTitle = await response.text();
+} catch (err) {
+  console.error("Erreur fetch lors de la récupération du titre :", err);
+}
+
+try {
+  const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/files/26/title`);
+  satisfactionTitle = await response.text();
 } catch (err) {
   console.error("Erreur fetch lors de la récupération du titre :", err);
 }
@@ -17,6 +29,34 @@ try {
   console.error("Erreur fetch statistiques AIR :", err);
 }
 
+try {
+  const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/files/27/title`);
+  codeRouteTitle1 = await response.text();
+} catch (err) {
+  console.error("Erreur fetch titre Code de la route 1 :", err);
+}
+
+try {
+  const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/files/28/title`);
+  codeRouteTitle2 = await response.text();
+} catch (err) {
+  console.error("Erreur fetch titre Code de la route 2 :", err);
+}
+
+try {
+  const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/files/29/title`);
+  fleProNumTitle1 = await response.text();
+} catch (err) {
+  console.error("Erreur fetch titre FLE pro et numérique 1 :", err);
+}
+
+try {
+  const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/files/30/title`);
+  fleProNumTitle2 = await response.text();
+} catch (err) {
+  console.error("Erreur fetch titre FLE pro et numérique 2 :", err);
+}
+
 ---
 
 <section class="fle-section">
@@ -27,7 +67,7 @@ try {
       class="fle-image animate-slide-up"
     />
     <div class="overlay animate-slide-right">
-      <h4 class="animate-fade-in-delayed">{title}</h4>
+      <h4 class="animate-fade-in-delayed">{mainTitle}</h4>
     </div>
   </div>
 
@@ -69,16 +109,62 @@ try {
   </div>
 </section>
 
-<section class="satisfaction-section">
-  <h2 class="satisfaction-title">Satisfaction des stagiaires</h2>
-  <div class="satisfaction-image-container">
-    <img
-      src={`${import.meta.env.PUBLIC_ASSET_URL}/files/26/download`}
-      alt="Satisfaction des stagiaires"
-      class="satisfaction-image"
-    />
-  </div>
-</section>
+<div class="satisfaction-sections-container">
+  <section class="satisfaction-section">
+    <h2 class="satisfaction-title">{satisfactionTitle}</h2>
+    <div class="satisfaction-image-container">
+      <img
+        src={`${import.meta.env.PUBLIC_ASSET_URL}/files/26/download`}
+        alt="Satisfaction des stagiaires"
+        class="satisfaction-image"
+      />
+    </div>
+  </section>
+
+  <section class="satisfaction-section">
+    <h2 class="satisfaction-title">Code de la route</h2>
+    <div class="satisfaction-image-container double-image-row">
+      <div class="image-title-block">
+        <img
+          src={`${import.meta.env.PUBLIC_ASSET_URL}/files/27/download`}
+          alt={codeRouteTitle1}
+          class="satisfaction-image double-image"
+        />
+        <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">{codeRouteTitle1}</h3>
+      </div>
+      <div class="image-title-block">
+        <img
+          src={`${import.meta.env.PUBLIC_ASSET_URL}/files/28/download`}
+          alt={codeRouteTitle2}
+          class="satisfaction-image double-image"
+        />
+        <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">{codeRouteTitle2}</h3>
+      </div>
+    </div>
+  </section>
+
+  <section class="satisfaction-section">
+    <h2 class="satisfaction-title">FLE pro et numérique</h2>
+    <div class="satisfaction-image-container double-image-row">
+      <div class="image-title-block">
+        <img
+          src={`${import.meta.env.PUBLIC_ASSET_URL}/files/29/download`}
+          alt={fleProNumTitle1}
+          class="satisfaction-image double-image"
+        />
+        <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">{fleProNumTitle1}</h3>
+      </div>
+      <div class="image-title-block">
+        <img
+          src={`${import.meta.env.PUBLIC_ASSET_URL}/files/30/download`}
+          alt={fleProNumTitle2}
+          class="satisfaction-image double-image"
+        />
+        <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">{fleProNumTitle2}</h3>
+      </div>
+    </div>
+  </section>
+</div>
 
 <style>
   /* === ANIMATIONS ET STYLES POUR IMAGE-WRAPPER UNIQUEMENT === */
@@ -346,13 +432,24 @@ try {
   }
 
   /* === SECTION SATISFACTION DES STAGIAIRES === */
-  .satisfaction-section {
-    padding: 4rem 2rem;
-    text-align: center;
+  .satisfaction-sections-container {
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     margin-top: 3rem;
     border-radius: 20px;
     box-shadow: 0 4px 20px rgba(0, 70, 164, 0.1);
+    overflow: hidden;
+  }
+
+  .satisfaction-section {
+    padding: 4rem 2rem;
+    text-align: center;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .satisfaction-section:not(:last-child) {
+    border-bottom: 1px solid rgba(0, 70, 164, 0.1);
   }
 
   .satisfaction-title {
@@ -395,10 +492,13 @@ try {
 
   /* === RESPONSIVE POUR SECTION SATISFACTION === */
   @media (max-width: 768px) {
-    .satisfaction-section {
-      padding: 2rem 1rem;
+    .satisfaction-sections-container {
       margin-top: 2rem;
       border-radius: 15px;
+    }
+
+    .satisfaction-section {
+      padding: 2rem 1rem;
     }
 
     .satisfaction-title {
@@ -414,6 +514,11 @@ try {
   }
 
   @media (max-width: 480px) {
+    .satisfaction-sections-container {
+      margin-top: 1.5rem;
+      border-radius: 10px;
+    }
+
     .satisfaction-section {
       padding: 1.5rem 0.5rem;
     }
@@ -434,6 +539,43 @@ try {
     .satisfaction-image-container:hover,
     .satisfaction-image:hover {
       transform: none;
+    }
+  }
+
+  .double-image-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .image-title-block {
+    flex: 1 1 350px;
+    min-width: 250px;
+    max-width: 600px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .double-image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  }
+  @media (max-width: 700px) {
+    .double-image-row {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .image-title-block {
+      max-width: 100%;
+      min-width: 0;
     }
   }
 </style>
