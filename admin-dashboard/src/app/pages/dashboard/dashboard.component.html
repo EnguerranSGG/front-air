@@ -1,3 +1,27 @@
+<!-- Section de gestion de la présentation d'accueil -->
+<div class="presentation-section">
+  <div class="presentation-card">
+    <h3>Présentation d'accueil</h3>
+    
+    <div *ngIf="isLoading" class="loading">
+      <div class="spinner"></div>
+      <p>Chargement de la présentation...</p>
+    </div>
+    
+    <div *ngIf="!isLoading && presentation" class="presentation-content">
+      <p class="presentation-text">{{ presentation.presentation_text }}</p>
+    </div>
+    
+    <div *ngIf="!isLoading && !presentation" class="error">
+      <p>Aucune présentation trouvée</p>
+    </div>
+    
+    <a routerLink="/presentation/edit/1" class="btn btn-primary">
+      Modifier la présentation
+    </a>
+  </div>
+</div>
+
 <section class="dashboard-section">
     <div class="dashboard-grid">
         <app-news></app-news>

@@ -1,3 +1,136 @@
+// Variables pour cohérence avec le design global
+$primary-blue: #0046a4;
+$primary-purple: #4c3575;
+$light-purple: #f4eaff;
+$border-color: #e6ebf5;
+$text-color: #2d3748;
+$shadow-light: rgba(0, 0, 0, 0.1);
+$shadow-medium: rgba(0, 0, 0, 0.15);
+
+// Variables cohérentes avec les autres composants
+$primary-blue: #0046a4;
+$primary-purple: #4c3575;
+$light-blue: #3498db;
+$green: #27ae60;
+$red: #e74c3c;
+$orange: #f39c12;
+$dark-gray: #333;
+$gray: #666;
+$light-gray: #eee;
+$ultra-light-gray: #f9f9f9;
+$white: #fff;
+
+// Gradients sophistiqués
+$primary-gradient: linear-gradient(135deg, $primary-blue 0%, $primary-purple 100%);
+$subtle-gradient: linear-gradient(135deg, rgba($primary-blue, 0.1) 0%, rgba($primary-purple, 0.1) 100%);
+$button-hover-gradient: linear-gradient(135deg, lighten($primary-blue, 10%) 0%, lighten($primary-purple, 10%) 100%);
+
+// Ombres modernes
+$glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+$card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+$button-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+$subtle-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+// Section de présentation - Même design que history
+.presentation-section {
+  margin-bottom: 30px;
+  
+  .presentation-card {
+    background: $white;
+    border-radius: 12px;
+    box-shadow: $card-shadow;
+    padding: 20px;
+    border: 1px solid $border-color;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $glass-shadow;
+    }
+
+    h3 {
+      color: $primary-blue;
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 0 0 15px 0;
+    }
+
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+
+      p {
+        margin-top: 1rem;
+        color: $gray;
+      }
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid $primary-blue;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .presentation-content {
+      margin-bottom: 20px;
+
+      .presentation-text {
+        color: $gray;
+        line-height: 1.6;
+        margin: 0;
+        font-size: 14px;
+        background: rgba($light-gray, 0.3);
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid $primary-blue;
+      }
+    }
+
+    .error {
+      text-align: center;
+      padding: 2rem;
+      color: $red;
+
+      p {
+        margin: 0;
+        font-size: 1.1rem;
+      }
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      background: $primary-gradient;
+      color: $white;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 14px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: $button-shadow;
+
+      &:hover {
+        background: $button-hover-gradient;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      }
+    }
+  }
+}
+
 .dashboard-section {
   display: flex;
   flex-direction: column;
@@ -17,31 +150,38 @@
 
   .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
     gap: 1.5rem;
     width: 100%;
-    max-width: 100%;
+    max-width: 1200px;
+    aspect-ratio: 3/2;
     
     // Pour écrans moyens à larges
     @media (min-width: 1200px) {
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: repeat(3, minmax(300px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 2rem;
     }
     
     // Pour tablettes
     @media (max-width: 1199px) and (min-width: 769px) {
-      grid-template-columns: 1fr;
-      gap: 1rem;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 1.5rem;
     }
     
     // Pour mobiles
     @media (max-width: 768px) {
       grid-template-columns: 1fr;
+      grid-template-rows: repeat(6, 1fr);
       gap: 1rem;
       padding: 0 0.5rem;
+      aspect-ratio: auto;
+      min-height: 600px;
     }
 
-    // Composants enfants
+    // Composants enfants - tous avec la même taille
     app-news,
     app-home-illustration,
     app-fle-illustration,
@@ -49,9 +189,14 @@
     app-flyer,
     app-certificate {
       height: 100%;
-      min-height: 300px;
+      width: 100%;
+      min-height: 250px;
       display: flex;
       flex-direction: column;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
       
       // S'assurer que le contenu s'adapte
       > * {
@@ -64,10 +209,56 @@
   }
 }
 
+.dashboard-grid > * {
+  display: flex !important;
+  flex-direction: column;
+  height: 100%;
+  min-height: 320px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  padding: 1.2rem;
+}
+
+.dashboard-grid img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.dashboard-grid button, 
+.dashboard-grid .btn {
+  align-self: flex-end;
+  margin-top: auto;
+}
+
 // Ajustements spécifiques pour les composants qui peuvent déborder
 :host {
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
+}
+
+// Responsive design pour la section de présentation
+@media (max-width: 768px) {
+  .presentation-section {
+    margin: 0 1rem 2rem 1rem;
+    
+    .presentation-card {
+      padding: 15px;
+      
+      h3 {
+        font-size: 1.1rem;
+      }
+      
+      .presentation-text {
+        font-size: 13px;
+        padding: 12px;
+      }
+    }
+  }
 }
