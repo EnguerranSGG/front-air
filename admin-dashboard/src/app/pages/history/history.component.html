@@ -1,5 +1,29 @@
 <h2>Historique</h2>
 
+<!-- Section de gestion de la présentation d'historique -->
+<div class="presentation-section">
+  <div class="presentation-card">
+    <h3>Présentation de l'historique</h3>
+    
+    <div *ngIf="isLoadingPresentation" class="loading">
+      <div class="spinner"></div>
+      <p>Chargement de la présentation...</p>
+    </div>
+    
+    <div *ngIf="!isLoadingPresentation && presentation" class="presentation-content">
+      <p class="presentation-text">{{ presentation.presentation_text }}</p>
+    </div>
+    
+    <div *ngIf="!isLoadingPresentation && !presentation" class="error">
+      <p>Aucune présentation trouvée</p>
+    </div>
+    
+    <a routerLink="/presentation/edit/2" class="btn btn-primary">
+      Modifier la présentation
+    </a>
+  </div>
+</div>
+
 <div class="filter-add-wrapper">
   <button class="add-button" (click)="startCreate()" *ngIf="!isCreating && !editingTimeId">
     <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">

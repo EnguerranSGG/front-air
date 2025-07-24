@@ -7,10 +7,14 @@ import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
 import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
+import { RouterModule } from '@angular/router';
+import { PresentationService } from '../../services/presentation.service';
+import { Presentation } from '../../models/presentation.model';
+
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, SanitizePipe],
+  imports: [ReactiveFormsModule, CommonModule, SanitizePipe, RouterModule],
   templateUrl: './history.component.html',
   styleUrls: ['./history.component.scss'],
 })
@@ -20,15 +24,19 @@ export class HistoryComponent implements OnInit {
   editForm!: FormGroup;
   createForm!: FormGroup;
   isCreating = false;
+  presentation: Presentation | null = null;
+  isLoadingPresentation = false;
 
   constructor(
     private timeService: TimeService,
     private fb: FormBuilder,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private presentationService: PresentationService
   ) {}
 
   ngOnInit(): void {
     this.loadTimes();
+    this.loadPresentation();
     this.createForm = this.fb.group({
       year: [
         '',
@@ -41,6 +49,20 @@ export class HistoryComponent implements OnInit {
   loadTimes(): void {
     this.timeService.getAll().subscribe((data) => {
       this.times = data.sort((a, b) => b.year - a.year);
+    });
+  }
+
+  private loadPresentation(): void {
+    this.isLoadingPresentation = true;
+    this.presentationService.getById(2).subscribe({
+      next: (presentation) => {
+        this.presentation = presentation;
+        this.isLoadingPresentation = false;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement de la présentation:', error);
+        this.isLoadingPresentation = false;
+      }
     });
   }
 
@@ -69,7 +91,7 @@ export class HistoryComponent implements OnInit {
         this.createForm.reset();
         this.toastService.show('Evénement ajouté avec succès ✅');
       },
-      error: (err) => console.error('Erreur lors de l’ajout:', err),
+      error: (err) => console.error('Erreur lors de l\'ajout:', err),
     });
   }
 

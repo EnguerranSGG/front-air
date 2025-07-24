@@ -64,6 +64,106 @@ h2 {
   }
 }
 
+// Section de présentation
+.presentation-section {
+  margin-bottom: 30px;
+  
+  .presentation-card {
+    background: $white;
+    border-radius: 12px;
+    box-shadow: $card-shadow;
+    padding: 20px;
+    border: 1px solid $border-color;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $glass-shadow;
+    }
+
+    h3 {
+      color: $primary-blue;
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 0 0 15px 0;
+    }
+
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+
+      p {
+        margin-top: 1rem;
+        color: $gray;
+      }
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid $primary-blue;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .presentation-content {
+      margin-bottom: 20px;
+
+      .presentation-text {
+        color: $gray;
+        line-height: 1.6;
+        margin: 0;
+        font-size: 14px;
+        background: rgba($light-gray, 0.3);
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid $primary-blue;
+      }
+    }
+
+    .error {
+      text-align: center;
+      padding: 2rem;
+      color: $red;
+
+      p {
+        margin: 0;
+        font-size: 1.1rem;
+      }
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      background: $primary-gradient;
+      color: $white;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 14px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: $button-shadow;
+
+      &:hover {
+        background: $button-hover-gradient;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      }
+    }
+  }
+}
+
 // Wrapper filtre et bouton d'ajout - STYLE EXACT JOB-OFFERS
 .filter-add-wrapper {
   display: flex;
