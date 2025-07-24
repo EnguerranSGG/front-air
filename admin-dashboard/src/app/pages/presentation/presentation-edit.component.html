@@ -1,0 +1,45 @@
+<div class="presentation-edit-container">
+  <div class="header">
+    <h2>Modifier la présentation</h2>
+    <p *ngIf="presentation">
+      Présentation ID: {{ presentation.presentation_id }}
+    </p>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <div class="spinner"></div>
+    <p>Chargement de la présentation...</p>
+  </div>
+
+  <form *ngIf="!isLoading && presentation" [formGroup]="editForm" (ngSubmit)="onSubmit()" class="edit-form">
+    <div class="form-group">
+      <label for="presentation_text">Contenu de la présentation</label>
+      <textarea
+        id="presentation_text"
+        formControlName="presentation_text"
+        rows="10"
+        placeholder="Entrez le contenu de la présentation..."
+        class="form-control"
+        [class.invalid]="editForm.get('presentation_text')?.invalid && editForm.get('presentation_text')?.touched"
+      ></textarea>
+      <div *ngIf="editForm.get('presentation_text')?.invalid && editForm.get('presentation_text')?.touched" class="error-message">
+        {{ getErrorMessage('presentation_text') }}
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button 
+        type="submit" 
+        [disabled]="editForm.invalid || isSaving"
+        class="btn btn-primary"
+      >
+        <span *ngIf="isSaving" class="spinner-small"></span>
+        {{ isSaving ? 'Sauvegarde...' : 'Sauvegarder' }}
+      </button>
+    </div>
+  </form>
+
+  <div *ngIf="!isLoading && !presentation" class="error">
+    <p>Aucune présentation trouvée</p>
+  </div>
+</div> 
