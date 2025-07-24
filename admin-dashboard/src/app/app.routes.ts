@@ -10,6 +10,7 @@ import { FileComponent } from './pages/files/files.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { CounselorComponent } from './pages/counselor/counselor.component';
 import { PresentationEditComponent } from './pages/presentation/presentation-edit.component';
+import { FleComponent } from './pages/fle/fle.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -23,5 +24,6 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'counselors', component: CounselorComponent, canActivate: [AuthGuard] },
   { path: 'presentation/edit/:id', component: PresentationEditComponent, canActivate: [AuthGuard] },
+  { path: 'fle', component: FleComponent, canActivate: [AuthGuard] },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
 ];
