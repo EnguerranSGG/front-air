@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FileService } from '../../services/file.service';
+import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../utils/toast/toast.service';
 import { CommonModule } from '@angular/common';
 import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
@@ -32,6 +33,7 @@ export class FleComponent implements OnInit {
 
   constructor(
     private fileService: FileService, 
+    private authService: AuthService,
     private toast: ToastService,
     private fb: FormBuilder
   ) {}
@@ -108,12 +110,30 @@ export class FleComponent implements OnInit {
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.selectedFile = input.files[0];
+      const file = input.files[0];
+      
+      // Validation de la taille du fichier (10MB max)
+      const maxSize = 10 * 1024 * 1024; // 10MB en bytes
+      if (file.size > maxSize) {
+        this.toast.show('Fichier trop volumineux. Taille maximum : 10MB');
+        input.value = '';
+        this.selectedFile = null;
+        return;
+      }
+      
+      this.selectedFile = file;
     }
   }
 
   updateFleItem(): void {
     if (!this.selectedItem) return;
+
+    // Vérifier l'authentification
+    if (!this.authService.isAuthenticated()) {
+      this.toast.show('Session expirée. Veuillez vous reconnecter.');
+      this.authService.logout();
+      return;
+    }
 
     const title = this.updateForm.get('title')?.value;
     const originalTitle = this.selectedItem.file?.title || '';
@@ -137,7 +157,9 @@ export class FleComponent implements OnInit {
           this.loadFleItems(); // Recharger pour mettre à jour l'affichage
           this.closeModal();
         },
-        error: () => this.toast.show('Erreur lors de la mise à jour du titre'),
+        error: () => {
+          this.toast.show('Erreur lors de la mise à jour du titre');
+        },
       });
       return;
     }
@@ -160,7 +182,18 @@ export class FleComponent implements OnInit {
         this.selectedFile = null;
         this.closeModal();
       },
-      error: () => this.toast.show('Erreur lors de la mise à jour'),
+      error: (error) => {
+        // Gestion spécifique des erreurs
+        if (error.status === 403) {
+          this.toast.show('Accès interdit. Vérifiez vos permissions.');
+        } else if (error.status === 413) {
+          this.toast.show('Fichier trop volumineux. Réduisez la taille du fichier.');
+        } else if (error.status === 401) {
+          this.toast.show('Session expirée. Veuillez vous reconnecter.');
+        } else {
+          this.toast.show('Erreur lors de la mise à jour');
+        }
+      },
     });
   }
 
@@ -171,5 +204,12 @@ export class FleComponent implements OnInit {
   isPdfFile(item: FleItem): boolean {
     // Les IDs 16 (flyer) et 18 (certificat) sont des fichiers PDF
     return item.id === 16 || item.id === 18;
+  }
+
+  getFileAcceptType(): string {
+    if (this.selectedItem && this.isPdfFile(this.selectedItem)) {
+      return '.pdf,application/pdf';
+    }
+    return 'image/*';
   }
 } 
