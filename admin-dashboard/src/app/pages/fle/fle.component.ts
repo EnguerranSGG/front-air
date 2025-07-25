@@ -43,8 +43,7 @@ export class FleComponent implements OnInit {
 
   initForm(): void {
     this.updateForm = this.fb.group({
-      title: [''],
-      description: ['']
+      title: ['']
     });
   }
 
@@ -53,12 +52,14 @@ export class FleComponent implements OnInit {
     
     // IDs des fichiers FLE basés sur le composant FleSection.astro
     const fleFileIds = [
-      { id: 11, title: 'Image principale FLE', description: 'Image principale de la section FLE' },
-      { id: 26, title: 'Satisfaction des stagiaires', description: 'Graphique de satisfaction des stagiaires FLE' },
-      { id: 27, title: 'Code de la route 1', description: 'Première image du code de la route' },
-      { id: 28, title: 'Code de la route 2', description: 'Deuxième image du code de la route' },
-      { id: 29, title: 'FLE pro et numérique 1', description: 'Première image FLE pro et numérique' },
-      { id: 30, title: 'FLE pro et numérique 2', description: 'Deuxième image FLE pro et numérique' }
+      { id: 11, title: 'Image principale FLE', description: 'Image principale de la section FLE. Pas de PDF.' },
+      { id: 26, title: 'Satisfaction des stagiaires', description: 'Tableau de satisfaction des stagiaires FLE. Pas de PDF.' },
+      { id: 27, title: 'Code de la route 1', description: 'Tableau des auto-évaluations du code de la route. Pas de PDF.' },
+      { id: 28, title: 'Code de la route 2', description: 'Tableau des d\'acquisitions de compétences du code de la route. Pas de PDF.' },
+      { id: 29, title: 'FLE pro et numérique 1', description: 'Tableau des auto-évaluations du FLE pro et numérique. Pas de PDF.' },
+      { id: 30, title: 'FLE pro et numérique 2', description: 'Tableau des d\'acquisitions de compétences du FLE pro et numérique. Pas de PDF.' },
+      { id: 16, title: 'Flyer FLE', description: 'Flyer de présentation du FLE. PDF uniquement.' },
+      { id: 18, title: 'Certification FLE', description: 'Certification Qualiopi du FLE. PDF uniquement.' }
     ];
 
     // Charger les informations de chaque fichier
@@ -93,8 +94,7 @@ export class FleComponent implements OnInit {
     
     // Remplir le formulaire avec les valeurs actuelles
     this.updateForm.patchValue({
-      title: item.title || '',
-      description: item.description || ''
+      title: item.title || ''
     });
   }
 
@@ -116,7 +116,6 @@ export class FleComponent implements OnInit {
     if (!this.selectedItem) return;
 
     const title = this.updateForm.get('title')?.value;
-    const description = this.updateForm.get('description')?.value;
     const originalTitle = this.selectedItem.file?.title || '';
     
     // Vérifier si le titre a changé
@@ -146,10 +145,8 @@ export class FleComponent implements OnInit {
     // Si un fichier est sélectionné (avec ou sans changement de titre)
     const formData = new FormData();
     
-    // Ajouter le titre s'il est défini
-    if (title) {
-      formData.append('title', title);
-    }
+    // Toujours ajouter le titre (même s'il est vide) pour s'assurer qu'il est mis à jour
+    formData.append('title', title || '');
 
     // Ajouter le fichier
     if (this.selectedFile) {
@@ -169,5 +166,10 @@ export class FleComponent implements OnInit {
 
   refreshImage(item: FleItem): void {
     item.imageUrl = `${this.fileService.getApiUrl()}/${item.id}/download?ts=${Date.now()}`;
+  }
+
+  isPdfFile(item: FleItem): boolean {
+    // Les IDs 16 (flyer) et 18 (certificat) sont des fichiers PDF
+    return item.id === 16 || item.id === 18;
   }
 } 

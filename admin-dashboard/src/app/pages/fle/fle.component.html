@@ -24,12 +24,24 @@
 
       <div class="item-image-container">
         <img 
-          *ngIf="item.imageUrl" 
+          *ngIf="item.imageUrl && !isPdfFile(item)" 
           [src]="item.imageUrl" 
           [alt]="item.title"
           class="item-image"
           (error)="refreshImage(item)"
         />
+        <div *ngIf="item.imageUrl && isPdfFile(item)" class="pdf-container">
+          <svg width="64" height="64" fill="currentColor" viewBox="0 0 24 24" class="pdf-icon">
+            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+          </svg>
+          <span class="pdf-label">Document PDF</span>
+          <a [href]="item.imageUrl" target="_blank" class="download-link">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>
+            Télécharger
+          </a>
+        </div>
         <div *ngIf="!item.imageUrl" class="no-image">
           <svg width="48" height="48" fill="currentColor" viewBox="0 0 24 24">
             <path d="M21,19V5C21,3.89 20.1,3 19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19C20.1,21 21,20.1 21,19M8.5,13.5L11,16.5L14.5,12L19,18H5L8.5,13.5Z"/>
@@ -76,17 +88,6 @@
             placeholder="Titre de l'élément" 
             class="modern-input" 
           />
-        </div>
-
-        <div class="form-group">
-          <label for="description">Description</label>
-          <textarea 
-            id="description"
-            formControlName="description" 
-            placeholder="Description de l'élément" 
-            class="modern-textarea"
-            rows="3"
-          ></textarea>
         </div>
 
         <div class="file-upload-section">
