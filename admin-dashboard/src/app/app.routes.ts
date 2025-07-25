@@ -22,7 +22,7 @@ export const routes: Routes = [
   { path: 'files', component: FileComponent, canActivate: [AuthGuard] },
   { path: 'job-offers', component: JobOfferComponent, canActivate: [AuthGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-  { path: 'counselors', component: CounselorComponent, canActivate: [AuthGuard] },
+  { path: 'staff', component: CounselorComponent, canActivate: [AuthGuard] },
   { path: 'presentation/edit/:id', component: PresentationEditComponent, canActivate: [AuthGuard] },
   { path: 'fle', component: FleComponent, canActivate: [AuthGuard] },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
