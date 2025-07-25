@@ -129,51 +129,21 @@ h3.illustration-title {
 // Container de l'illustration avec styles spéciaux pour PDF
 .illustration-container {
   display: flex;
-  justify-content: center;
   align-items: center;
-  background: rgba($ultra-light-gray, 0.5);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  border: 2px dashed rgba($primary-blue, 0.2);
-  transition: all 0.3s ease;
+  justify-content: center;
+  height: 180px;
+  margin-bottom: 1rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  overflow: hidden;
+}
 
-  &:hover {
-    border-color: rgba($primary-blue, 0.4);
-    background: rgba($ultra-light-gray, 0.8);
-  }
-
-  .illustration {
-    max-width: 100%;
-    max-height: 40vh;
-    border-radius: 8px;
-    box-shadow: $subtle-shadow;
-    transition: transform 0.3s ease;
-
-    &:hover {
-      transform: scale(1.02);
-    }
-  }
-
-  // Styles spéciaux pour le PDF viewer
-  .pdf-viewer {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: 50vh !important;
-    max-height: 50vh !important;
-    border-radius: 8px;
-    box-shadow: $subtle-shadow;
-    transition: transform 0.3s ease;
-
-    &:hover {
-      transform: scale(1.02);
-    }
-
-    @media (max-width: 768px) {
-      height: 40vh !important;
-      max-height: 40vh !important;
-    }
-  }
+.pdf-viewer {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain;
+  background: transparent;
+  border: none;
 }
 
 // Actions de la card - Bouton en bas à gauche
