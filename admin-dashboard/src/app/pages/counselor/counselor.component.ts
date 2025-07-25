@@ -6,11 +6,12 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
+import { GovernanceComponent } from '../governance/governance.component';
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, GovernanceComponent],
   templateUrl: './counselor.component.html',
   styleUrls: ['./counselor.component.scss'],
 })

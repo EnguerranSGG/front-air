@@ -34,8 +34,8 @@ $subtle-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 // Container principal
 .counselors-container {
   width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
   padding: 20px;
 }
 
@@ -576,4 +576,82 @@ input:focus-visible,
 textarea:focus-visible {
   outline: 2px solid $primary-blue;
   outline-offset: 2px;
+}
+
+// Section Organigramme
+.organigram-section {
+  margin-top: 60px;
+  padding-top: 40px;
+  border-top: 2px solid rgba($primary-blue, 0.1);
+  width: 100%;
+  
+  h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    background: $primary-gradient;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 30px;
+    text-align: center;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: $primary-gradient;
+      border-radius: 2px;
+    }
+  }
+
+  // Ajuster le style du composant governance pour qu'il prenne toute la largeur
+  app-governance {
+    display: block;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    
+    // Forcer le composant governance à prendre toute la largeur
+    ::ng-deep {
+      :host {
+        display: block;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .illustration-card {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+      }
+      
+      .illustration-container {
+        width: 100%;
+        
+        .illustration {
+          width: 100%;
+          max-width: 100%;
+          height: auto;
+          max-height: none;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    margin-top: 40px;
+    padding-top: 30px;
+    
+    h2 {
+      font-size: 1.6rem;
+      margin-bottom: 20px;
+    }
+  }
 }
