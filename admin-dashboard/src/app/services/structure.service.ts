@@ -20,6 +20,10 @@ export class StructureService {
     return this.http.get<Structure>(`${this.apiUrl}/${id}`);
   }
 
+  getByTypeName(typeName: string): Observable<Structure[]> {
+    return this.http.get<Structure[]>(`${this.apiUrl}/by-type-name/${encodeURIComponent(typeName)}`);
+  }
+
   create(structure: Partial<Structure>): Observable<Structure> {
     return this.http.post<Structure>(`${this.apiUrl}/add`, structure);
   }
