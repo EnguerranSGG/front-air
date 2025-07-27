@@ -1,5 +1,5 @@
 <!-- Section de gestion de la présentation d'accueil -->
-<div class="presentation-section">
+<section class="presentation-section">
   <div class="presentation-card">
     <h3>Présentation d'accueil</h3>
     
@@ -20,15 +20,18 @@
       Modifier la présentation
     </a>
   </div>
-</div>
+</section>
 
-<section class="dashboard-section">
-    <div class="dashboard-grid">
-        <app-news></app-news>
-        <app-home-illustration></app-home-illustration>
-        <app-fle-illustration></app-fle-illustration>
-        <app-governance></app-governance>
-        <app-flyer></app-flyer>
-        <app-certificate></app-certificate>
+<!-- Section de gestion des composants en deux colonnes -->
+<section class="components-section">
+  <div class="components-grid">
+    <div class="component-column">
+      <h3>Image d'accueil</h3>
+      <app-home-illustration></app-home-illustration>
     </div>
+    <div class="component-column">
+      <h3>Gestion des actualités</h3>
+      <app-news></app-news>
+    </div>
+  </div>
 </section>

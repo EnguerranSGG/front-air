@@ -23,7 +23,8 @@ $white: #fff;
 // Gradients sophistiqués
 $primary-gradient: linear-gradient(135deg, $primary-blue 0%, $primary-purple 100%);
 $subtle-gradient: linear-gradient(135deg, rgba($primary-blue, 0.1) 0%, rgba($primary-purple, 0.1) 100%);
-$button-hover-gradient: linear-gradient(135deg, lighten($primary-blue, 10%) 0%, lighten($primary-purple, 10%) 100%);
+$card-gradient: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+$button-hover-gradient: linear-gradient(135deg, #1a5bb8 0%, #5d4a8a 100%);
 
 // Ombres modernes
 $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
@@ -31,102 +32,335 @@ $card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 $button-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 $subtle-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
-// Section de présentation - Même design que history
-.presentation-section {
-  margin-bottom: 30px;
+// Section de gestion des composants en deux colonnes
+.components-section {
+  margin-bottom: 60px;
+  padding-bottom: 40px;
+  border-bottom: 2px solid rgba($primary-blue, 0.1);
   
-  .presentation-card {
-    background: $white;
-    border-radius: 12px;
-    box-shadow: $card-shadow;
-    padding: 20px;
-    border: 1px solid $border-color;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  .components-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    width: 100%;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+  }
+
+  .component-column {
+    h3 {
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: $gray;
+      margin-bottom: 20px;
+      text-align: center;
+      opacity: 0.8;
+      
+      @media (max-width: 768px) {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+      }
+    }
+
+    // Harmoniser l'apparence des deux composants
+    app-home-illustration,
+    app-news {
+      display: block;
+      aspect-ratio: 4/3; // Ratio fixe pour les deux composants
+      min-height: 300px;
+      
+      ::ng-deep {
+        :host {
+          display: block;
+          width: 100%;
+          height: 100%;
+          margin: 0;
+          padding: 0;
+        }
+        
+        // Styles communs pour les cards
+        .illustration-card,
+        .event-card {
+          width: 100%;
+          height: 100%;
+          max-width: none;
+          margin: 0;
+          background: rgba($white, 0.95);
+          backdrop-filter: blur(20px);
+          border-radius: 16px;
+          padding: 20px;
+          box-shadow: $card-shadow;
+          border: 1px solid rgba($primary-blue, 0.1);
+          position: relative;
+          overflow: hidden;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          display: flex;
+          flex-direction: column;
+
+          &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: $primary-gradient;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+          }
+
+          &:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+
+            &::before {
+              opacity: 1;
+            }
+          }
+
+          // Style du titre pour home-illustration
+          .illustration-title {
+            font-size: 1.1rem !important;
+            font-weight: 700 !important;
+            color: $primary-blue !important;
+            margin-bottom: 12px !important;
+            display: block;
+            text-align: center;
+            flex-shrink: 0; // Empêche le titre de rétrécir
+            opacity: 1 !important; // Supprimer l'opacité réduite
+          }
+        }
+
+        // Styles spécifiques pour home-illustration
+        .illustration-container {
+          flex: 1;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          min-height: 0; // Important pour flex
+          
+          .illustration {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            min-height: 0; // Important pour flex
+          }
+        }
+
+        // Styles spécifiques pour news - Même style que home-illustration
+        .event-content {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          min-height: 0; // Important pour flex
+          
+          .event-year {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: $primary-blue;
+            margin-bottom: 12px;
+            display: block;
+            text-align: center;
+            flex-shrink: 0; // Empêche le titre de rétrécir
+          }
+
+          .news-image-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 0; // Important pour flex
+            background: rgba($ultra-light-gray, 0.5);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px dashed rgba($primary-blue, 0.2);
+            transition: all 0.3s ease;
+
+            &:hover {
+              border-color: rgba($primary-blue, 0.4);
+              background: rgba($ultra-light-gray, 0.8);
+            }
+            
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+              border-radius: 8px;
+              min-height: 0; // Important pour flex
+            }
+          }
+
+          // Masquer la description
+          .event-description {
+            display: none;
+          }
+        }
+
+        // Styles communs pour les boutons
+        .edit-button {
+          background: rgba($light-blue, 0.1);
+          color: $light-blue;
+          border: 2px solid rgba($light-blue, 0.3);
+          border-radius: 10px;
+          padding: 8px 12px;
+          font-size: 13px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-weight: 500;
+          margin-top: 12px;
+          align-self: flex-end;
+          flex-shrink: 0; // Empêche le bouton de rétrécir
+
+          &:hover {
+            background: rgba($light-blue, 0.2);
+            border-color: $light-blue;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba($light-blue, 0.3);
+          }
+        }
+
+        // Masquer les boutons supplémentaires de news
+        .event-buttons {
+          .delete-button {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    
+    h2 {
+      font-size: 1.6rem;
+      margin-bottom: 20px;
+    }
+  }
+}
+
+// Section de présentation - Même style que les autres sections
+.presentation-section {
+  margin-bottom: 60px;
+  padding-bottom: 40px;
+  border-bottom: 2px solid rgba($primary-blue, 0.1);
+  width: 100%;
+
+  @media (max-width: 768px) {
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+  }
+}
+
+.presentation-card {
+  background: $card-gradient;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: $card-shadow;
+  border: 1px solid $border-color;
+  text-align: center;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+
+  h3 {
+    color: $primary-blue;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .presentation-text {
+    color: $text-color;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: $primary-gradient;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: $button-shadow;
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: $glass-shadow;
+      box-shadow: 0 6px 20px rgba($primary-blue, 0.3);
     }
 
-    h3 {
-      color: $primary-blue;
-      font-size: 1.3rem;
-      font-weight: 600;
-      margin: 0 0 15px 0;
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+// Section de gestion FLE
+.fle-management-section {
+  margin-bottom: 2rem;
+}
+
+.fle-management-card {
+  background: $card-gradient;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: $card-shadow;
+  border: 1px solid $border-color;
+  text-align: center;
+
+  h3 {
+    color: $primary-blue;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: $text-color;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    opacity: 0.8;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: $primary-gradient;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: $button-shadow;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba($primary-blue, 0.3);
     }
 
-    .loading {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      text-align: center;
-
-      p {
-        margin-top: 1rem;
-        color: $gray;
-      }
-    }
-
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid $primary-blue;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .presentation-content {
-      margin-bottom: 20px;
-
-      .presentation-text {
-        color: $gray;
-        line-height: 1.6;
-        margin: 0;
-        font-size: 14px;
-        background: rgba($light-gray, 0.3);
-        padding: 15px;
-        border-radius: 8px;
-        border-left: 4px solid $primary-blue;
-      }
-    }
-
-    .error {
-      text-align: center;
-      padding: 2rem;
-      color: $red;
-
-      p {
-        margin: 0;
-        font-size: 1.1rem;
-      }
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      background: $primary-gradient;
-      color: $white;
-      text-decoration: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: 500;
-      font-size: 14px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: $button-shadow;
-
-      &:hover {
-        background: $button-hover-gradient;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-      }
+    svg {
+      width: 16px;
+      height: 16px;
     }
   }
 }
@@ -150,16 +384,16 @@ $subtle-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
   .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(2, 1fr);
     gap: 1.5rem;
     width: 100%;
     max-width: 1200px;
-    aspect-ratio: 3/2;
+    aspect-ratio: 2/2;
     
     // Pour écrans moyens à larges
     @media (min-width: 1200px) {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       grid-template-rows: repeat(2, 1fr);
       gap: 2rem;
     }
@@ -167,14 +401,14 @@ $subtle-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     // Pour tablettes
     @media (max-width: 1199px) and (min-width: 769px) {
       grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
       gap: 1.5rem;
     }
     
     // Pour mobiles
     @media (max-width: 768px) {
       grid-template-columns: 1fr;
-      grid-template-rows: repeat(6, 1fr);
+      grid-template-rows: repeat(4, 1fr);
       gap: 1rem;
       padding: 0 0.5rem;
       aspect-ratio: auto;
@@ -185,9 +419,7 @@ $subtle-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     app-news,
     app-home-illustration,
     app-fle-illustration,
-    app-governance,
-    app-flyer,
-    app-certificate {
+    app-governance {
       height: 100%;
       width: 100%;
       min-height: 250px;

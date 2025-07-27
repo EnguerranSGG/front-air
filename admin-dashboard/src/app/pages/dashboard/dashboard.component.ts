@@ -1,8 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { GovernanceComponent } from '../governance/governance.component';
 import { NewsComponent } from '../news/news.component';
-import { FlyerComponent } from '../flyer/flyer.component';
-import { CertificateComponent } from '../certificate/certificate.component';
 import { HomeIllustrationComponent } from '../home-illustration/home-illustration.component';
 import { FleIllustrationComponent } from '../fle-illustration/fle-illustration.component';
 import { PresentationService } from '../../services/presentation.service';
@@ -17,10 +14,7 @@ import { RouterModule } from '@angular/router';
   imports: [
     CommonModule,
     RouterModule,
-    GovernanceComponent,
     NewsComponent,
-    FlyerComponent,
-    CertificateComponent,
     HomeIllustrationComponent,
     FleIllustrationComponent
 ],
