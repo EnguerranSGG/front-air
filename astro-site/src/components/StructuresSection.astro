@@ -11,6 +11,9 @@ try {
   
   // Trier les structures par structure_id croissant (du plus petit au plus grand)
   structures.sort((a, b) => a.structure_id - b.structure_id);
+  
+  // Filtrer pour exclure le siège social (structure_id 1)
+  structures = structures.filter(structure => structure.structure_id !== 1);
 } catch (err) {
   console.error('Erreur lors du fetch des structures :', err);
 }

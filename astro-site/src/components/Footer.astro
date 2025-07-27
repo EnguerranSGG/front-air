@@ -1,5 +1,138 @@
+---
+// Récupération des informations du siège social (structure ID 1)
+let siegeSocial = null;
+
+try {
+  const res = await fetch(import.meta.env.PUBLIC_API_URL + '/structures/all');
+  const data = await res.json();
+  console.log('Structures récupérées pour footer :', data);
+  
+  if (Array.isArray(data)) {
+    // Filtrer la structure avec l'ID 1 (siège social)
+    siegeSocial = data.find(structure => structure.structure_id === 1);
+    console.log('Siège social trouvé :', siegeSocial);
+  }
+} catch (err) {
+  console.error('Erreur lors du fetch des structures pour footer :', err);
+}
+---
+
 <footer class="footer">
   <div class="footer-content">
-    <a href="/mentions-legales">Mentions légales</a>
+    <div class="footer-section">
+      {siegeSocial ? (
+        <div class="siege-info">
+          <h4 class="siege-title">Siège social</h4>
+          {siegeSocial.address && (
+            <p class="siege-address">
+              {siegeSocial.address}
+            </p>
+          )}
+          {siegeSocial.phone_number && (
+            <p class="siege-phone">
+              {siegeSocial.phone_number}
+            </p>
+          )}
+        </div>
+      ) : (
+        <div class="siege-info">
+          <h4 class="siege-title">Siège social</h4>
+          <p class="no-data">Informations non disponibles</p>
+        </div>
+      )}
+    </div>
+    
+    <div class="footer-section">
+      <a href="/mentions-legales" class="legal-link">Mentions légales</a>
+    </div>
   </div>
 </footer>
+
+<style>
+  .footer {
+    background: #2c3e50;
+    color: #ecf0f1;
+    padding: 2rem 0;
+    margin-top: auto;
+  }
+
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+  }
+
+  .footer-section {
+    flex: 1;
+  }
+
+  .siege-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .siege-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #3498db;
+    text-align: left;
+  }
+
+  .siege-address,
+  .siege-phone {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    color: #ecf0f1;
+    font-size: 0.9rem;
+  }
+
+  .icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  .no-data {
+    color: #95a5a6;
+    font-style: italic;
+    margin: 0;
+  }
+
+  .legal-link {
+    color: #3498db;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    font-weight: 500;
+  }
+
+  .legal-link:hover {
+    color: #5dade2;
+  }
+
+  /* Version mobile */
+  @media (max-width: 768px) {
+    .footer-content {
+      flex-direction: column;
+      gap: 1.5rem;
+      text-align: center;
+    }
+
+    .footer-section {
+      width: 100%;
+    }
+
+    .siege-address,
+    .siege-phone {
+      justify-content: center;
+    }
+  }
+</style>
