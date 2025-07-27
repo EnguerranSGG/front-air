@@ -1,19 +1,64 @@
 ---
 import StructureCard from '../components/StructureCard.astro';
 
-let structures = [];
+// Types de structures à récupérer
+const structureTypes = [
+  'Boutique solidaire',
+  'Pôle formation', 
+  'Pôle asile',
+  'Pôle intégration'
+];
+
+// Interface pour typer les données
+interface Structure {
+  structure_id: number;
+  name: string;
+  description: string;
+  link?: string;
+  phone_number?: string;
+  address?: string;
+  file_id?: number;
+  missions?: Array<{ content: string }>;
+}
+
+interface StructuresByType {
+  [typeName: string]: Structure[];
+}
+
+let structuresByType: StructuresByType = {};
 
 try {
-  const res = await fetch(import.meta.env.PUBLIC_API_URL + '/structures/all');
-  const data = await res.json();
-  console.log('Structures récupérées :', data);
-  structures = Array.isArray(data) ? data : [];
+  // Récupérer les structures pour chaque type
+  const promises = structureTypes.map(async (typeName) => {
+    try {
+      const res = await fetch(import.meta.env.PUBLIC_API_URL + `/structures/by-type-name/${encodeURIComponent(typeName)}`);
+      if (res.ok) {
+        const data = await res.json();
+        return { typeName, structures: Array.isArray(data) ? data : [] };
+      } else {
+        console.warn(`Aucune structure trouvée pour le type: ${typeName}`);
+        return { typeName, structures: [] };
+      }
+    } catch (err) {
+      console.error(`Erreur lors du fetch des structures pour ${typeName}:`, err);
+      return { typeName, structures: [] };
+    }
+  });
+
+  const results = await Promise.all(promises);
   
-  // Trier les structures par structure_id croissant (du plus petit au plus grand)
-  structures.sort((a, b) => a.structure_id - b.structure_id);
-  
-  // Filtrer pour exclure le siège social (structure_id 1)
-  structures = structures.filter(structure => structure.structure_id !== 1);
+  // Organiser les structures par type
+  results.forEach(({ typeName, structures }) => {
+    if (structures.length > 0) {
+      // Trier les structures par structure_id croissant
+      structures.sort((a, b) => a.structure_id - b.structure_id);
+      // Filtrer pour exclure le siège social (structure_id 1)
+      structures = structures.filter(structure => structure.structure_id !== 1);
+      structuresByType[typeName] = structures;
+    }
+  });
+
+  console.log('Structures organisées par type :', structuresByType);
 } catch (err) {
   console.error('Erreur lors du fetch des structures :', err);
 }
@@ -22,13 +67,18 @@ try {
 <section class="structures-section">
   <h2>Nos différentes structures</h2>
 
-  <div class="structures-grid">
-    {structures?.length > 0 ? (
-      structures.map((structure) => structure && <StructureCard structure={structure} />)
-    ) : (
-      <p>Aucune structure disponible pour le moment.</p>
-    )}
-  </div>
+  {Object.keys(structuresByType).length > 0 ? (
+    Object.entries(structuresByType).map(([typeName, structures]) => (
+      <div class="structure-type-group">
+        <h3 class="structure-type-title">{typeName}</h3>
+        <div class="structures-grid">
+          {structures.map((structure) => structure && <StructureCard structure={structure} />)}
+        </div>
+      </div>
+    ))
+  ) : (
+    <p>Aucune structure disponible pour le moment.</p>
+  )}
 </section>
 
 <style>
@@ -42,6 +92,36 @@ try {
     margin-bottom: 3rem;
     font-size: 2.5rem;
     color: #4b2aa5;
+  }
+
+  .structure-type-group {
+    margin-bottom: 4rem;
+  }
+
+  .structure-type-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .structure-type-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+    color: #333;
+    font-weight: 600;
+    position: relative;
+    padding-bottom: 0.5rem;
+  }
+
+  .structure-type-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #4b2aa5, #0046a4);
+    border-radius: 2px;
   }
 
   .structures-grid {
@@ -61,6 +141,15 @@ try {
     .structures-section h2 {
       font-size: 2rem;
       margin-bottom: 2rem;
+    }
+
+    .structure-type-group {
+      margin-bottom: 3rem;
+    }
+
+    .structure-type-title {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
     }
 
     .structures-grid {
