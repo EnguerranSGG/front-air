@@ -1,14 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
   Validators,
   ReactiveFormsModule,
   FormArray,
+  FormsModule,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { StructureService } from '../../services/structure.service';
-import { Structure } from '../../models/structure.model';
+import { StructureTypeService } from '../../services/structure-type.service';
+import { Structure, StructureType } from '../../models/structure.model';
 import { ToastService } from '../../utils/toast/toast.service';
 import { environment } from '../../../environments/environment';
 import { FileEntity } from '../../models/file.model';
@@ -20,7 +22,7 @@ import { sanitize } from 'class-sanitizer';
 @Component({
   selector: 'app-structure',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FileSelectorComponent, SanitizePipe],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, FileSelectorComponent, SanitizePipe],
   templateUrl: './structures.component.html',
   styleUrls: ['./structures.component.scss'],
 })
@@ -28,10 +30,12 @@ export class StructureComponent implements OnInit {
   apiUrl = environment.API_URL;
   files: FileEntity[] = [];
   structures: Structure[] = [];
+  structureTypes: StructureType[] = [];
   showForm = false;
   editingStructureId: number | null = null;
   showCreateFileSelector = false;
   showEditFileSelector = false;
+  selectedTypeFilter: string = 'all';
 
   createForm!: FormGroup;
   editForm!: FormGroup;
@@ -39,14 +43,16 @@ export class StructureComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private structureService: StructureService,
+    private structureTypeService: StructureTypeService,
     private toast: ToastService,
-    private fileService: FileService
+    private fileService: FileService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.loadStructures();
     this.createForm = this.buildForm();
     this.getFiles();
+    this.loadStructureTypes();
   }
 
   buildForm(structure?: Structure): FormGroup {
@@ -57,6 +63,7 @@ export class StructureComponent implements OnInit {
       phone_number: [structure?.phone_number || '', [Validators.maxLength(25)]],
       link: [structure?.link || '', [Validators.maxLength(255), Validators.pattern(/https?:\/\/.+/)]],
       file_id: [structure?.file?.file_id || null],
+      structure_type_id: [structure?.structure_type_id || null, [Validators.required]],
       missions: this.fb.array(
         structure?.missions?.map(m => this.fb.control(m.content, [Validators.maxLength(250)])) || []
       ),
@@ -75,10 +82,62 @@ export class StructureComponent implements OnInit {
     });
   }
 
-  loadStructures(): void {
-    this.structureService.getAll().subscribe(data => {
-      this.structures = data.sort((a, b) => a.structure_id - b.structure_id);
+  loadStructureTypes(): void {
+    this.structureTypeService.getAllWithFallback().subscribe({
+      next: types => {
+        this.structureTypes = types;
+        // Charger les structures une fois que les types sont disponibles
+        this.loadStructures();
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des types:', error);
+        this.toast.show('Erreur lors du chargement des types de structures');
+      },
     });
+  }
+
+  loadStructures(): void {
+    this.structureService.getAll().subscribe({
+      next: data => {
+        this.structures = data.sort((a, b) => a.structure_id - b.structure_id);
+        
+        // Peupler les objets structure_type manuellement
+        this.structures.forEach(structure => {
+          if (structure.structure_type_id && !structure.structure_type) {
+            const type = this.structureTypes.find(t => t.structure_type_id === structure.structure_type_id);
+            if (type) {
+              structure.structure_type = type;
+            }
+          }
+        });
+      },
+      error: () => this.toast.show('Erreur lors du chargement des structures'),
+    });
+  }
+
+  getFilteredStructures(): Structure[] {
+    if (this.selectedTypeFilter === 'all') {
+      return this.structures;
+    }
+    
+    if (this.selectedTypeFilter === 'no-type') {
+      return this.structures.filter(structure => !structure.structure_type?.name);
+    }
+    
+    const filtered = this.structures.filter(structure => {
+      if (!structure.structure_type?.name) {
+        return false;
+      }
+      const matches = structure.structure_type.name === this.selectedTypeFilter;
+      return matches;
+    });
+    
+    return filtered;
+  }
+
+  onTypeFilterChange(): void {
+    // Forcer la détection de changement pour que le getter getFilteredStructures() soit recalculé
+    this.cdr.detectChanges();
   }
 
   addStructure(): void {
@@ -89,10 +148,12 @@ export class StructureComponent implements OnInit {
 
     const payload = this.preparePayload(this.createForm.value);
 
-    this.structureService.create(payload).subscribe({      next: () => {
+    this.structureService.create(payload).subscribe({
+      next: () => {
         this.toast.show('Structure ajoutée avec succès');
         this.loadStructures();
         this.showForm = false;
+        this.createForm.reset();
       },
       error: () => this.toast.show("Erreur lors de l'ajout"),
     });
@@ -152,10 +213,6 @@ export class StructureComponent implements OnInit {
   }
 
   private preparePayload(formValue: any): any {
-    console.log('preparePayload | formValue:', formValue);
-    console.log('preparePayload | typeof missions:', typeof formValue.missions);
-    console.log('preparePayload | missions:', formValue.missions);
-  
     const sanitized = {
       ...formValue,
       name: sanitize(formValue.name),
@@ -163,16 +220,12 @@ export class StructureComponent implements OnInit {
       address: formValue.address ? sanitize(formValue.address) : null,
       phone_number: formValue.phone_number ? sanitize(formValue.phone_number) : null,
       link: formValue.link ? sanitize(formValue.link) : null,
+      structure_type_id: formValue.structure_type_id,
       missions: (formValue.missions || []).map((content: string) => {
-        console.log('preparePayload | mapping content:', content);
         return { content: sanitize(content) };
       }),
     };
   
-    console.log('preparePayload | sanitized:', sanitized);
     return sanitized;
   }
-  
-   
-  
 }

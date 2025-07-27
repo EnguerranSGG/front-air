@@ -1,5 +1,15 @@
 <h2>Gestion des structures</h2>
 
+<!-- Filtre par type -->
+<div class="filter-section">
+  <label for="typeFilter" class="filter-label">Filtrer par type :</label>
+  <select id="typeFilter" [(ngModel)]="selectedTypeFilter" (change)="onTypeFilterChange()" class="filter-select">
+    <option value="all">Tous les types</option>
+    <option value="no-type">Sans type</option>
+    <option *ngFor="let type of structureTypes" [value]="type.name">{{ type.name }}</option>
+  </select>
+</div>
+
 <!-- Bouton d'ajout modernisé -->
 <div class="filter-add-wrapper">
   <button (click)="showForm = !showForm" class="add-button">
@@ -27,6 +37,16 @@
       <div *ngIf="createForm.get('name')?.invalid && createForm.get('name')?.touched" class="error">
         <span *ngIf="createForm.get('name')?.errors?.['required']">Le nom est obligatoire.</span>
         <span *ngIf="createForm.get('name')?.errors?.['maxlength']">Le nom ne doit pas dépasser 60 caractères.</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <select formControlName="structure_type_id" class="modern-select">
+        <option value="">Sélectionner un type</option>
+        <option *ngFor="let type of structureTypes" [value]="type.structure_type_id">{{ type.name }}</option>
+      </select>
+      <div *ngIf="createForm.get('structure_type_id')?.invalid && createForm.get('structure_type_id')?.touched" class="error">
+        <span *ngIf="createForm.get('structure_type_id')?.errors?.['required']">Le type est obligatoire.</span>
       </div>
     </div>
 
@@ -116,11 +136,14 @@
 </div>
 
 <!-- Liste des structures modernisée -->
-<div *ngFor="let structure of structures" class="event-card">
+<div *ngFor="let structure of getFilteredStructures()" class="event-card">
   <ng-container *ngIf="editingStructureId !== structure.structure_id; else editTemplate">
     <div class="event-display">
       <div class="event-content">
-        <strong class="event-year">{{ structure.name | sanitize }}</strong>
+        <div class="structure-header">
+          <strong class="event-year">{{ structure.name | sanitize }}</strong>
+          <span *ngIf="structure.structure_type" class="structure-type-badge">{{ structure.structure_type.name }}</span>
+        </div>
         <div *ngIf="structure.file?.file_id" class="structure-image-container">
           <img [src]="apiUrl + '/files/' + structure.file?.file_id + '/download'" [alt]="structure.name" loading="lazy" />
         </div>
@@ -189,6 +212,16 @@
           <div *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched" class="error">
             <span *ngIf="editForm.get('name')?.errors?.['required']">Le nom est obligatoire.</span>
             <span *ngIf="editForm.get('name')?.errors?.['maxlength']">Le nom ne doit pas dépasser 60 caractères.</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <select formControlName="structure_type_id" class="modern-select">
+            <option value="">Sélectionner un type</option>
+            <option *ngFor="let type of structureTypes" [value]="type.structure_type_id">{{ type.name }}</option>
+          </select>
+          <div *ngIf="editForm.get('structure_type_id')?.invalid && editForm.get('structure_type_id')?.touched" class="error">
+            <span *ngIf="editForm.get('structure_type_id')?.errors?.['required']">Le type est obligatoire.</span>
           </div>
         </div>
 

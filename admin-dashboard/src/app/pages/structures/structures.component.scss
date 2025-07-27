@@ -712,3 +712,99 @@ button:active {
 * {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* Filtre par type */
+.filter-section {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.filter-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.filter-select {
+  width: 100%;
+  max-width: 300px;
+  padding: 0.75rem;
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  background: white;
+  font-size: 0.9rem;
+  color: #333;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #4b2aa5;
+  box-shadow: 0 0 0 3px rgba(75, 42, 165, 0.1);
+}
+
+/* Sélecteur moderne */
+.modern-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  background: white;
+  font-size: 0.9rem;
+  color: #333;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.modern-select:focus {
+  outline: none;
+  border-color: #4b2aa5;
+  box-shadow: 0 0 0 3px rgba(75, 42, 165, 0.1);
+}
+
+/* En-tête de structure avec badge de type */
+.structure-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.structure-type-badge {
+  background: linear-gradient(135deg, #4b2aa5, #0046a4);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(75, 42, 165, 0.2);
+}
+
+/* Responsive pour le filtre */
+@media (max-width: 768px) {
+  .filter-section {
+    margin-bottom: 1.5rem;
+    padding: 0.75rem;
+  }
+  
+  .filter-select {
+    max-width: 100%;
+  }
+  
+  .structure-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .structure-type-badge {
+    align-self: flex-start;
+  }
+}
