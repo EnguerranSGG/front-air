@@ -23,9 +23,149 @@ import Footer from '../components/Footer.astro';
   </head>
   <body>
     <Header />
+    
+    <!-- Animation de chargement -->
+    <div id="page-loader" class="page-loader">
+      <div class="loader-content">
+        <div class="loader-logo">
+          <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="30" cy="30" r="25" stroke="#4b2aa5" stroke-width="3" stroke-dasharray="157" stroke-dashoffset="157">
+              <animate attributeName="stroke-dashoffset" dur="2s" values="157;0;157" repeatCount="indefinite"/>
+            </circle>
+            <text x="30" y="35" text-anchor="middle" fill="#4b2aa5" font-family="Arial, sans-serif" font-size="12" font-weight="bold">A.I.R</text>
+          </svg>
+        </div>
+        <div class="loader-text">Chargement...</div>
+      </div>
+    </div>
     <main>
       <slot />
     </main>
     <Footer />
+
+    <script>
+      // Animation de chargement de page
+      document.addEventListener('DOMContentLoaded', function() {
+        const loader = document.getElementById('page-loader');
+        
+        // Masquer le loader après un court délai
+        setTimeout(() => {
+          loader.classList.add('loader-hidden');
+          setTimeout(() => {
+            loader.style.display = 'none';
+          }, 500);
+        }, 800);
+      });
+
+      // Animation lors de la navigation (pour les liens internes)
+      document.addEventListener('click', function(e) {
+        const link = e.target.closest('a');
+        if (link && link.href && link.href.includes(window.location.origin) && !link.href.includes('#')) {
+          const loader = document.getElementById('page-loader');
+          loader.style.display = 'flex';
+          loader.classList.remove('loader-hidden');
+          
+          // Masquer le loader après la navigation
+          setTimeout(() => {
+            loader.classList.add('loader-hidden');
+            setTimeout(() => {
+              loader.style.display = 'none';
+            }, 500);
+          }, 600);
+        }
+      });
+    </script>
   </body>
 </html>
+
+<style>
+  .page-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+    pointer-events: none;
+  }
+
+  /* S'assurer que le header reste au-dessus du loader */
+  .header {
+    position: relative;
+    z-index: 1000;
+  }
+
+  .loader-hidden {
+    opacity: 0;
+  }
+
+  .loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .loader-logo {
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .loader-text {
+    color: #4b2aa5;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    animation: fadeInOut 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes fadeInOut {
+    0%, 100% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  /* Animation d'entrée pour le contenu principal */
+  main {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.8s ease-out 0.3s forwards;
+  }
+
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .loader-logo svg {
+      width: 50px;
+      height: 50px;
+    }
+    
+    .loader-text {
+      font-size: 0.9rem;
+    }
+  }
+</style>
