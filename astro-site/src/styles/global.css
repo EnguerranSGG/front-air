@@ -3,7 +3,7 @@ body {
 	font-family: system-ui, sans-serif;
 }
 
-.container {
+.header .container {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
