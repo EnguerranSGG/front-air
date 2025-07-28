@@ -1,0 +1,215 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout>
+  <div class="legal-notice">
+    <div class="container">
+      <h1>Mentions légales</h1>
+      
+
+
+      <section class="legal-section">
+        <h2>1. Éditeur du site</h2>
+        <div class="company-info">
+          <p><strong>Raison Sociale :</strong> Hébergement social pour adultes et familles en difficultés et autre hébergement social</p>
+          <p><strong>Forme juridique :</strong> Association Loi 1901</p>
+          <p><strong>Siège social :</strong> 108 RUE JEAN-JACQUES ROUSSEAU (LOMME) 59000 LILLE</p>
+          <p><strong>SIRET :</strong> 37880986700021</p>
+          <p><strong>Email :</strong> secretariat@asso-air.org</p>
+          <p><strong>Téléphone :</strong> 03 20 04 16 85</p>
+        </div>
+      </section>
+
+      <section class="legal-section">
+        <h2>2. Directeur de publication</h2>
+        <p><strong>Directeur de publication :</strong> Coralie OLIVIER - Coordinatrice qualité</p>
+      </section>
+
+      <section class="legal-section">
+        <h2>3. Hébergement</h2>
+        <div class="hosting-info">
+          <p><strong>Hébergeur :</strong> Hetzner Online GmbH</p>
+          <p><strong>Adresse :</strong> Industriestr. 25, 91710 Gunzenhausen, Allemagne</p>
+          <p><strong>Téléphone :</strong> +49 9831 505-0</p>
+        </div>
+      </section>
+
+      <section class="legal-section">
+        <h2>4. Propriété intellectuelle</h2>
+        <p>
+          L'ensemble de ce site relève de la législation française et internationale sur le droit d'auteur et la propriété intellectuelle. 
+          Tous les droits de reproduction sont réservés, y compris pour les documents téléchargeables et les représentations iconographiques et photographiques.
+        </p>
+        <p>
+          La reproduction de tout ou partie de ce site sur un support électronique quel qu'il soit est formellement interdite sauf autorisation expresse du directeur de la publication.
+        </p>
+      </section>
+
+      <section class="legal-section">
+        <h2>5. Responsabilité</h2>
+        <p>
+          Les informations contenues sur ce site sont aussi précises que possible et le site est périodiquement remis à jour, 
+          mais peut toutefois contenir des inexactitudes, des omissions ou des lacunes.
+        </p>
+        <p>
+          Si vous constatez une lacune, erreur ou ce qui parait être un dysfonctionnement, merci de bien vouloir le signaler 
+          par email à l'adresse secretariat@asso-air.org en décrivant le problème de la manière la plus précise possible.
+        </p>
+      </section>
+
+      <section class="legal-section">
+        <h2>6. Liens hypertextes</h2>
+        <p>
+          Les liens hypertextes mis en place dans le cadre du présent site web en direction d'autres ressources présentes sur le réseau Internet 
+          ne sauraient engager la responsabilité de l'Association d'Insertion et de Réinsertion (A.I.R.).
+        </p>
+      </section>
+
+      <section class="legal-section">
+        <h2>7. Cookies</h2>
+        <p>
+          Ce site n'utilise pas de cookies de tracking ou d'analyse. Seuls des cookies techniques strictement nécessaires 
+          au fonctionnement du serveur web peuvent être utilisés par notre hébergeur pour assurer la sécurité et la performance du site.
+        </p>
+      </section>
+
+      <section class="legal-section">
+        <h2>8. Droit applicable</h2>
+        <p>
+          Tout litige en relation avec l'utilisation du site www.Accueil-insertion-rencontre.fr est soumis au droit français. 
+          Hormis les cas où la loi ne le permet pas, il est fait attribution exclusive de juridiction aux tribunaux compétents de Lille.
+        </p>
+      </section>
+
+      <section class="legal-section">
+        <h2>9. Contact</h2>
+        <p>Pour toute question concernant ces mentions légales, vous pouvez nous contacter :</p>
+        <ul>
+          <li><strong>Par email :</strong> secretariat@asso-air.org</li>
+          <li><strong>Par téléphone :</strong> 03 20 04 16 85</li>
+          <li><strong>Par courrier :</strong> 108 RUE JEAN-JACQUES ROUSSEAU (LOMME) 59000 LILLE</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .legal-notice {
+    padding: 4rem 0;
+    background: #f8f9fa;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  h1 {
+    color: #4b2aa5;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .last-updated {
+    background: #e9ecef;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .legal-section {
+    background: white;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .legal-section h2 {
+    color: #4b2aa5;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #4b2aa5;
+    padding-bottom: 0.5rem;
+    text-decoration: none;
+  }
+
+  /* Désactiver la ligne décorative globale des h2 */
+  .legal-section h2::after {
+    display: none;
+  }
+
+  .legal-section p {
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    color: #555;
+  }
+
+  .legal-section ul {
+    margin: 1rem 0;
+    padding-left: 2rem;
+  }
+
+  .legal-section li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+    color: #555;
+  }
+
+  .legal-section strong {
+    color: #333;
+  }
+
+  .company-info,
+  .hosting-info {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+  }
+
+  .company-info p,
+  .hosting-info p {
+    margin-bottom: 0.5rem;
+  }
+
+  .company-info p:last-child,
+  .hosting-info p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Version mobile */
+  @media (max-width: 768px) {
+    .legal-notice {
+      padding: 2rem 0;
+    }
+
+    .container {
+      padding: 0 1rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    .legal-section {
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .legal-section h2 {
+      font-size: 1.3rem;
+    }
+
+    .company-info,
+    .hosting-info {
+      padding: 1rem;
+    }
+  }
+</style> 
