@@ -1,25 +1,27 @@
 ---
 // src/components/PartnersCarousel.astro
 let partners = [];
-let partnersX2 = [];
+let partnersX3 = [];
 
 try {
   const res = await fetch(import.meta.env.PUBLIC_API_URL + '/partners');
   const data = await res.json();
   partners = Array.isArray(data) ? data : [];
-  partnersX2 = partners.concat(partners);
+  // On répète 3 fois pour assurer un défilement fluide
+  partnersX3 = [...partners, ...partners, ...partners];
 } catch (err) {
   console.error('Erreur lors de la récupération des partenaires :', err);
 }
 ---
 <section class="partners-carousel">
-  <h2>Nos partenaires</h2>
+  <h2>Financeurs, réseaux et partenaires</h2>
   <div class="carousel-track">
-    {partnersX2.map((partner) => (
-      <div class="carousel-item" key={partner.parteners_id}>
+    {partnersX3.map((partner, index) => (
+      <div class="carousel-item" key={`${partner.parteners_id}-${index}`}>
         <img
           src={`${import.meta.env.PUBLIC_ASSET_URL}/files/${partner.file_id}/download`}
           alt={partner.name}
+          loading="lazy"
         />
       </div>
     ))}
