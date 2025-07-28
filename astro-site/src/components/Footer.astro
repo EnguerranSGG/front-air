@@ -43,8 +43,15 @@ try {
     </div>
     
     <div class="footer-section">
-      <a href="/mentions-legales" class="legal-link">Mentions légales</a>
+      <div class="legal-links">
+        <a href="/mentions-legales" class="legal-link">Mentions légales</a>
+        <a href="/politique-confidentialite" class="legal-link">Politique de confidentialité</a>
+      </div>
     </div>
+  </div>
+  
+  <div class="footer-bottom">
+    <p class="last-update">Dernière mise à jour du site : {new Date().toLocaleDateString('fr-FR')}</p>
   </div>
 </footer>
 
@@ -107,6 +114,12 @@ try {
     margin: 0;
   }
 
+  .legal-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
   .legal-link {
     color: #3498db;
     text-decoration: none;
@@ -116,6 +129,20 @@ try {
 
   .legal-link:hover {
     color: #5dade2;
+  }
+
+  .footer-bottom {
+    border-top: 1px solid #34495e;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    text-align: center;
+  }
+
+  .last-update {
+    color: #95a5a6;
+    font-size: 0.85rem;
+    margin: 0;
+    font-style: italic;
   }
 
   /* Version mobile */
