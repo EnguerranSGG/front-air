@@ -36,7 +36,11 @@ try {
     </div>
   ) : presentation ? (
     <div class="presentation-content">
-      <p class="presentation-text">{presentation.presentation_text || 'Aucun contenu disponible'}</p>
+      <div class="presentation-text" set:html={presentation.presentation_text ? 
+        presentation.presentation_text.split('\n').map((paragraph: string, index: number) => 
+          paragraph.trim() ? `<p>${paragraph.trim()}</p>` : ''
+        ).join('')
+      : 'Aucun contenu disponible'}></div>
     </div>
   ) : (
     <div class="presentation-loading">
@@ -71,6 +75,14 @@ try {
     margin: 0;
     text-align: center;
     max-width: 100%;
+  }
+
+  .presentation-text p {
+    margin: 0 0 1rem 0;
+  }
+
+  .presentation-text p:last-child {
+    margin-bottom: 0;
   }
 
   /* Version mobile */
