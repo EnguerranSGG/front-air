@@ -77,12 +77,22 @@ const baseUrl = import.meta.env.PUBLIC_ASSET_URL;
 
   .structure-image {
     flex-shrink: 0;
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    border-radius: 12px 12px 0 0;
   }
 
   .structure-image img {
     width: 100%;
-    height: 200px;
+    height: 100%;
     object-fit: cover;
+    object-position: center;
+    transition: transform 0.3s ease;
+  }
+
+  .structure-card:hover .structure-image img {
+    transform: scale(1.05);
   }
 
   .structure-content {
