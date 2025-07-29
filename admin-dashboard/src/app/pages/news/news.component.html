@@ -1,3 +1,6 @@
+<!-- Loading state -->
+<app-spinner *ngIf="isLoading" message="Chargement des actualités..." size="medium"></app-spinner>
+
 <!-- Liste des actualités -->
 <div *ngFor="let news of newsList" class="event-card">
   <div class="event-content">

@@ -55,6 +55,131 @@ h2 {
   }
 }
 
+// Section de présentation
+.presentation-section {
+  margin-bottom: 30px;
+  
+  .presentation-card {
+    background: rgba($white, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: $card-shadow;
+    border: 1px solid rgba($primary-blue, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: $primary-gradient;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $glass-shadow;
+    }
+
+    h3 {
+      color: $primary-blue;
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 0 0 15px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      &::before {
+        content: '📋';
+        font-size: 1.2rem;
+      }
+    }
+
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+
+      p {
+        margin-top: 1rem;
+        color: $gray;
+      }
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid $primary-blue;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .presentation-content {
+      margin-bottom: 20px;
+
+      .presentation-text {
+        color: $gray;
+        line-height: 1.6;
+        margin: 0;
+        font-size: 14px;
+        background: rgba($light-gray, 0.3);
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid $primary-blue;
+      }
+    }
+
+    .error {
+      text-align: center;
+      padding: 2rem;
+      color: $red;
+
+      p {
+        margin: 0;
+        font-size: 1.1rem;
+      }
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: $primary-gradient;
+      color: white;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: $button-shadow;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba($primary-blue, 0.3);
+      }
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+}
+
 // Wrapper filtre et bouton d'ajout
 .filter-add-wrapper {
   display: flex;

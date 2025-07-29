@@ -15,11 +15,12 @@ import { FileSelectorComponent } from '../files/files-selector.component';
 import { FileService } from '../../services/file.service';
 import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
 import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
+import { SpinnerComponent } from '../../utils/spinner/spinner.component';
 
 @Component({
   selector: 'app-value',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FileSelectorComponent, SanitizePipe],
+  imports: [CommonModule, ReactiveFormsModule, FileSelectorComponent, SanitizePipe, SpinnerComponent],
   templateUrl: './values.component.html',
   styleUrls: ['./values.component.scss'],
 })
@@ -29,6 +30,9 @@ export class ValuesComponent implements OnInit {
   values: Value[] = [];
   isCreating = false;
   editingValueId: number | null = null;
+  isLoading = false;
+  isLoadingFiles = false;
+  isInitialLoading = true; // Spinner global pour le chargement initial
 
   createForm!: FormGroup;
   editForm!: FormGroup;
@@ -44,9 +48,28 @@ export class ValuesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadValues();
+    this.loadInitialData();
     this.createForm = this.buildForm();
-    this.getFiles();
+  }
+
+  private loadInitialData(): void {
+    this.isInitialLoading = true;
+    
+    // Charger les valeurs et les fichiers en parallèle
+    const valuesPromise = this.valueService.getAll().toPromise();
+    const filesPromise = this.fileService.getAll().toPromise();
+    
+    Promise.all([valuesPromise, filesPromise])
+      .then(([valuesData, filesData]) => {
+        this.values = (valuesData || []).sort((a, b) => a.name.localeCompare(b.name));
+        this.files = filesData || [];
+        this.isInitialLoading = false;
+      })
+      .catch((error) => {
+        console.error('Erreur lors du chargement initial:', error);
+        this.toast.show('Erreur lors du chargement des données');
+        this.isInitialLoading = false;
+      });
   }
 
   buildForm(value?: Value): FormGroup {
@@ -60,13 +83,6 @@ export class ValuesComponent implements OnInit {
   }
   
 
-  getFiles(): void {
-    this.fileService.getAll().subscribe({
-      next: (files) => (this.files = files),
-      error: () => this.toast.show('Erreur lors du chargement des fichiers'),
-    });
-  }
-
   onFileSelect(fileId: number): void {
     if (this.editingValueId !== null) {
       this.editForm.patchValue({ file_id: fileId });
@@ -75,9 +91,16 @@ export class ValuesComponent implements OnInit {
     }
   }
 
-  loadValues(): void {
-    this.valueService.getAll().subscribe((data) => {
-      this.values = data.sort((a, b) => a.name.localeCompare(b.name));
+  private loadValues(): void {
+    this.isLoading = true;
+    this.valueService.getAll().subscribe({
+      next: (data) => {
+        this.values = data.sort((a, b) => a.name.localeCompare(b.name));
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+      },
     });
   }
 

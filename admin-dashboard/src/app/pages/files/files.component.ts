@@ -3,11 +3,12 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { FileService } from '../../services/file.service';
 import { ToastService } from '../../utils/toast/toast.service';
+import { SpinnerComponent } from '../../utils/spinner/spinner.component';
 
 @Component({
   selector: 'app-file',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, SpinnerComponent],
   templateUrl: './files.component.html',
   styleUrls: ['./files.component.scss'],
 })
@@ -16,6 +17,7 @@ export class FileComponent implements OnInit {
   files: any[] = [];
   selectedFile: File | null = null;
   editingFileId: number | null = null;
+  isLoading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -38,13 +40,18 @@ export class FileComponent implements OnInit {
 
   // Récupère les fichiers existants
   getFiles(): void {
-    const PROTECTED_FILE_IDS = [8, 11, 16, 17, 18];
+    const PROTECTED_FILE_IDS = [8, 11, 16, 17, 18, 26, 27, 28, 29, 30];
   
+    this.isLoading = true;
     this.fileService.getAll().subscribe({
       next: (files) => {
         this.files = files.filter(file => !PROTECTED_FILE_IDS.includes(file.file_id));
+        this.isLoading = false;
       },
-      error: () => this.toastService.show('Erreur lors du chargement des fichiers'),
+      error: () => {
+        this.toastService.show('Erreur lors du chargement des fichiers');
+        this.isLoading = false;
+      },
     });
   }
   

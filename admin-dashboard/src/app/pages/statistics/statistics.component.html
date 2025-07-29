@@ -1,5 +1,9 @@
 <h2>Statistiques</h2>
 
+<!-- Loading states -->
+<app-spinner *ngIf="isLoadingTypes" message="Chargement des types de statistiques..." size="medium"></app-spinner>
+<app-spinner *ngIf="isLoading" message="Chargement des statistiques..." size="medium"></app-spinner>
+
 <!-- Filtre et bouton d'ajout modernisés -->
 <div class="filter-add-wrapper">
   <select (change)="onTypeFilterChange($event)" class="modern-select">

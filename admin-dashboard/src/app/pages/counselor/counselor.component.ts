@@ -7,11 +7,12 @@ import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
 import { GovernanceComponent } from '../governance/governance.component';
+import { SpinnerComponent } from '../../utils/spinner/spinner.component';
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, GovernanceComponent],
+  imports: [ReactiveFormsModule, CommonModule, GovernanceComponent, SpinnerComponent],
   templateUrl: './counselor.component.html',
   styleUrls: ['./counselor.component.scss'],
 })
@@ -21,6 +22,7 @@ export class CounselorComponent implements OnInit {
   editForm!: FormGroup;
   createForm!: FormGroup;
   isCreating = false;
+  isLoading = false;
 
   constructor(
     private counselorService: CounselorService,
@@ -39,8 +41,15 @@ export class CounselorComponent implements OnInit {
   }
 
   loadCounselors(): void {
-    this.counselorService.getAll().subscribe((data) => {
-      this.counselors = data.sort((a, b) => b.counselor_id - a.counselor_id);
+    this.isLoading = true;
+    this.counselorService.getAll().subscribe({
+      next: (data) => {
+        this.counselors = data.sort((a, b) => b.counselor_id - a.counselor_id);
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+      },
     });
   }
 

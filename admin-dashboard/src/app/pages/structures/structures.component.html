@@ -1,7 +1,12 @@
 <h2>Gestion des structures</h2>
 
-<!-- Filtre par type -->
-<div class="filter-section">
+<!-- Loading state -->
+<app-spinner *ngIf="isInitialLoading" message="Chargement des données..." size="medium"></app-spinner>
+
+<!-- Contenu principal (masqué pendant le chargement initial) -->
+<div *ngIf="!isInitialLoading">
+  <!-- Filtre par type -->
+  <div class="filter-section">
   <label for="typeFilter" class="filter-label">Filtrer par type :</label>
   <select id="typeFilter" [(ngModel)]="selectedTypeFilter" (change)="onTypeFilterChange()" class="filter-select">
     <option value="all">Tous les types</option>
@@ -314,4 +319,5 @@
       </form>
     </div>
   </ng-template>
+</div>
 </div>

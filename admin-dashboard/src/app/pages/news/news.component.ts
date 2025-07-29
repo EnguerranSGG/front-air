@@ -15,6 +15,7 @@ import { FileSelectorComponent } from '../files/files-selector.component';
 import { FileService } from '../../services/file.service';
 import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
 import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
+import { SpinnerComponent } from '../../utils/spinner/spinner.component';
 
 @Component({
   selector: 'app-news',
@@ -24,6 +25,7 @@ import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
     ReactiveFormsModule,
     FileSelectorComponent,
     SanitizePipe,
+    SpinnerComponent,
   ],
   templateUrl: './news.component.html',
   styleUrls: ['./news.component.scss'],
@@ -34,6 +36,8 @@ export class NewsComponent implements OnInit {
   files: FileEntity[] = [];
 
   isEditModalOpen = false;
+  isLoading = false;
+  isLoadingFiles = false;
 
   // Forms
   editForm!: FormGroup;
@@ -76,17 +80,30 @@ export class NewsComponent implements OnInit {
 
   // 📥 Load News & Files
   private loadNews(): void {
+    this.isLoading = true;
     this.newsService.getAll().subscribe({
-      next: (data) =>
-        (this.newsList = data.sort((a, b) => a.name.localeCompare(b.name))),
-      error: () => this.toast.show('Erreur lors du chargement des actualités'),
+      next: (data) => {
+        this.newsList = data.sort((a, b) => a.name.localeCompare(b.name));
+        this.isLoading = false;
+      },
+      error: () => {
+        this.toast.show('Erreur lors du chargement des actualités');
+        this.isLoading = false;
+      },
     });
   }
 
   private getFiles(): void {
+    this.isLoadingFiles = true;
     this.fileService.getAll().subscribe({
-      next: (files) => (this.files = files),
-      error: () => this.toast.show('Erreur lors du chargement des fichiers'),
+      next: (files) => {
+        this.files = files;
+        this.isLoadingFiles = false;
+      },
+      error: () => {
+        this.toast.show('Erreur lors du chargement des fichiers');
+        this.isLoadingFiles = false;
+      },
     });
   }
 

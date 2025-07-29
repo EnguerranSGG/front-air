@@ -1,9 +1,17 @@
 <div class="presentation-edit-container">
   <div class="header">
-    <h2>Modifier la présentation</h2>
-    <p *ngIf="presentation">
-      Présentation ID: {{ presentation.presentation_id }}
-    </p>
+    <div class="header-content">
+      <button (click)="goBack()" class="back-button">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"/>
+        </svg>
+        {{ getReturnButtonText() }}
+      </button>
+      <h2>Modifier la présentation</h2>
+      <p *ngIf="presentation">
+        Présentation ID: {{ presentation.presentation_id }}
+      </p>
+    </div>
   </div>
 
   <div *ngIf="isLoading" class="loading">

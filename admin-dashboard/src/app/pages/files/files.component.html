@@ -1,5 +1,8 @@
 <h2>Gestion des fichiers</h2>
 
+<!-- Loading state -->
+<app-spinner *ngIf="isLoading" message="Chargement des fichiers..." size="medium"></app-spinner>
+
 <!-- Formulaire de téléversement modernisé -->
 <div class="create-form">
     <h3>

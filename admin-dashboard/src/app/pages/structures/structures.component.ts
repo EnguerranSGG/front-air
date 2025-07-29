@@ -18,11 +18,12 @@ import { FileSelectorComponent } from '../files/files-selector.component';
 import { FileService } from '../../services/file.service';
 import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
 import { sanitize } from 'class-sanitizer';
+import { SpinnerComponent } from '../../utils/spinner/spinner.component';
 
 @Component({
   selector: 'app-structure',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, FileSelectorComponent, SanitizePipe],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, FileSelectorComponent, SanitizePipe, SpinnerComponent],
   templateUrl: './structures.component.html',
   styleUrls: ['./structures.component.scss'],
 })
@@ -36,6 +37,10 @@ export class StructureComponent implements OnInit {
   showCreateFileSelector = false;
   showEditFileSelector = false;
   selectedTypeFilter: string = 'all';
+  isLoading = false;
+  isLoadingFiles = false;
+  isLoadingTypes = false;
+  isInitialLoading = true; // Spinner global pour le chargement initial
 
   createForm!: FormGroup;
   editForm!: FormGroup;
@@ -51,8 +56,44 @@ export class StructureComponent implements OnInit {
 
   ngOnInit(): void {
     this.createForm = this.buildForm();
-    this.getFiles();
-    this.loadStructureTypes();
+    this.loadInitialData();
+  }
+
+  private loadInitialData(): void {
+    this.isInitialLoading = true;
+    
+    // Charger les types, fichiers et structures en parallèle
+    const typesPromise = this.structureTypeService.getAllWithFallback().toPromise();
+    const filesPromise = this.fileService.getAll().toPromise();
+    
+    Promise.all([typesPromise, filesPromise])
+      .then(([typesData, filesData]) => {
+        this.structureTypes = typesData || [];
+        this.files = filesData || [];
+        
+        // Maintenant charger les structures une fois que les types sont disponibles
+        return this.structureService.getAll().toPromise();
+      })
+      .then((structuresData) => {
+        this.structures = (structuresData || []).sort((a, b) => a.structure_id - b.structure_id);
+        
+        // Peupler les objets structure_type manuellement
+        this.structures.forEach(structure => {
+          if (structure.structure_type_id && !structure.structure_type) {
+            const type = this.structureTypes.find(t => t.structure_type_id === structure.structure_type_id);
+            if (type) {
+              structure.structure_type = type;
+            }
+          }
+        });
+        
+        this.isInitialLoading = false;
+      })
+      .catch((error) => {
+        console.error('Erreur lors du chargement initial:', error);
+        this.toast.show('Erreur lors du chargement des données');
+        this.isInitialLoading = false;
+      });
   }
 
   buildForm(structure?: Structure): FormGroup {
@@ -75,28 +116,8 @@ export class StructureComponent implements OnInit {
     targetForm.patchValue({ file_id: fileId });
   }
 
-  getFiles(): void {
-    this.fileService.getAll().subscribe({
-      next: files => this.files = files,
-      error: () => this.toast.show('Erreur lors du chargement des fichiers'),
-    });
-  }
-
-  loadStructureTypes(): void {
-    this.structureTypeService.getAllWithFallback().subscribe({
-      next: types => {
-        this.structureTypes = types;
-        // Charger les structures une fois que les types sont disponibles
-        this.loadStructures();
-      },
-      error: (error) => {
-        console.error('Erreur lors du chargement des types:', error);
-        this.toast.show('Erreur lors du chargement des types de structures');
-      },
-    });
-  }
-
-  loadStructures(): void {
+  private loadStructures(): void {
+    this.isLoading = true;
     this.structureService.getAll().subscribe({
       next: data => {
         this.structures = data.sort((a, b) => a.structure_id - b.structure_id);
@@ -110,8 +131,12 @@ export class StructureComponent implements OnInit {
             }
           }
         });
+        this.isLoading = false;
       },
-      error: () => this.toast.show('Erreur lors du chargement des structures'),
+      error: () => {
+        this.toast.show('Erreur lors du chargement des structures');
+        this.isLoading = false;
+      },
     });
   }
 

@@ -1,5 +1,8 @@
 <h2>Gestion du conseil d'administration</h2>
 
+<!-- Loading state -->
+<app-spinner *ngIf="isLoading" message="Chargement des membres..." size="medium"></app-spinner>
+
 <!-- Bouton d'ajout modernisé -->
 <div class="filter-add-wrapper">
   <button (click)="isCreating = !isCreating" class="add-button">

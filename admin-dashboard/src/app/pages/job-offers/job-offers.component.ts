@@ -3,9 +3,12 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ToastService } from '../../utils/toast/toast.service';
 import { JobOfferService } from '../../services/job-offers.service';
 import { FileService } from '../../services/file.service';
+import { PresentationService } from '../../services/presentation.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { FileEntity } from '../../models/file.model';
+import { Presentation } from '../../models/presentation.model';
 import { FileSelectorComponent } from '../../pages/files/files-selector.component';
 import { environment } from '../../../environments/environment';
 import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
@@ -17,6 +20,7 @@ import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
   imports: [
     ReactiveFormsModule,
     CommonModule,
+    RouterModule,
     FileSelectorComponent,
     SanitizePipe
   ],
@@ -31,11 +35,14 @@ export class JobOfferComponent implements OnInit {
   files: FileEntity[] = [];
   showForm = false;
   showFileSelector = false;
+  presentation: Presentation | null = null;
+  isLoadingPresentation = false;
 
   constructor(
     private fb: FormBuilder,
     private service: JobOfferService,
     private fileService: FileService,
+    private presentationService: PresentationService,
     private toast: ToastService
   ) {}
 
@@ -51,12 +58,27 @@ export class JobOfferComponent implements OnInit {
 
     this.loadOffers();
     this.getFiles();
+    this.loadPresentation();
   }
 
   getFiles(): void {
     this.fileService.getAll().subscribe({
       next: (files) => (this.files = files),
       error: () => this.toast.show('Erreur lors du chargement des fichiers'),
+    });
+  }
+
+  loadPresentation(): void {
+    this.isLoadingPresentation = true;
+    this.presentationService.getById(3).subscribe({
+      next: (presentation) => {
+        this.presentation = presentation;
+        this.isLoadingPresentation = false;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement de la présentation:', error);
+        this.isLoadingPresentation = false;
+      }
     });
   }
 

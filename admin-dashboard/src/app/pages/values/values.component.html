@@ -1,7 +1,12 @@
 <h2>Gestion des valeurs</h2>
 
-<!-- Bouton d'ajout modernisé -->
-<div class="filter-add-wrapper">
+<!-- Loading state -->
+<app-spinner *ngIf="isInitialLoading" message="Chargement des données..." size="medium"></app-spinner>
+
+<!-- Contenu principal (masqué pendant le chargement initial) -->
+<div *ngIf="!isInitialLoading">
+  <!-- Bouton d'ajout modernisé -->
+  <div class="filter-add-wrapper">
   <button (click)="showForm = !showForm" class="add-button">
     <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" *ngIf="!showForm">
       <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
@@ -150,4 +155,5 @@
       </form>
     </div>
   </ng-template>
+</div>
 </div>

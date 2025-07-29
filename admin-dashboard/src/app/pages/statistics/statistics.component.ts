@@ -7,11 +7,12 @@ import { StatisticTypeService } from '../../services/statistic-type.service';
 import { Statistic, StatisticType } from '../../models/statistic.modele';
 import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
 import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
+import { SpinnerComponent } from '../../utils/spinner/spinner.component';
 
 @Component({
   selector: 'app-statistics',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SanitizePipe],
+  imports: [CommonModule, ReactiveFormsModule, SanitizePipe, SpinnerComponent],
   templateUrl: './statistics.component.html',
   styleUrls: ['./statistics.component.scss'],
 })
@@ -23,6 +24,8 @@ export class StatisticsComponent implements OnInit {
   editingId: number | null = null;
   editForm!: FormGroup;
   showCreate = false;
+  isLoading = false;
+  isLoadingTypes = false;
 
   constructor(
     private fb: FormBuilder,
@@ -72,14 +75,28 @@ export class StatisticsComponent implements OnInit {
   
 
   loadStatistics(): void {
-    this.statisticService.getAll().subscribe(data => {
-      this.statistics = data;
+    this.isLoading = true;
+    this.statisticService.getAll().subscribe({
+      next: data => {
+        this.statistics = data;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+      }
     });
   }
 
   loadTypes(): void {
-    this.statisticTypeService.getAll().subscribe(data => {
-      this.types = data;
+    this.isLoadingTypes = true;
+    this.statisticTypeService.getAll().subscribe({
+      next: data => {
+        this.types = data;
+        this.isLoadingTypes = false;
+      },
+      error: () => {
+        this.isLoadingTypes = false;
+      }
     });
   }  
 

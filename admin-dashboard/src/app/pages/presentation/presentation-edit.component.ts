@@ -1,16 +1,17 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { PresentationService } from '../../services/presentation.service';
 import { Presentation } from '../../models/presentation.model';
 import { ToastService } from '../../utils/toast/toast.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-presentation-edit',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './presentation-edit.component.html',
   styleUrls: ['./presentation-edit.component.scss'],
 })
@@ -27,6 +28,7 @@ export class PresentationEditComponent implements OnInit {
     private presentationService: PresentationService,
     private toast: ToastService,
     private route: ActivatedRoute,
+    private router: Router,
     private authService: AuthService
   ) {}
 
@@ -134,5 +136,41 @@ export class PresentationEditComponent implements OnInit {
 
   isOverLimit(): boolean {
     return this.getCharacterCount() > 1200;
+  }
+
+  getReturnRoute(): string {
+    const presentationId = this.presentation?.presentation_id || Number(this.route.snapshot.paramMap.get('id'));
+    
+    // Déterminer la page de retour selon l'ID de la présentation
+    switch (presentationId) {
+      case 1:
+        return '/dashboard';
+      case 2:
+        return '/history';
+      case 3:
+        return '/job-offers';
+      default:
+        return '/dashboard'; // Route par défaut
+    }
+  }
+
+  getReturnButtonText(): string {
+    const presentationId = this.presentation?.presentation_id || Number(this.route.snapshot.paramMap.get('id'));
+    
+    // Déterminer le texte du bouton selon l'ID de la présentation
+    switch (presentationId) {
+      case 1:
+        return 'Retour au tableau de bord';
+      case 2:
+        return 'Retour à l\'historique';
+      case 3:
+        return 'Retour aux offres d\'emploi';
+      default:
+        return 'Retour au tableau de bord';
+    }
+  }
+
+  goBack(): void {
+    this.router.navigate([this.getReturnRoute()]);
   }
 } 
