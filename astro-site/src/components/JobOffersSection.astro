@@ -1,5 +1,6 @@
 ---
 let jobOffers = [];
+let presentationText = '';
 
 try {
   const res = await fetch(import.meta.env.PUBLIC_API_URL + '/jobOffers/all');
@@ -8,10 +9,20 @@ try {
 } catch (err) {
   console.error('Erreur lors du fetch des offres :', err);
 }
+
+try {
+  const presentationRes = await fetch(import.meta.env.PUBLIC_API_URL + '/presentations/3');
+  if (presentationRes.ok) {
+    const presentation = await presentationRes.json();
+    presentationText = presentation.presentation_text || '';
+  }
+} catch (err) {
+  console.error('Erreur lors du fetch de la présentation :', err);
+}
 ---
 <section class="offers-section">
-  <h2>Nos offres d'emplois</h2>
-  <p class="offers-subtitle">Rejoignez notre équipe et participez à notre mission sociale</p>
+  <h2>Nos offres d'emploi</h2>
+  <p class="offers-subtitle">{presentationText}</p>
 
   <div class="offers-list">
     {jobOffers.map((offer, index) => (
@@ -43,7 +54,91 @@ try {
             </button>
 
             <!-- Bouton toujours visible -->
-            <button type="button" class="apply-button">
+            <button 
+              type="button" 
+              class="apply-button"
+              onclick={`(() => {
+  const email = 'secretariat@asso-air.org';
+  navigator.clipboard.writeText(email).then(() => {
+    // Créer une notification moderne
+    const notification = document.createElement('div');
+    notification.style.cssText = \`
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #4CAF50;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 10000;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      max-width: 300px;
+    \`;
+    notification.textContent = 'Adresse email copiée !';
+    document.body.appendChild(notification);
+    
+    // Animation d'entrée
+    setTimeout(() => {
+      notification.style.transform = 'translateX(0)';
+    }, 10);
+    
+    // Animation de sortie après 3 secondes
+    setTimeout(() => {
+      notification.style.transform = 'translateX(100%)';
+      setTimeout(() => {
+        document.body.removeChild(notification);
+      }, 300);
+    }, 3000);
+  }).catch(err => {
+    console.error('Erreur lors de la copie:', err);
+    // Fallback pour les navigateurs qui ne supportent pas clipboard API
+    const textArea = document.createElement('textarea');
+    textArea.value = email;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    
+    // Notification de fallback
+    const notification = document.createElement('div');
+    notification.style.cssText = \`
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #4CAF50;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 10000;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      max-width: 300px;
+    \`;
+    notification.textContent = 'Adresse email copiée !';
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.style.transform = 'translateX(0)';
+    }, 10);
+    
+    setTimeout(() => {
+      notification.style.transform = 'translateX(100%)';
+      setTimeout(() => {
+        document.body.removeChild(notification);
+      }, 300);
+    }, 3000);
+  });
+})()`}
+            >
               Candidater
             </button>
           </div>
