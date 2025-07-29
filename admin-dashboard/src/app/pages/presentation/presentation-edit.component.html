@@ -22,6 +22,13 @@
         class="form-control"
         [class.invalid]="editForm.get('presentation_text')?.invalid && editForm.get('presentation_text')?.touched"
       ></textarea>
+      
+      <!-- Compteur de caractères et avertissement -->
+      <div class="character-counter" [class.over-limit]="isOverLimit()">
+        <span class="count">{{ getCharacterCount() }}/1200</span>
+        <span *ngIf="isOverLimit()" class="warning">Limite dépassée</span>
+      </div>
+      
       <div *ngIf="editForm.get('presentation_text')?.invalid && editForm.get('presentation_text')?.touched" class="error-message">
         {{ getErrorMessage('presentation_text') }}
       </div>

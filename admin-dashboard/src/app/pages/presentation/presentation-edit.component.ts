@@ -37,7 +37,7 @@ export class PresentationEditComponent implements OnInit {
 
   private initForm(): void {
     this.editForm = this.fb.group({
-      presentation_text: ['', [Validators.required, Validators.minLength(10)]]
+      presentation_text: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(1200)]]
     });
   }
 
@@ -120,7 +120,19 @@ export class PresentationEditComponent implements OnInit {
       if (field.errors['minlength']) {
         return `Ce champ doit contenir au moins ${field.errors['minlength'].requiredLength} caractères`;
       }
+      if (field.errors['maxlength']) {
+        return `Ce champ ne doit pas dépasser ${field.errors['maxlength'].requiredLength} caractères`;
+      }
     }
     return '';
+  }
+
+  getCharacterCount(): number {
+    const value = this.editForm.get('presentation_text')?.value || '';
+    return value.length;
+  }
+
+  isOverLimit(): boolean {
+    return this.getCharacterCount() > 1200;
   }
 } 

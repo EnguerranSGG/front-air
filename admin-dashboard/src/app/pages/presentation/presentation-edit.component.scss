@@ -106,6 +106,47 @@
       color: #dc3545;
       font-size: 0.875rem;
     }
+
+    .character-counter {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      transition: all 0.3s ease;
+
+      .count {
+        color: #6c757d;
+        font-weight: 500;
+      }
+
+      .warning {
+        color: #dc3545;
+        font-weight: 600;
+        animation: pulse 1.5s infinite;
+      }
+
+      &.over-limit {
+        background-color: #fff5f5;
+        border: 1px solid #feb2b2;
+
+        .count {
+          color: #dc3545;
+        }
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.7;
+      }
+    }
   }
 
   .form-actions {
