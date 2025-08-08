@@ -143,4 +143,36 @@
       width: 100%;
     }
   }
+
+  /* Message de remplacement quand il n'y a pas d'offres */
+  .no-offers-message {
+    background: white;
+    border-radius: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    padding: 3rem 2rem;
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .no-offers-message p {
+    margin: 0 0 1rem 0;
+    color: #333;
+    line-height: 1.6;
+  }
+
+  .no-offers-message p:first-child {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #5a007a;
+    margin-bottom: 1.5rem;
+  }
+
+  .no-offers-message p:last-child {
+    margin-bottom: 0;
+  }
+
+  .no-offers-message strong {
+    color: #0275d8;
+  }
   
