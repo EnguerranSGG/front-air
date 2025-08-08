@@ -3,5 +3,4 @@ export interface Counselor {
   counselor_firstname: string;
   counselor_lastname: string;
   counselor_function: string;
-  counselor_presentation: string;
 }

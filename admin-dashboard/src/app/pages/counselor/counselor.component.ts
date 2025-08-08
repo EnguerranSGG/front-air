@@ -36,7 +36,6 @@ export class CounselorComponent implements OnInit {
       counselor_firstname: ['', [Validators.required, Validators.maxLength(30)]],
       counselor_lastname: ['', [Validators.required, Validators.maxLength(30)]],
       counselor_function: ['', [Validators.required, Validators.maxLength(50)]],
-      counselor_presentation: ['', [Validators.required, Validators.maxLength(200)]],
     });
   }
 
@@ -96,11 +95,7 @@ export class CounselorComponent implements OnInit {
       counselor_function: [
         counselor.counselor_function,
         [Validators.required, Validators.maxLength(50)],
-      ],
-      counselor_presentation: [
-        counselor.counselor_presentation,
-        [Validators.required, Validators.maxLength(200)],
-      ],
+      ]
     });
   }
 

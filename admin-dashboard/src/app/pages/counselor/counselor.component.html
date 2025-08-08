@@ -49,14 +49,6 @@
       </div>
     </div>
 
-    <div class="form-group">
-      <textarea formControlName="counselor_presentation" placeholder="Présentation du membre" class="modern-textarea"></textarea>
-      <div *ngIf="createForm.get('counselor_presentation')?.invalid && createForm.get('counselor_presentation')?.touched" class="error">
-        <span *ngIf="createForm.get('counselor_presentation')?.errors?.['required']">La présentation est obligatoire.</span>
-        <span *ngIf="createForm.get('counselor_presentation')?.errors?.['maxlength']">La présentation ne doit pas dépasser 500 caractères.</span>
-      </div>
-    </div>
-
     <div class="form-buttons">
       <button type="submit" [disabled]="createForm.invalid" class="save-button">
         <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
@@ -85,7 +77,6 @@
             <p class="counselor-function">{{ counselor.counselor_function }}</p>
           </div>
         </div>
-        <p class="counselor-presentation">{{ counselor.counselor_presentation }}</p>
       </div>
       <div class="event-buttons">
         <button (click)="startEdit(counselor)" class="edit-button">
@@ -135,14 +126,6 @@
           <div *ngIf="editForm.get('counselor_function')?.invalid && editForm.get('counselor_function')?.touched" class="error">
             <span *ngIf="editForm.get('counselor_function')?.errors?.['required']">La fonction est obligatoire.</span>
             <span *ngIf="editForm.get('counselor_function')?.errors?.['maxlength']">La fonction ne doit pas dépasser 100 caractères.</span>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <textarea formControlName="counselor_presentation" placeholder="Présentation du membre" class="modern-textarea"></textarea>
-          <div *ngIf="editForm.get('counselor_presentation')?.invalid && editForm.get('counselor_presentation')?.touched" class="error">
-            <span *ngIf="editForm.get('counselor_presentation')?.errors?.['required']">La présentation est obligatoire.</span>
-            <span *ngIf="editForm.get('counselor_presentation')?.errors?.['maxlength']">La présentation ne doit pas dépasser 500 caractères.</span>
           </div>
         </div>
 
