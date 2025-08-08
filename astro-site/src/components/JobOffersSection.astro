@@ -25,39 +25,40 @@ try {
   <p class="offers-subtitle">{presentationText}</p>
 
   <div class="offers-list">
-    {jobOffers.map((offer, index) => (
-      <div class="offer-card" key={offer.job_offer_id}>
-        <img
-          src={`${import.meta.env.PUBLIC_ASSET_URL}/files/${offer.file_id}/download`}
-          alt={offer.name}
-        />
-        <div class="offer-content">
-          <h3 class="offer-name">{offer.name}</h3>
-          <p class="offer-type">{offer.job_type}{offer.city ? ` - ${offer.city}` : ''}</p>
+    {jobOffers.length > 0 ? (
+      jobOffers.map((offer, index) => (
+        <div class="offer-card" key={offer.job_offer_id}>
+          <img
+            src={`${import.meta.env.PUBLIC_ASSET_URL}/files/${offer.file_id}/download`}
+            alt={offer.name}
+          />
+          <div class="offer-content">
+            <h3 class="offer-name">{offer.name}</h3>
+            <p class="offer-type">{offer.job_type}{offer.city ? ` - ${offer.city}` : ''}</p>
 
-          <div class="description-wrapper" id={`desc-${index}`}>
-            <p class="offer-description">{offer.description}</p>
-          </div>
+            <div class="description-wrapper" id={`desc-${index}`}>
+              <p class="offer-description">{offer.description}</p>
+            </div>
 
-          <div class="buttons">
-            <!-- Bouton de toggling pour mobile uniquement -->
-            <button
-              type="button"
-              class="toggle-button"
-              onclick={`(() => {
+            <div class="buttons">
+              <!-- Bouton de toggling pour mobile uniquement -->
+              <button
+                type="button"
+                class="toggle-button"
+                onclick={`(() => {
   const wrapper = document.getElementById('desc-${index}');
   const isOpen = wrapper.classList.toggle('show');
   this.textContent = isOpen ? 'Voir moins' : 'Voir plus';
 })()`}
-            >
-              Voir plus
-            </button>
+              >
+                Voir plus
+              </button>
 
-            <!-- Bouton toujours visible -->
-            <button 
-              type="button" 
-              class="apply-button"
-              onclick={`(() => {
+              <!-- Bouton toujours visible -->
+              <button 
+                type="button" 
+                class="apply-button"
+                onclick={`(() => {
   const email = 'secretariat@asso-air.org';
   navigator.clipboard.writeText(email).then(() => {
     // Créer une notification moderne
@@ -138,12 +139,18 @@ try {
     }, 3000);
   });
 })()`}
-            >
-              Candidater
-            </button>
+              >
+                Candidater
+              </button>
+            </div>
           </div>
         </div>
+      ))
+    ) : (
+      <div class="no-offers-message">
+        <p>Aucune offre d'emploi n'est actuellement disponible.</p>
+        <p>N'hésitez pas à nous contacter à <strong>secretariat@asso-air.org</strong> pour nous faire part de votre intérêt ou pour nous envoyer une candidature spontanée.</p>
       </div>
-    ))}
+    )}
   </div>
 </section>
