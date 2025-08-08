@@ -4,7 +4,7 @@ let partners = [];
 let partnersX3 = [];
 
 try {
-  const res = await fetch(import.meta.env.PUBLIC_API_URL + '/partners');
+  const res = await fetch(import.meta.env.PUBLIC_API_URL + '/partners/all');
   const data = await res.json();
   partners = Array.isArray(data) ? data : [];
   // On répète 3 fois pour assurer un défilement fluide
