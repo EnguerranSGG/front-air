@@ -14,7 +14,6 @@ try {
 
 <section class="counselors-section animate-fade-in">
   <h2>Notre conseil d'administration</h2>
-  <PresentationCard id="3" />
   
   <div class="counselors-grid">
     {counselors.map((counselor, index) => (
@@ -27,7 +26,6 @@ try {
         <div class="counselor-info">
           <h3 class="counselor-name">{counselor.counselor_firstname} {counselor.counselor_lastname}</h3>
           <p class="counselor-function">{counselor.counselor_function}</p>
-          <p class="counselor-presentation">{counselor.counselor_presentation}</p>
         </div>
       </div>
     ))}
