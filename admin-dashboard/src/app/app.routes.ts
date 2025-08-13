@@ -11,6 +11,7 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { CounselorComponent } from './pages/counselor/counselor.component';
 import { PresentationEditComponent } from './pages/presentation/presentation-edit.component';
 import { FleComponent } from './pages/fle/fle.component';
+import { PartnersComponent } from './pages/partners/partners.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -25,5 +26,6 @@ export const routes: Routes = [
   { path: 'staff', component: CounselorComponent, canActivate: [AuthGuard] },
   { path: 'presentation/edit/:id', component: PresentationEditComponent, canActivate: [AuthGuard] },
   { path: 'fle', component: FleComponent, canActivate: [AuthGuard] },
+  { path: 'partners', component: PartnersComponent, canActivate: [AuthGuard] },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
 ];
