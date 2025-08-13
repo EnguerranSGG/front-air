@@ -1,6 +1,6 @@
 <div class="file-selector">
     <div
-      *ngFor="let file of files"
+      *ngFor="let file of filteredFiles()"
       class="file-thumbnail"
       [class.selected]="file.file_id === selectedFileId"
       (click)="onSelect(file.file_id)"
