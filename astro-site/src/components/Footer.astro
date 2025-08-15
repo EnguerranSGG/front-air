@@ -15,6 +15,9 @@ try {
 } catch (err) {
   console.error('Erreur lors du fetch des structures pour footer :', err);
 }
+
+// Date de build comme fallback
+const buildDate = new Date().toLocaleDateString('fr-FR');
 ---
 
 <footer class="footer">
@@ -51,9 +54,63 @@ try {
   </div>
   
   <div class="footer-bottom">
-    <p class="last-update">Dernière mise à jour du site : {new Date().toLocaleDateString('fr-FR')}</p>
+    <p class="last-update" id="last-update">
+      Dernière mise à jour du site : {buildDate}
+    </p>
   </div>
 </footer>
+
+<script>
+  // Fonction pour mettre à jour la date de dernière modification
+  async function updateLastUpdateDate() {
+    const lastUpdateElement = document.getElementById('last-update');
+    if (!lastUpdateElement) return;
+
+    console.log('Début de updateLastUpdateDate');
+    console.log('Date de build (fallback):', '{buildDate}');
+
+    try {
+      // Utiliser localhost pour les requêtes côté client (navigateur)
+      const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : import.meta.env.PUBLIC_API_URL;
+      const apiUrl = baseUrl + '/last-update';
+      console.log('Appel API:', apiUrl);
+      console.log('Base URL utilisée:', baseUrl);
+      
+      console.log('Début du fetch...');
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+        mode: 'cors'
+      });
+      console.log('Fetch terminé, status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Données API reçues:', data);
+        
+        if (data.lastUpdate) {
+          // Formater la date reçue de l'API
+          const lastUpdateDate = new Date(data.lastUpdate).toLocaleDateString('fr-FR');
+          console.log('Date formatée depuis API:', lastUpdateDate);
+          lastUpdateElement.textContent = `Dernière mise à jour du site : ${lastUpdateDate}`;
+          console.log('Date mise à jour dans le DOM');
+        }
+      } else {
+        console.warn('Erreur lors de la récupération de la date de dernière modification:', response.status);
+        // Garder la date de build par défaut
+      }
+    } catch (error) {
+      console.error('Erreur lors du fetch de la date de dernière modification:', error);
+      // Garder la date de build par défaut en cas d'erreur
+    }
+  }
+
+  // Appeler la fonction au chargement de la page
+  console.log('Script footer chargé, appel de updateLastUpdateDate');
+  updateLastUpdateDate();
+</script>
 
 <style>
   .footer {
