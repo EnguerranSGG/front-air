@@ -24,11 +24,27 @@ export class AppComponent {
   ) {}
 
   shouldShowHeader(): boolean {
-    return this.router.url !== '/login' && this.authService.isAuthenticated();
+    // Pages d'authentification où le header ne doit pas s'afficher
+    const authPages = ['/login', '/forgot-password', '/reset-password'];
+    const currentPath = this.router.url.split('?')[0]; // Enlever les query parameters
+    const isAuthPage = authPages.some(page => currentPath === page);
+    
+    return !isAuthPage && this.authService.isAuthenticated();
   }
 
   shouldShowContent(): boolean {
-    return this.router.url === '/login' || this.authService.isAuthenticated();
+    // Pages d'authentification qui peuvent être affichées sans être connecté
+    const publicAuthPages = ['/login', '/forgot-password', '/reset-password'];
+    const currentPath = this.router.url.split('?')[0]; // Enlever les query parameters
+    const isPublicAuthPage = publicAuthPages.some(page => currentPath === page);
+    
+    console.log('shouldShowContent - Current URL:', this.router.url);
+    console.log('shouldShowContent - Current Path:', currentPath);
+    console.log('shouldShowContent - Is public auth page:', isPublicAuthPage);
+    console.log('shouldShowContent - Is authenticated:', this.authService.isAuthenticated());
+    console.log('shouldShowContent - Result:', isPublicAuthPage || this.authService.isAuthenticated());
+    
+    return isPublicAuthPage || this.authService.isAuthenticated();
   }
 
   ngAfterViewInit(): void {

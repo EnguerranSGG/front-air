@@ -12,10 +12,15 @@ import { CounselorComponent } from './pages/counselor/counselor.component';
 import { PresentationEditComponent } from './pages/presentation/presentation-edit.component';
 import { FleComponent } from './pages/fle/fle.component';
 import { PartnersComponent } from './pages/partners/partners.component';
+import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
+import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
+  { path: 'reset-password/:token', component: ResetPasswordComponent },
   { path: 'history', component: HistoryComponent, canActivate: [AuthGuard] },
   { path: 'values', component: ValuesComponent, canActivate: [AuthGuard] },
   { path: 'structures', component: StructureComponent, canActivate: [AuthGuard] },
