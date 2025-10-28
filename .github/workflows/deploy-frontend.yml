@@ -82,10 +82,9 @@ jobs:
 
           # Déployer le frontend sur production
           ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} "
-            cd /opt/air &&
-            docker compose -f docker-compose.prod.yml -f docker-compose.override.prod.yml down astro-site admin-dashboard nginx &&
-            docker compose -f docker-compose.prod.yml -f docker-compose.override.prod.yml build --no-cache astro-site admin-dashboard nginx &&
-            docker compose -f docker-compose.prod.yml -f docker-compose.override.prod.yml up -d astro-site admin-dashboard nginx
+            docker compose -f /opt/air/docker-compose.prod.yml -f /opt/air/docker-compose.override.prod.yml down astro-site admin-dashboard nginx &&
+            docker compose -f /opt/air/docker-compose.prod.yml -f /opt/air/docker-compose.override.prod.yml build --no-cache astro-site admin-dashboard nginx &&
+            docker compose -f /opt/air/docker-compose.prod.yml -f /opt/air/docker-compose.override.prod.yml up -d astro-site admin-dashboard nginx
           "
 
       - name: Health check frontend production
