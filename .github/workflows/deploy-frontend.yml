@@ -88,16 +88,20 @@ jobs:
           echo "=== Fin de la copie des fichiers ==="
           echo "✅ Fichiers copiés"
 
-          # Étape 3 : Déployer le frontend sur production
-          echo "🚀 Étape 3 : Déploiement des conteneurs frontend et Nginx"
-          ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} "
-            export PUBLIC_API_URL='https://accueil-insertion-rencontre.fr/api' &&
-            export PUBLIC_ASSET_URL='https://accueil-insertion-rencontre.fr' &&
-            export API_URL='https://accueil-insertion-rencontre.fr/api' &&
-            docker compose -f /opt/air/docker-compose.prod.yml -f /opt/air/docker-compose.override.prod.yml down astro-site admin-dashboard nginx &&
-            docker compose -f /opt/air/docker-compose.prod.yml -f /opt/air/docker-compose.override.prod.yml build --no-cache astro-site admin-dashboard nginx &&
-            docker compose -f /opt/air/docker-compose.prod.yml -f /opt/air/docker-compose.override.prod.yml up -d astro-site admin-dashboard nginx
-          "
+              # Étape 3 : Déployer le frontend sur production
+              echo "🚀 Étape 3 : Déploiement des conteneurs frontend et Nginx"
+              ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} "
+                export PUBLIC_API_URL='https://accueil-insertion-rencontre.fr/api' &&
+                export PUBLIC_ASSET_URL='https://accueil-insertion-rencontre.fr' &&
+                export API_URL='https://accueil-insertion-rencontre.fr/api' &&
+                echo 'Variables exportées:' &&
+                echo 'PUBLIC_API_URL='\$PUBLIC_API_URL &&
+                echo 'PUBLIC_ASSET_URL='\$PUBLIC_ASSET_URL &&
+                echo 'API_URL='\$API_URL &&
+                docker compose -f /opt/air/docker-compose.prod.yml -f /opt/air/docker-compose.override.prod.yml down astro-site admin-dashboard nginx &&
+                docker compose -f /opt/air/docker-compose.prod.yml -f /opt/air/docker-compose.override.prod.yml build --no-cache astro-site admin-dashboard nginx &&
+                docker compose -f /opt/air/docker-compose.prod.yml -f /opt/air/docker-compose.override.prod.yml up -d astro-site admin-dashboard nginx
+              "
           echo "✅ Conteneurs frontend et Nginx déployés"
 
           echo "🎉 === DÉPLOIEMENT FRONTEND TERMINÉ AVEC SUCCÈS ==="
