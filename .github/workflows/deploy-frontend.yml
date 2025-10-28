@@ -74,18 +74,33 @@ jobs:
 
       - name: Deploy frontend to production
         run: |
-          # Créer le répertoire de déploiement
-          ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} "mkdir -p /opt/air/front-air"
+          echo "🚀 === DÉBUT DU DÉPLOIEMENT FRONTEND ==="
 
-          # Copier les fichiers frontend
-          scp -o StrictHostKeyChecking=no -r . ${{ secrets.USER }}@${{ secrets.HOST }}:/opt/air/front-air/
+          # Étape 1 : Créer et nettoyer le répertoire de déploiement
+          echo "📁 Étape 1 : Création/Nettoyage du répertoire de déploiement"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} "rm -rf /opt/air/front-air && mkdir -p /opt/air/front-air"
+          echo "✅ Répertoire créé et nettoyé"
 
-          # Déployer le frontend sur production
+          # Étape 2 : Copier les fichiers frontend avec rsync
+          echo "📋 Étape 2 : Copie des fichiers frontend"
+          echo "=== Début de la copie des fichiers ==="
+          rsync -az --delete --exclude '.git' --exclude 'node_modules' -e "ssh -o StrictHostKeyChecking=no" ./ ${{ secrets.USER }}@${{ secrets.HOST }}:/opt/air/front-air/
+          echo "=== Fin de la copie des fichiers ==="
+          echo "✅ Fichiers copiés"
+
+          # Étape 3 : Déployer le frontend sur production
+          echo "🚀 Étape 3 : Déploiement des conteneurs frontend et Nginx"
           ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} "
+            export PUBLIC_API_URL='https://accueil-insertion-rencontre.fr/api' &&
+            export PUBLIC_ASSET_URL='https://accueil-insertion-rencontre.fr' &&
+            export API_URL='https://accueil-insertion-rencontre.fr/api' &&
             docker compose -f /opt/air/docker-compose.prod.yml -f /opt/air/docker-compose.override.prod.yml down astro-site admin-dashboard nginx &&
             docker compose -f /opt/air/docker-compose.prod.yml -f /opt/air/docker-compose.override.prod.yml build --no-cache astro-site admin-dashboard nginx &&
             docker compose -f /opt/air/docker-compose.prod.yml -f /opt/air/docker-compose.override.prod.yml up -d astro-site admin-dashboard nginx
           "
+          echo "✅ Conteneurs frontend et Nginx déployés"
+
+          echo "🎉 === DÉPLOIEMENT FRONTEND TERMINÉ AVEC SUCCÈS ==="
 
       - name: Health check frontend production
         run: |
