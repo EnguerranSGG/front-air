@@ -3,6 +3,12 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+# Build-time variables for Astro public envs
+ARG PUBLIC_API_URL
+ARG PUBLIC_ASSET_URL
+ENV PUBLIC_API_URL=${PUBLIC_API_URL}
+ENV PUBLIC_ASSET_URL=${PUBLIC_ASSET_URL}
+
 # Copy package files
 COPY package*.json ./
 
