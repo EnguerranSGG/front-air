@@ -1,5 +1,10 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -10,7 +15,7 @@ import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
   loginForm: FormGroup;
@@ -22,8 +27,18 @@ export class LoginComponent {
     private router: Router
   ) {
     this.loginForm = this.fb.group({
-      mail: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
-      password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(128)]]
+      mail: [
+        '',
+        [Validators.required, Validators.email, Validators.maxLength(255)],
+      ],
+      password: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(6),
+          Validators.maxLength(128),
+        ],
+      ],
     });
   }
 
@@ -43,7 +58,6 @@ export class LoginComponent {
 
     this.authService.login(mail, password).subscribe({
       next: (tokens) => {
-        console.log('Access Token:', tokens.accessToken);
         localStorage.setItem('accessToken', tokens.accessToken);
         localStorage.setItem('refreshToken', tokens.refreshToken);
         this.router.navigate(['/dashboard']);
@@ -51,7 +65,7 @@ export class LoginComponent {
       error: (err) => {
         this.errorMessage = 'Échec de la connexion';
         console.error(err);
-      }
+      },
     });
   }
 }
