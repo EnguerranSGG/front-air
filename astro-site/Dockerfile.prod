@@ -19,7 +19,11 @@ RUN npm ci --only=production
 COPY . .
 
 # Build the application
-RUN npm run build
+# Vérifier que les variables d'environnement sont disponibles
+RUN echo "=== Variables d'environnement au moment du build ===" && \
+    echo "PUBLIC_API_URL=${PUBLIC_API_URL}" && \
+    echo "PUBLIC_ASSET_URL=${PUBLIC_ASSET_URL}" && \
+    npm run build
 
 # Production stage
 FROM nginx:alpine AS production
