@@ -6,21 +6,26 @@ interface Props {
 const { id } = Astro.props;
 
 const API_BASE_URL = import.meta.env.PUBLIC_API_URL;
-const API_ENDPOINT = `${API_BASE_URL}/presentations/${id}`;
-
 let presentation: any = null;
 let error: string | null = null;
 
-try {
-  const response = await fetch(API_ENDPOINT);
+// Vérifier que l'URL de l'API est définie
+if (!API_BASE_URL) {
+  error = 'Configuration API manquante';
+} else {
+  const API_ENDPOINT = `${API_BASE_URL}/presentations/${id}`;
   
-  if (response.ok) {
-    presentation = await response.json();
-  } else {
-    error = `Erreur ${response.status}: ${response.statusText}`;
+  try {
+    const response = await fetch(API_ENDPOINT);
+    
+    if (response.ok) {
+      presentation = await response.json();
+    } else {
+      error = `Erreur ${response.status}: ${response.statusText}`;
+    }
+  } catch (err) {
+    error = `Erreur de connexion: ${err instanceof Error ? err.message : 'Erreur inconnue'}`;
   }
-} catch (err) {
-  error = `Erreur de connexion: ${err instanceof Error ? err.message : 'Erreur inconnue'}`;
 }
 ---
 
