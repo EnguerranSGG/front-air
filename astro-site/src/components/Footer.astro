@@ -1,21 +1,4 @@
 ---
-// Récupération des informations du siège social (structure ID 1)
-let siegeSocial = null;
-
-try {
-  const res = await fetch(import.meta.env.PUBLIC_API_URL + '/structures/all');
-  const data = await res.json();
-  console.log('Structures récupérées pour footer :', data);
-  
-  if (Array.isArray(data)) {
-    // Filtrer la structure avec l'ID 1 (siège social)
-    siegeSocial = data.find(structure => structure.structure_id === 1);
-    console.log('Siège social trouvé :', siegeSocial);
-  }
-} catch (err) {
-  console.error('Erreur lors du fetch des structures pour footer :', err);
-}
-
 // Date de build comme fallback
 const buildDate = new Date().toLocaleDateString('fr-FR');
 ---
@@ -23,26 +6,10 @@ const buildDate = new Date().toLocaleDateString('fr-FR');
 <footer class="footer">
   <div class="footer-content">
     <div class="footer-section">
-      {siegeSocial ? (
-        <div class="siege-info">
-          <h4 class="siege-title">Siège social</h4>
-          {siegeSocial.address && (
-            <p class="siege-address">
-              {siegeSocial.address}
-            </p>
-          )}
-          {siegeSocial.phone_number && (
-            <p class="siege-phone">
-              {siegeSocial.phone_number}
-            </p>
-          )}
-        </div>
-      ) : (
-        <div class="siege-info">
-          <h4 class="siege-title">Siège social</h4>
-          <p class="no-data">Informations non disponibles</p>
-        </div>
-      )}
+      <div class="siege-info" id="siege-info">
+        <h4 class="siege-title">Siège social</h4>
+        <p class="siege-loading">Chargement...</p>
+      </div>
     </div>
     
     <div class="footer-section">
@@ -61,6 +28,48 @@ const buildDate = new Date().toLocaleDateString('fr-FR');
 </footer>
 
 <script>
+  // Fonction pour charger les informations du siège social côté client
+  async function loadSiegeSocial() {
+    const siegeInfo = document.getElementById('siege-info');
+    if (!siegeInfo) return;
+
+    try {
+      const baseUrl = window.location.hostname === 'localhost' 
+        ? 'http://localhost:3000/api' 
+        : window.location.origin + '/api';
+      const res = await fetch(`${baseUrl}/structures/all`);
+      const data = await res.json();
+      
+      if (Array.isArray(data)) {
+        const siegeSocial = data.find(structure => structure.structure_id === 1);
+        
+        if (siegeSocial) {
+          siegeInfo.innerHTML = `
+            <h4 class="siege-title">Siège social</h4>
+            ${siegeSocial.address ? `<p class="siege-address">${siegeSocial.address}</p>` : ''}
+            ${siegeSocial.phone_number ? `<p class="siege-phone">${siegeSocial.phone_number}</p>` : ''}
+          `;
+        } else {
+          siegeInfo.innerHTML = `
+            <h4 class="siege-title">Siège social</h4>
+            <p class="no-data">Informations non disponibles</p>
+          `;
+        }
+      } else {
+        siegeInfo.innerHTML = `
+          <h4 class="siege-title">Siège social</h4>
+          <p class="no-data">Informations non disponibles</p>
+        `;
+      }
+    } catch (err) {
+      console.error('Erreur lors du fetch des structures pour footer :', err);
+      siegeInfo.innerHTML = `
+        <h4 class="siege-title">Siège social</h4>
+        <p class="no-data">Informations non disponibles</p>
+      `;
+    }
+  }
+
   // Fonction pour mettre à jour la date de dernière modification
   async function updateLastUpdateDate() {
     const lastUpdateElement = document.getElementById('last-update');
@@ -109,8 +118,9 @@ const buildDate = new Date().toLocaleDateString('fr-FR');
     }
   }
 
-  // Appeler la fonction au chargement de la page
-  console.log('Script footer chargé, appel de updateLastUpdateDate');
+  // Appeler les fonctions au chargement de la page
+  console.log('Script footer chargé');
+  loadSiegeSocial();
   updateLastUpdateDate();
 </script>
 
@@ -149,6 +159,12 @@ const buildDate = new Date().toLocaleDateString('fr-FR');
     font-weight: 600;
     color: #3498db;
     text-align: left;
+  }
+
+  .siege-loading {
+    color: #95a5a6;
+    font-style: italic;
+    margin: 0;
   }
 
   .siege-address,
