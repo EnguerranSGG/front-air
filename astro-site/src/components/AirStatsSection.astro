@@ -1,43 +1,128 @@
 ---
-let stats = [];
-
-try {
-  const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/statistics/by-type-name/AIR`);
-  const data = await res.json();
-  stats = Array.isArray(data) ? data : [];
-  console.log(stats);
-} catch (err) {
-  console.error("Erreur fetch statistiques AIR :", err);
-}
+const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
 ---
+
 <section class="stats air-stats-section animate-fade-in">
-  <div class="stats-list">
-    {stats.map((stat, index) => (
-      <div class="stat-item animate-slide-up" key={stat.statistic_id} style={`animation-delay: ${0.8 + index * 0.2}s`}>
-        <strong class="air-stat-value" data-target={stat.value}>{stat.is_percentage ? "0%" : "0"}</strong>
-        <p class="stat-label">{stat.label}<br/>en {stat.year}</p>
-      </div>
-    ))}
+  <div class="stats-list" id="air-stats-list">
+    <div class="stats-loading">Chargement des statistiques...</div>
   </div>
 </section>
 
+<script define:vars={{ API_BASE_URL }}>
+  // Charger les statistiques AIR côté client
+  (async function() {
+    const statsList = document.getElementById('air-stats-list');
+    if (!statsList || !API_BASE_URL) {
+      if (statsList) {
+        statsList.innerHTML = '<div class="stats-error">Configuration API manquante</div>';
+      }
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/statistics/by-type-name/AIR`);
+      const data = await res.json();
+      const stats = Array.isArray(data) ? data : [];
+      
+      if (stats.length === 0) {
+        statsList.innerHTML = '<p>Aucune statistique disponible</p>';
+        return;
+      }
+
+      statsList.innerHTML = stats.map((stat, index) => `
+        <div class="stat-item animate-slide-up" style="animation-delay: ${0.8 + index * 0.2}s">
+          <strong class="air-stat-value" data-target="${stat.value}">${stat.is_percentage ? '0%' : '0'}</strong>
+          <p class="stat-label">${stat.label || ''}<br/>en ${stat.year || ''}</p>
+        </div>
+      `).join('');
+
+      // Initialiser les animations
+      initStatsAnimations();
+    } catch (err) {
+      console.error('Erreur fetch statistiques AIR :', err);
+      statsList.innerHTML = '<div class="stats-error">Erreur lors du chargement des statistiques</div>';
+    }
+  })();
+
+  function initStatsAnimations() {
+    const airStatsSection = document.querySelector('.air-stats-section');
+    if (!airStatsSection) return;
+    
+    const statValues = airStatsSection.querySelectorAll('.air-stat-value');
+
+    function animateCounter(element, target, duration = 2000) {
+      const isPercentage = element.textContent.includes('%');
+      let current = 0;
+      const startTime = performance.now();
+
+      function updateCounter(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+        
+        current = Math.round(target * easedProgress);
+        element.textContent = isPercentage ? `${current}%` : current;
+
+        if (progress < 1) {
+          requestAnimationFrame(updateCounter);
+        } else {
+          element.textContent = isPercentage ? `${target}%` : target;
+        }
+      }
+
+      requestAnimationFrame(updateCounter);
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          statValues.forEach((statElement, index) => {
+            const target = parseFloat(statElement.getAttribute('data-target'));
+            if (!isNaN(target)) {
+              setTimeout(() => {
+                animateCounter(statElement, target);
+              }, index * 200);
+            }
+          });
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.5
+    });
+
+    if (airStatsSection) {
+      observer.observe(airStatsSection);
+    }
+  }
+</script>
+
 <style>
+  .stats-loading,
+  .stats-error {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+  }
+
+  .stats-error {
+    color: #dc3545;
+  }
+
   /* === ANIMATIONS ET STYLES POUR STATS AIR === */
   
-  /* Animation de la section */
   .animate-fade-in {
     opacity: 0;
     animation: fadeInSection 0.8s ease-out 0.3s forwards;
   }
 
-  /* Animation des éléments de stats */
   .animate-slide-up {
     opacity: 0;
     transform: translateY(30px);
     animation: slideUpFade 0.6s ease-out forwards;
   }
 
-  /* Styles modernes pour les stats */
   .stats {
     padding: 3rem 2rem;
     text-align: center;
@@ -109,7 +194,6 @@ try {
     font-weight: 500;
   }
 
-  /* === ANIMATIONS === */
   @keyframes fadeInSection {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
@@ -120,12 +204,13 @@ try {
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* === RESPONSIVE === */
   @media (max-width: 768px) {
     .stats {
       padding: 2rem 1rem;
       margin: 1rem;
       border-radius: 15px;
+      flex-direction: column;
+      align-items: center;
     }
 
     .stats-list {
@@ -147,99 +232,8 @@ try {
       font-size: 0.9rem;
     }
 
-    /* Animations plus rapides sur mobile */
     .animate-slide-up {
       animation-duration: 0.4s;
     }
   }
-
-  @media (max-width: 480px) {
-    .stats-list {
-      gap: 1.5rem;
-    }
-
-    .stat-item {
-      min-width: 130px;
-      padding: 1.2rem 0.8rem;
-    }
-
-    .air-stat-value {
-      font-size: 1.8rem;
-    }
-  }
-
-  /* === ACCESSIBILITÉ === */
-  @media (prefers-reduced-motion: reduce) {
-    .animate-fade-in,
-    .animate-slide-up {
-      animation: none;
-      opacity: 1;
-      transform: none;
-    }
-    
-    .stat-item:hover {
-      transform: none;
-    }
-  }
 </style>
-
-<script is:inline>
-document.addEventListener('DOMContentLoaded', () => {
-  const airStatsSection = document.querySelector('.air-stats-section');
-  if (!airStatsSection) return;
-  
-  const statValues = airStatsSection.querySelectorAll('.air-stat-value');
-
-  // Animation de compteur avec easing
-  function animateCounter(element, target, duration = 2000) {
-    const isPercentage = element.textContent.includes('%');
-    let current = 0;
-    const startTime = performance.now();
-
-    function updateCounter(currentTime) {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      // Easing function (ease-out cubic)
-      const easedProgress = 1 - Math.pow(1 - progress, 3);
-      
-      current = Math.round(target * easedProgress);
-      element.textContent = isPercentage ? `${current}%` : current;
-
-      if (progress < 1) {
-        requestAnimationFrame(updateCounter);
-      } else {
-        element.textContent = isPercentage ? `${target}%` : target;
-      }
-    }
-
-    requestAnimationFrame(updateCounter);
-  }
-
-  // Observer pour détecter quand les stats entrent dans le viewport
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        // Déclencher l'animation pour chaque statistique de cette section uniquement
-        statValues.forEach((statElement, index) => {
-          const target = parseInt(statElement.getAttribute('data-target'));
-          if (!isNaN(target)) {
-            setTimeout(() => {
-              animateCounter(statElement, target);
-            }, index * 200); // Délai progressif pour un effet plus dynamique
-          }
-        });
-        
-        // Arrêter d'observer une fois l'animation déclenchée
-        observer.unobserve(entry.target);
-      }
-    });
-  }, {
-    threshold: 0.5 // Se déclenche quand 50% de la section est visible
-  });
-
-  if (airStatsSection) {
-    observer.observe(airStatsSection);
-  }
-});
-</script>

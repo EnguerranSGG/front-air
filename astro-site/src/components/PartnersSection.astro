@@ -1,29 +1,75 @@
 ---
-// src/components/PartnersCarousel.astro
-let partners = [];
-let partnersX3 = [];
-
-try {
-  const res = await fetch(import.meta.env.PUBLIC_API_URL + '/partners/all');
-  const data = await res.json();
-  partners = Array.isArray(data) ? data : [];
-  // On répète 3 fois pour assurer un défilement fluide
-  partnersX3 = [...partners, ...partners, ...partners];
-} catch (err) {
-  console.error('Erreur lors de la récupération des partenaires :', err);
-}
+const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
+const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
 ---
+
 <section class="partners-carousel">
   <h2>Financeurs, réseaux et partenaires</h2>
-  <div class="carousel-track">
-    {partnersX3.map((partner, index) => (
-      <div class="carousel-item" key={`${partner.parteners_id}-${index}`}>
-        <img
-          src={`${import.meta.env.PUBLIC_ASSET_URL}/files/${partner.file_id}/download`}
-          alt={partner.name}
-          loading="lazy"
-        />
-      </div>
-    ))}
+  <div class="carousel-track" id="partners-carousel">
+    <div class="partners-loading">Chargement des partenaires...</div>
   </div>
 </section>
+
+<script define:vars={{ API_BASE_URL, ASSET_URL }}>
+  // Charger les partenaires côté client
+  (async function() {
+    const carousel = document.getElementById('partners-carousel');
+    if (!carousel || !API_BASE_URL || !ASSET_URL) {
+      if (carousel) {
+        carousel.innerHTML = '<div class="partners-error">Configuration API manquante</div>';
+      }
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/partners/all`);
+      const data = await res.json();
+      const partners = Array.isArray(data) ? data : [];
+      
+      if (partners.length === 0) {
+        carousel.innerHTML = '<p>Aucun partenaire disponible</p>';
+        return;
+      }
+
+      // Répéter 3 fois pour un défilement fluide
+      const partnersX3 = [...partners, ...partners, ...partners];
+      
+      carousel.innerHTML = partnersX3.map((partner, index) => {
+        const imageUrl = partner.file_id ? `${ASSET_URL}/files/${partner.file_id}/download` : '';
+        return `
+          <div class="carousel-item">
+            ${imageUrl ? `<img src="${imageUrl}" alt="${partner.name || ''}" loading="lazy" />` : '<div class="partner-placeholder">Pas d\'image</div>'}
+          </div>
+        `;
+      }).join('');
+    } catch (err) {
+      console.error('Erreur lors de la récupération des partenaires :', err);
+      carousel.innerHTML = '<div class="partners-error">Erreur lors du chargement des partenaires</div>';
+    }
+  })();
+</script>
+
+<style>
+  .partners-loading,
+  .partners-error {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+  }
+
+  .partners-error {
+    color: #dc3545;
+  }
+
+  .partner-placeholder {
+    width: 150px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f0;
+    border-radius: 8px;
+    color: #999;
+    font-size: 0.9rem;
+  }
+</style>

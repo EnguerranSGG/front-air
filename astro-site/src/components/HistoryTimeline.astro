@@ -1,35 +1,56 @@
 ---
 import PresentationCard from './PresentationCard.astro';
 
-let events = [];
-
-try {
-  const res = await fetch(import.meta.env.PUBLIC_API_URL + '/times/all');
-  const data = await res.json();
-  events = Array.isArray(data)
-    ? data.sort((a, b) => b.year - a.year) // tri chronologique
-    : [];
-} catch (err) {
-  console.error('Erreur lors du fetch des événements temporels :', err);
-}
+const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
 ---
+
 <section class="timeline-section">
   <h2>Naissance de l'association</h2>
   <PresentationCard id="2" />
   
   <h2>Historique de l'association</h2>
-  <div class="timeline">
-    {events.map((event, index) => (
-      <div class={`timeline-item ${index % 2 === 0 ? 'left' : 'right'}`} key={index}>
-        <div class="content">{event.event_description}</div>
-        <div class="year">{event.year}</div>
-      </div>
-    ))}
+  <div class="timeline" id="timeline-events">
+    <div class="timeline-loading">Chargement de l'historique...</div>
   </div>
 </section>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
+<script define:vars={{ API_BASE_URL }}>
+  // Charger les événements temporels côté client
+  (async function() {
+    const timeline = document.getElementById('timeline-events');
+    if (!timeline || !API_BASE_URL) {
+      if (timeline) {
+        timeline.innerHTML = '<p>Configuration API manquante</p>';
+      }
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/times/all`);
+      const data = await res.json();
+      const events = Array.isArray(data) ? data.sort((a, b) => b.year - a.year) : [];
+      
+      if (events.length === 0) {
+        timeline.innerHTML = '<p>Aucun événement historique disponible</p>';
+        return;
+      }
+
+      timeline.innerHTML = events.map((event, index) => `
+        <div class="timeline-item ${index % 2 === 0 ? 'left' : 'right'}" key="${index}">
+          <div class="content">${event.event_description || ''}</div>
+          <div class="year">${event.year || ''}</div>
+        </div>
+      `).join('');
+
+      // Initialiser les animations
+      initTimelineAnimations();
+    } catch (err) {
+      console.error('Erreur lors du fetch des événements temporels :', err);
+      timeline.innerHTML = '<p>Erreur lors du chargement de l\'historique</p>';
+    }
+  })();
+
+  function initTimelineAnimations() {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -45,5 +66,13 @@ try {
     timelineItems.forEach((item) => {
       observer.observe(item);
     });
-  });
+  }
 </script>
+
+<style>
+  .timeline-loading {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+  }
+</style>

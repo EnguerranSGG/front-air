@@ -1,89 +1,28 @@
 ---
-let stats = [];
-let mainTitle = '';
-let satisfactionTitle = '';
-let codeRouteTitle1 = '';
-let codeRouteTitle2 = '';
-let fleProNumTitle1 = '';
-let fleProNumTitle2 = '';
-
-try {
-  const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/files/11/title`);
-  mainTitle = await response.text();
-} catch (err) {
-  console.error("Erreur fetch lors de la récupération du titre :", err);
-}
-
-try {
-  const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/files/26/title`);
-  satisfactionTitle = await response.text();
-} catch (err) {
-  console.error("Erreur fetch lors de la récupération du titre :", err);
-}
-
-try {
-  const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/statistics/by-type-name/FLE`);
-  const data = await res.json();
-  stats = Array.isArray(data) ? data : [];
-} catch (err) {
-  console.error("Erreur fetch statistiques AIR :", err);
-}
-
-try {
-  const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/files/27/title`);
-  codeRouteTitle1 = await response.text();
-} catch (err) {
-  console.error("Erreur fetch titre Code de la route 1 :", err);
-}
-
-try {
-  const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/files/28/title`);
-  codeRouteTitle2 = await response.text();
-} catch (err) {
-  console.error("Erreur fetch titre Code de la route 2 :", err);
-}
-
-try {
-  const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/files/29/title`);
-  fleProNumTitle1 = await response.text();
-} catch (err) {
-  console.error("Erreur fetch titre FLE pro et numérique 1 :", err);
-}
-
-try {
-  const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/files/30/title`);
-  fleProNumTitle2 = await response.text();
-} catch (err) {
-  console.error("Erreur fetch titre FLE pro et numérique 2 :", err);
-}
-
+const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
+const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
 ---
 
 <section class="fle-section">
   <div class="image-wrapper">
     <img
-      src={`${import.meta.env.PUBLIC_ASSET_URL}/files/11/download`}
+      src={`${ASSET_URL}/files/11/download`}
       alt="Cours de FLE"
       class="fle-image animate-slide-up"
     />
     <div class="overlay animate-slide-right">
-      <h4 class="animate-fade-in-delayed">{mainTitle}</h4>
+      <h4 class="animate-fade-in-delayed" id="fle-main-title">Chargement...</h4>
     </div>
   </div>
 
-  <div class="stats animate-fade-in">
-  {stats.map((stat, index) => (
-    <div class="stat-block animate-slide-up" style={`animation-delay: ${0.8 + index * 0.2}s`}>
-      <strong class="stat-value" data-target={stat.value}>{stat.is_percentage ? "0%" : "0"}</strong>
-      <p class="stat-label">{stat.label}<br />en {stat.year}</p>
-    </div>
-  ))}
-</div>
+  <div class="stats animate-fade-in" id="fle-stats">
+    <div class="stats-loading">Chargement des statistiques...</div>
+  </div>
 
   <div class="certif-block">
     <img src="/assets/logo-qualiopi-avec-action-de-formation.webp" alt="Logo Qualiopi" class="qualiopi" />
     <div class="buttons-fle">
-      <a class="download-btn" href={`${import.meta.env.PUBLIC_ASSET_URL}/files/18/download`} download>
+      <a class="download-btn" href={`${ASSET_URL}/files/18/download`} download>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 15.575c-.22 0-.42-.09-.58-.25l-5.5-5.5c-.32-.32-.32-.85 0-1.17c.32-.32.85-.32 1.17 0L12 13.575l4.91-4.92c.32-.32.85-.32 1.17 0c.32.32.32.85 0 1.17l-5.5 5.5c-.16.16-.36.25-.58.25z"/>
           <path d="M12 21c-.41 0-.75-.34-.75-.75V4c0-.41.34-.75.75-.75s.75.34.75.75v16.25c0 .41-.34.75-.75.75z"/>
@@ -91,7 +30,7 @@ try {
         </svg>
         Certification
       </a>
-      <a class="download-btn" href={`${import.meta.env.PUBLIC_ASSET_URL}/files/16/download`} download>
+      <a class="download-btn" href={`${ASSET_URL}/files/16/download`} download>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
           <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
           <path d="M12 15.575c-.22 0-.42-.09-.58-.25l-3-3c-.32-.32-.32-.85 0-1.17c.32-.32.85-.32 1.17 0L12 13.575l2.41-2.42c.32-.32.85-.32 1.17 0c.32.32.32.85 0 1.17l-3 3c-.16.16-.36.25-.58.25z"/>
@@ -109,72 +48,170 @@ try {
   </div>
 </section>
 
-<div class="satisfaction-sections-container">
-  <section class="satisfaction-section">
-    <h2 class="satisfaction-title">{satisfactionTitle}</h2>
-    <div class="satisfaction-image-container">
-      <img
-        src={`${import.meta.env.PUBLIC_ASSET_URL}/files/26/download`}
-        alt="Satisfaction des stagiaires"
-        class="satisfaction-image"
-      />
-    </div>
-  </section>
-
-  <section class="satisfaction-section">
-    <h2 class="satisfaction-title">Code de la route</h2>
-    <div class="satisfaction-image-container double-image-row">
-      <div class="image-title-block">
-        <img
-          src={`${import.meta.env.PUBLIC_ASSET_URL}/files/27/download`}
-          alt={codeRouteTitle1}
-          class="satisfaction-image double-image"
-        />
-        <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">{codeRouteTitle1}</h3>
-      </div>
-      <div class="image-title-block">
-        <img
-          src={`${import.meta.env.PUBLIC_ASSET_URL}/files/28/download`}
-          alt={codeRouteTitle2}
-          class="satisfaction-image double-image"
-        />
-        <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">{codeRouteTitle2}</h3>
-      </div>
-    </div>
-  </section>
-
-  <section class="satisfaction-section">
-    <h2 class="satisfaction-title">FLE pro et numérique</h2>
-    <div class="satisfaction-image-container double-image-row">
-      <div class="image-title-block">
-        <img
-          src={`${import.meta.env.PUBLIC_ASSET_URL}/files/29/download`}
-          alt={fleProNumTitle1}
-          class="satisfaction-image double-image"
-        />
-        <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">{fleProNumTitle1}</h3>
-      </div>
-      <div class="image-title-block">
-        <img
-          src={`${import.meta.env.PUBLIC_ASSET_URL}/files/30/download`}
-          alt={fleProNumTitle2}
-          class="satisfaction-image double-image"
-        />
-        <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">{fleProNumTitle2}</h3>
-      </div>
-    </div>
-  </section>
+<div class="satisfaction-sections-container" id="satisfaction-container">
+  <div class="satisfaction-loading">Chargement des sections...</div>
 </div>
 
+<script define:vars={{ API_BASE_URL, ASSET_URL }}>
+  // Charger toutes les données FLE côté client
+  (async function() {
+    // Charger le titre principal
+    try {
+      const titleRes = await fetch(`${API_BASE_URL}/files/11/title`);
+      if (titleRes.ok) {
+        const title = await titleRes.text();
+        const titleEl = document.getElementById('fle-main-title');
+        if (titleEl) titleEl.textContent = title;
+      }
+    } catch (err) {
+      console.error('Erreur fetch titre principal :', err);
+    }
+
+    // Charger les statistiques FLE
+    const statsContainer = document.getElementById('fle-stats');
+    try {
+      const statsRes = await fetch(`${API_BASE_URL}/statistics/by-type-name/FLE`);
+      const statsData = await statsRes.json();
+      const stats = Array.isArray(statsData) ? statsData : [];
+      
+      if (stats.length > 0 && statsContainer) {
+        statsContainer.innerHTML = stats.map((stat, index) => `
+          <div class="stat-block animate-slide-up" style="animation-delay: ${0.8 + index * 0.2}s">
+            <strong class="stat-value" data-target="${stat.value}">${stat.is_percentage ? '0%' : '0'}</strong>
+            <p class="stat-label">${stat.label || ''}<br />en ${stat.year || ''}</p>
+          </div>
+        `).join('');
+        
+        initFleStatsAnimations();
+      } else if (statsContainer) {
+        statsContainer.innerHTML = '<p>Aucune statistique disponible</p>';
+      }
+    } catch (err) {
+      console.error('Erreur fetch statistiques FLE :', err);
+      if (statsContainer) statsContainer.innerHTML = '<p>Erreur lors du chargement des statistiques</p>';
+    }
+
+    // Charger les sections satisfaction
+    const satisfactionContainer = document.getElementById('satisfaction-container');
+    if (satisfactionContainer) {
+      try {
+        const [satTitle, code1Title, code2Title, fle1Title, fle2Title] = await Promise.all([
+          fetch(`${API_BASE_URL}/files/26/title`).then(r => r.ok ? r.text() : ''),
+          fetch(`${API_BASE_URL}/files/27/title`).then(r => r.ok ? r.text() : ''),
+          fetch(`${API_BASE_URL}/files/28/title`).then(r => r.ok ? r.text() : ''),
+          fetch(`${API_BASE_URL}/files/29/title`).then(r => r.ok ? r.text() : ''),
+          fetch(`${API_BASE_URL}/files/30/title`).then(r => r.ok ? r.text() : '')
+        ]);
+
+        satisfactionContainer.innerHTML = `
+          <section class="satisfaction-section">
+            <h2 class="satisfaction-title">${satTitle || 'Satisfaction des stagiaires'}</h2>
+            <div class="satisfaction-image-container">
+              <img src="${ASSET_URL}/files/26/download" alt="Satisfaction des stagiaires" class="satisfaction-image" />
+            </div>
+          </section>
+          <section class="satisfaction-section">
+            <h2 class="satisfaction-title">Code de la route</h2>
+            <div class="satisfaction-image-container double-image-row">
+              <div class="image-title-block">
+                <img src="${ASSET_URL}/files/27/download" alt="${code1Title || ''}" class="satisfaction-image double-image" />
+                <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">${code1Title || ''}</h3>
+              </div>
+              <div class="image-title-block">
+                <img src="${ASSET_URL}/files/28/download" alt="${code2Title || ''}" class="satisfaction-image double-image" />
+                <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">${code2Title || ''}</h3>
+              </div>
+            </div>
+          </section>
+          <section class="satisfaction-section">
+            <h2 class="satisfaction-title">FLE pro et numérique</h2>
+            <div class="satisfaction-image-container double-image-row">
+              <div class="image-title-block">
+                <img src="${ASSET_URL}/files/29/download" alt="${fle1Title || ''}" class="satisfaction-image double-image" />
+                <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">${fle1Title || ''}</h3>
+              </div>
+              <div class="image-title-block">
+                <img src="${ASSET_URL}/files/30/download" alt="${fle2Title || ''}" class="satisfaction-image double-image" />
+                <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">${fle2Title || ''}</h3>
+              </div>
+            </div>
+          </section>
+        `;
+      } catch (err) {
+        console.error('Erreur lors du chargement des sections satisfaction :', err);
+        satisfactionContainer.innerHTML = '<p>Erreur lors du chargement</p>';
+      }
+    }
+  })();
+
+  function initFleStatsAnimations() {
+    const fleSection = document.querySelector('.fle-section');
+    if (!fleSection) return;
+    
+    const statsSection = fleSection.querySelector('.stats');
+    const statValues = fleSection.querySelectorAll('.stat-value');
+
+    function animateCounter(element, target, duration = 2000) {
+      const isPercentage = element.textContent.includes('%');
+      let current = 0;
+      const startTime = performance.now();
+
+      function updateCounter(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+        
+        current = Math.round(target * easedProgress);
+        element.textContent = isPercentage ? `${current}%` : current;
+
+        if (progress < 1) {
+          requestAnimationFrame(updateCounter);
+        } else {
+          element.textContent = isPercentage ? `${target}%` : target;
+        }
+      }
+
+      requestAnimationFrame(updateCounter);
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          statValues.forEach((statElement, index) => {
+            const target = parseFloat(statElement.getAttribute('data-target'));
+            if (!isNaN(target)) {
+              setTimeout(() => {
+                animateCounter(statElement, target);
+              }, index * 200);
+            }
+          });
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.5
+    });
+
+    if (statsSection) {
+      observer.observe(statsSection);
+    }
+  }
+</script>
+
 <style>
-  /* === ANIMATIONS ET STYLES POUR IMAGE-WRAPPER UNIQUEMENT === */
-  
-  /* Styles pour l'image avec animations */
+  .stats-loading,
+  .satisfaction-loading {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+  }
+
+  /* === ANIMATIONS ET STYLES POUR IMAGE-WRAPPER === */
   .fle-image {
     transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out;
   }
 
-  /* Centrage parfait de l'overlay */
   .overlay {
     transition: all 0.3s ease-in-out;
     display: flex;
@@ -182,7 +219,6 @@ try {
     justify-content: center;
   }
 
-  /* Centrage parfait du titre dans l'overlay */
   .overlay h4 {
     transition: transform 0.3s ease-in-out;
     margin: 0;
@@ -190,7 +226,6 @@ try {
     width: 100%;
   }
 
-  /* === ANIMATIONS === */
   .animate-slide-up {
     opacity: 0;
     transform: translateY(50px);
@@ -224,7 +259,6 @@ try {
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* === EFFETS DE SURVOL === */
   .fle-image:hover {
     transform: scale(1.02);
     filter: brightness(1.1);
@@ -240,58 +274,18 @@ try {
     transform: scale(1.05);
   }
 
-  /* === RESPONSIVE pour image-wrapper === */
-  @media (max-width: 768px) {
-    /* Animations plus rapides sur mobile */
-    .animate-slide-up,
-    .animate-slide-right,
-    .animate-fade-in-delayed {
-      animation-duration: 0.8s;
-    }
-    
-    /* Effets de survol adaptés */
-    .fle-image:hover {
-      transform: scale(1.01);
-    }
-    
-    .overlay:hover {
-      transform: translateY(-1px);
-    }
-  }
-
-  /* === ACCESSIBILITÉ === */
-  @media (prefers-reduced-motion: reduce) {
-    .animate-slide-up,
-    .animate-slide-right,
-    .animate-fade-in-delayed {
-      animation: none;
-      opacity: 1;
-      transform: none;
-    }
-    
-    .fle-image:hover,
-    .overlay:hover,
-    .overlay:hover h4 {
-      transform: none;
-    }
-  }
-
   /* === STYLES MODERNES POUR LES STATS FLE === */
-  
-  /* Animation de la section stats */
   .animate-fade-in {
     opacity: 0;
     animation: fadeInStatsSection 0.8s ease-out 0.3s forwards;
   }
 
-  /* Animation des éléments de stats */
   .stat-block.animate-slide-up {
     opacity: 0;
     transform: translateY(30px);
     animation: slideUpFadeStats 0.6s ease-out forwards;
   }
 
-  /* Styles modernes pour les stats */
   .stats {
     padding: 3rem 2rem;
     text-align: center;
@@ -361,7 +355,6 @@ try {
     font-weight: 500;
   }
 
-  /* === ANIMATIONS POUR STATS === */
   @keyframes fadeInStatsSection {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
@@ -370,65 +363,6 @@ try {
   @keyframes slideUpFadeStats {
     from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* === RESPONSIVE POUR STATS === */
-  @media (max-width: 768px) {
-    .stats {
-      padding: 2rem 1rem;
-      margin: 1rem;
-      border-radius: 15px;
-      flex-direction: column;
-      align-items: center;
-      gap: 2rem;
-    }
-
-    .stat-block {
-      min-width: 150px;
-      padding: 1.5rem 1rem;
-    }
-
-    .stat-value {
-      font-size: 2rem;
-    }
-
-    .stat-label {
-      font-size: 0.9rem;
-    }
-
-    /* Animations plus rapides sur mobile */
-    .stat-block.animate-slide-up {
-      animation-duration: 0.4s;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .stats {
-      gap: 1.5rem;
-    }
-
-    .stat-block {
-      min-width: 130px;
-      padding: 1.2rem 0.8rem;
-    }
-
-    .stat-value {
-      font-size: 1.8rem;
-    }
-  }
-
-  /* === ACCESSIBILITÉ POUR STATS === */
-  @media (prefers-reduced-motion: reduce) {
-    .animate-fade-in,
-    .stat-block.animate-slide-up {
-      animation: none;
-      opacity: 1;
-      transform: none;
-    }
-    
-    .stat-block:hover {
-      transform: none;
-    }
   }
 
   /* === SECTION SATISFACTION DES STAGIAIRES === */
@@ -490,8 +424,76 @@ try {
     transform: scale(1.02);
   }
 
-  /* === RESPONSIVE POUR SECTION SATISFACTION === */
+  .double-image-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .image-title-block {
+    flex: 1 1 350px;
+    min-width: 250px;
+    max-width: 600px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .double-image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  }
+
   @media (max-width: 768px) {
+    .animate-slide-up,
+    .animate-slide-right,
+    .animate-fade-in-delayed {
+      animation-duration: 0.8s;
+    }
+
+    .fle-image:hover {
+      transform: scale(1.01);
+    }
+
+    .overlay:hover {
+      transform: translateY(-1px);
+    }
+
+    .stats {
+      padding: 2rem 1rem;
+      margin: 1rem;
+      border-radius: 15px;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .stat-block {
+      min-width: 150px;
+      padding: 1.5rem 1rem;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+    }
+
+    .stat-block.animate-slide-up {
+      animation-duration: 0.4s;
+    }
+
     .satisfaction-sections-container {
       margin-top: 2rem;
       border-radius: 15px;
@@ -511,135 +513,35 @@ try {
       margin: 0 1rem;
     }
 
-  }
-
-  @media (max-width: 480px) {
-    .satisfaction-sections-container {
-      margin-top: 1.5rem;
-      border-radius: 10px;
-    }
-
-    .satisfaction-section {
-      padding: 1.5rem 0.5rem;
-    }
-
-    .satisfaction-title {
-      font-size: 1.8rem;
-    }
-
-    .satisfaction-image-container {
-      padding: 1rem;
-      margin: 0 0.5rem;
-    }
-
-  }
-
-  /* === ACCESSIBILITÉ POUR SECTION SATISFACTION === */
-  @media (prefers-reduced-motion: reduce) {
-    .satisfaction-image-container:hover,
-    .satisfaction-image:hover {
-      transform: none;
-    }
-  }
-
-  .double-image-row {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  .image-title-block {
-    flex: 1 1 350px;
-    min-width: 250px;
-    max-width: 600px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .double-image {
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    object-fit: contain;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
-  }
-  @media (max-width: 700px) {
     .double-image-row {
       flex-direction: column;
       gap: 1.5rem;
     }
+
     .image-title-block {
       max-width: 100%;
       min-width: 0;
     }
   }
-</style>
 
-<script is:inline>
-document.addEventListener('DOMContentLoaded', () => {
-  const fleSection = document.querySelector('.fle-section');
-  if (!fleSection) return;
-  
-  const statsSection = fleSection.querySelector('.stats');
-  const statValues = fleSection.querySelectorAll('.stat-value');
-
-  // Animation de compteur avec easing
-  function animateCounter(element, target, duration = 2000) {
-    const isPercentage = element.textContent.includes('%');
-    const start = 0;
-    let current = 0;
-    const startTime = performance.now();
-
-    function updateCounter(currentTime) {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      // Easing function (ease-out cubic)
-      const easedProgress = 1 - Math.pow(1 - progress, 3);
-      
-      current = Math.round(target * easedProgress);
-      element.textContent = isPercentage ? `${current}%` : current;
-
-      if (progress < 1) {
-        requestAnimationFrame(updateCounter);
-      } else {
-        element.textContent = isPercentage ? `${target}%` : target;
-      }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-slide-up,
+    .animate-slide-right,
+    .animate-fade-in-delayed,
+    .animate-fade-in,
+    .stat-block.animate-slide-up {
+      animation: none;
+      opacity: 1;
+      transform: none;
     }
 
-    requestAnimationFrame(updateCounter);
+    .fle-image:hover,
+    .overlay:hover,
+    .overlay:hover h4,
+    .stat-block:hover,
+    .satisfaction-image-container:hover,
+    .satisfaction-image:hover {
+      transform: none;
+    }
   }
-
-  // Observer pour détecter quand les stats entrent dans le viewport
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        // Déclencher l'animation pour chaque statistique de cette section uniquement
-        statValues.forEach((statElement, index) => {
-          const target = parseInt(statElement.getAttribute('data-target'));
-          if (!isNaN(target)) {
-            setTimeout(() => {
-              animateCounter(statElement, target);
-            }, index * 200); // Délai progressif pour un effet plus dynamique
-          }
-        });
-        
-        // Arrêter d'observer une fois l'animation déclenchée
-        observer.unobserve(entry.target);
-      }
-    });
-  }, {
-    threshold: 0.5 // Se déclenche quand 50% de la section est visible
-  });
-
-  if (statsSection) {
-    observer.observe(statsSection);
-  }
-});
-</script>
-
+</style>

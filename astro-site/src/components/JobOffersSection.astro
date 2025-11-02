@@ -1,156 +1,173 @@
 ---
-let jobOffers = [];
-let presentationText = '';
-
-try {
-  const res = await fetch(import.meta.env.PUBLIC_API_URL + '/jobOffers/all');
-  const data = await res.json();
-  jobOffers = Array.isArray(data) ? data : [];
-} catch (err) {
-  console.error('Erreur lors du fetch des offres :', err);
-}
-
-try {
-  const presentationRes = await fetch(import.meta.env.PUBLIC_API_URL + '/presentations/3');
-  if (presentationRes.ok) {
-    const presentation = await presentationRes.json();
-    presentationText = presentation.presentation_text || '';
-  }
-} catch (err) {
-  console.error('Erreur lors du fetch de la présentation :', err);
-}
+const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
+const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
 ---
+
 <section class="offers-section">
   <h2>Nos offres d'emploi</h2>
-  <p class="offers-subtitle">{presentationText}</p>
+  <p class="offers-subtitle" id="offers-presentation-text">Chargement...</p>
 
-  <div class="offers-list">
-    {jobOffers.length > 0 ? (
-      jobOffers.map((offer, index) => (
-        <div class="offer-card" key={offer.job_offer_id}>
-          <img
-            src={`${import.meta.env.PUBLIC_ASSET_URL}/files/${offer.file_id}/download`}
-            alt={offer.name}
-          />
-          <div class="offer-content">
-            <h3 class="offer-name">{offer.name}</h3>
-            <p class="offer-type">{offer.job_type}{offer.city ? ` - ${offer.city}` : ''}</p>
-
-            <div class="description-wrapper" id={`desc-${index}`}>
-              <p class="offer-description">{offer.description}</p>
-            </div>
-
-            <div class="buttons">
-              <!-- Bouton de toggling pour mobile uniquement -->
-              <button
-                type="button"
-                class="toggle-button"
-                onclick={`(() => {
-  const wrapper = document.getElementById('desc-${index}');
-  const isOpen = wrapper.classList.toggle('show');
-  this.textContent = isOpen ? 'Voir moins' : 'Voir plus';
-})()`}
-              >
-                Voir plus
-              </button>
-
-              <!-- Bouton toujours visible -->
-              <button 
-                type="button" 
-                class="apply-button"
-                onclick={`(() => {
-  const email = 'secretariat@asso-air.org';
-  navigator.clipboard.writeText(email).then(() => {
-    // Créer une notification moderne
-    const notification = document.createElement('div');
-    notification.style.cssText = \`
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #4CAF50;
-      color: white;
-      padding: 16px 24px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      z-index: 10000;
-      transform: translateX(100%);
-      transition: transform 0.3s ease;
-      max-width: 300px;
-    \`;
-    notification.textContent = 'Adresse email copiée !';
-    document.body.appendChild(notification);
-    
-    // Animation d'entrée
-    setTimeout(() => {
-      notification.style.transform = 'translateX(0)';
-    }, 10);
-    
-    // Animation de sortie après 3 secondes
-    setTimeout(() => {
-      notification.style.transform = 'translateX(100%)';
-      setTimeout(() => {
-        document.body.removeChild(notification);
-      }, 300);
-    }, 3000);
-  }).catch(err => {
-    console.error('Erreur lors de la copie:', err);
-    // Fallback pour les navigateurs qui ne supportent pas clipboard API
-    const textArea = document.createElement('textarea');
-    textArea.value = email;
-    document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textArea);
-    
-    // Notification de fallback
-    const notification = document.createElement('div');
-    notification.style.cssText = \`
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #4CAF50;
-      color: white;
-      padding: 16px 24px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      z-index: 10000;
-      transform: translateX(100%);
-      transition: transform 0.3s ease;
-      max-width: 300px;
-    \`;
-    notification.textContent = 'Adresse email copiée !';
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-      notification.style.transform = 'translateX(0)';
-    }, 10);
-    
-    setTimeout(() => {
-      notification.style.transform = 'translateX(100%)';
-      setTimeout(() => {
-        document.body.removeChild(notification);
-      }, 300);
-    }, 3000);
-  });
-})()`}
-              >
-                Candidater
-              </button>
-            </div>
-          </div>
-        </div>
-      ))
-    ) : (
-      <div class="no-offers-message">
-        <p>Aucune offre d'emploi n'est actuellement disponible.</p>
-        <p>N'hésitez pas à nous contacter à <strong>secretariat@asso-air.org</strong> pour nous faire part de votre intérêt ou pour nous envoyer une candidature spontanée.</p>
-      </div>
-    )}
+  <div class="offers-list" id="offers-list">
+    <div class="offers-loading">Chargement des offres d'emploi...</div>
   </div>
 </section>
+
+<script define:vars={{ API_BASE_URL, ASSET_URL }}>
+  // Fonction pour copier l'email dans le presse-papier
+  function copyEmailToClipboard() {
+    const email = 'secretariat@asso-air.org';
+    
+    navigator.clipboard.writeText(email).then(() => {
+      showNotification('Adresse email copiée !');
+    }).catch(err => {
+      console.error('Erreur lors de la copie:', err);
+      // Fallback pour les navigateurs qui ne supportent pas clipboard API
+      const textArea = document.createElement('textarea');
+      textArea.value = email;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showNotification('Adresse email copiée !');
+    });
+  }
+
+  function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #4CAF50;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 10000;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      max-width: 300px;
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.style.transform = 'translateX(0)';
+    }, 10);
+    
+    setTimeout(() => {
+      notification.style.transform = 'translateX(100%)';
+      setTimeout(() => {
+        if (document.body.contains(notification)) {
+          document.body.removeChild(notification);
+        }
+      }, 300);
+    }, 3000);
+  }
+
+  // Charger les offres d'emploi et la présentation côté client
+  (async function() {
+    const offersList = document.getElementById('offers-list');
+    const presentationText = document.getElementById('offers-presentation-text');
+    
+    if (!offersList || !API_BASE_URL || !ASSET_URL) {
+      if (offersList) {
+        offersList.innerHTML = '<div class="offers-error">Configuration API manquante</div>';
+      }
+      return;
+    }
+
+    try {
+      // Charger la présentation
+      try {
+        const presRes = await fetch(`${API_BASE_URL}/presentations/3`);
+        if (presRes.ok) {
+          const pres = await presRes.json();
+          if (presentationText) {
+            presentationText.textContent = pres.presentation_text || '';
+          }
+        } else {
+          if (presentationText) presentationText.textContent = '';
+        }
+      } catch (err) {
+        console.error('Erreur lors du fetch de la présentation :', err);
+        if (presentationText) presentationText.textContent = '';
+      }
+
+      // Charger les offres d'emploi
+      const res = await fetch(`${API_BASE_URL}/jobOffers/all`);
+      const data = await res.json();
+      const jobOffers = Array.isArray(data) ? data : [];
+      
+      if (jobOffers.length === 0) {
+        offersList.innerHTML = `
+          <div class="no-offers-message">
+            <p>Aucune offre d'emploi n'est actuellement disponible.</p>
+            <p>N'hésitez pas à nous contacter à <strong>secretariat@asso-air.org</strong> pour nous faire part de votre intérêt ou pour nous envoyer une candidature spontanée.</p>
+          </div>
+        `;
+        return;
+      }
+
+      offersList.innerHTML = jobOffers.map((offer, index) => {
+        const imageUrl = offer.file_id ? `${ASSET_URL}/files/${offer.file_id}/download` : '';
+        return `
+          <div class="offer-card" data-offer-id="${offer.job_offer_id}">
+            ${imageUrl ? `<img src="${imageUrl}" alt="${offer.name || ''}" />` : ''}
+            <div class="offer-content">
+              <h3 class="offer-name">${offer.name || ''}</h3>
+              <p class="offer-type">${offer.job_type || ''}${offer.city ? ` - ${offer.city}` : ''}</p>
+              <div class="description-wrapper" id="desc-${index}">
+                <p class="offer-description">${offer.description || ''}</p>
+              </div>
+              <div class="buttons">
+                <button type="button" class="toggle-button" data-index="${index}">
+                  Voir plus
+                </button>
+                <button type="button" class="apply-button">
+                  Candidater
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Ajouter les event listeners pour les boutons
+      offersList.querySelectorAll('.toggle-button').forEach(button => {
+        button.addEventListener('click', function() {
+          const index = this.getAttribute('data-index');
+          const wrapper = document.getElementById(`desc-${index}`);
+          if (wrapper) {
+            const isOpen = wrapper.classList.toggle('show');
+            this.textContent = isOpen ? 'Voir moins' : 'Voir plus';
+          }
+        });
+      });
+
+      offersList.querySelectorAll('.apply-button').forEach(button => {
+        button.addEventListener('click', copyEmailToClipboard);
+      });
+
+    } catch (err) {
+      console.error('Erreur lors du fetch API :', err);
+      offersList.innerHTML = '<div class="offers-error">Erreur lors du chargement des offres d\'emploi</div>';
+    }
+  })();
+</script>
+
+<style>
+  .offers-loading,
+  .offers-error {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+  }
+
+  .offers-error {
+    color: #dc3545;
+  }
+</style>

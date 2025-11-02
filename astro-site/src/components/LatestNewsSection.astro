@@ -1,37 +1,59 @@
 ---
-let latestNews = null;
-
-try {
-  const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/news/latest`);
-  const data = await res.json();
-  latestNews = data;
-} catch (err) {
-  console.error("Erreur lors du fetch de la dernière actualité :", err);
-}
+const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
+const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
 ---
+
 <h2>Notre dernière actualité</h2>
-{latestNews && (
-  <section class="latest-news-section">
-    <div class="news-container">
-      <img
-        class="news-image"
-        src={`${import.meta.env.PUBLIC_ASSET_URL}/files/${latestNews.file?.file_id}/download`}
-        alt={latestNews.name}
-      />
-      <div class="news-content">
-        <h3 class="news-title">{latestNews.name}</h3>
-        <p class="news-description">{latestNews.description}</p>
-        {latestNews.link && (
-          <a
-            href={latestNews.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="news-link"
-          >
-            En savoir plus
-          </a>
-        )}
-      </div>
-    </div>
-  </section>
-)}
+<div id="latest-news-container">
+  <div class="news-loading">Chargement de la dernière actualité...</div>
+</div>
+
+<script define:vars={{ API_BASE_URL, ASSET_URL }}>
+  // Charger la dernière actualité côté client
+  (async function() {
+    const container = document.getElementById('latest-news-container');
+    if (!container || !API_BASE_URL || !ASSET_URL) {
+      if (container) {
+        container.innerHTML = '<p>Configuration API manquante</p>';
+      }
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/news/latest`);
+      const data = await res.json();
+      const latestNews = data;
+      
+      if (!latestNews) {
+        container.innerHTML = '<p>Aucune actualité disponible</p>';
+        return;
+      }
+
+      const imageUrl = latestNews.file?.file_id ? `${ASSET_URL}/files/${latestNews.file.file_id}/download` : '';
+      
+      container.innerHTML = `
+        <section class="latest-news-section">
+          <div class="news-container">
+            ${imageUrl ? `<img class="news-image" src="${imageUrl}" alt="${latestNews.name || ''}" />` : ''}
+            <div class="news-content">
+              <h3 class="news-title">${latestNews.name || ''}</h3>
+              <p class="news-description">${latestNews.description || ''}</p>
+              ${latestNews.link ? `<a href="${latestNews.link}" target="_blank" rel="noopener noreferrer" class="news-link">En savoir plus</a>` : ''}
+            </div>
+          </div>
+        </section>
+      `;
+    } catch (err) {
+      console.error('Erreur lors du fetch de la dernière actualité :', err);
+      container.innerHTML = '<p>Erreur lors du chargement de l\'actualité</p>';
+    }
+  })();
+</script>
+
+<style>
+  .news-loading {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+  }
+</style>

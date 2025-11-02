@@ -34,12 +34,17 @@ const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
         return;
       }
 
-      valuesList.innerHTML = values.map((value) => `
-        <div class="value-item">
-          <img src="${ASSET_URL}/files/${value.file_id}/download" alt="${value.name || ''}" />
-          <p>${value.name || ''}</p>
-        </div>
-      `).join('');
+      valuesList.innerHTML = values.map((value) => {
+        // Gérer les deux cas : file_id direct ou file_id via l'objet file
+        const fileId = value.file_id || value.file?.file_id;
+        const imageUrl = fileId ? `${ASSET_URL}/files/${fileId}/download` : '';
+        return `
+          <div class="value-item">
+            ${imageUrl ? `<img src="${imageUrl}" alt="${value.name || ''}" />` : '<div class="value-placeholder">Pas d\'image</div>'}
+            <p>${value.name || ''}</p>
+          </div>
+        `;
+      }).join('');
     } catch (err) {
       console.error('Erreur lors du fetch API :', err);
       valuesList.innerHTML = '<div class="values-error">Erreur lors du chargement des valeurs</div>';
