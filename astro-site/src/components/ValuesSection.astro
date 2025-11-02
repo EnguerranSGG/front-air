@@ -10,13 +10,18 @@ const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
   </div>
 </section>
 
-<script>
+<script define:vars={{ API_BASE_URL, ASSET_URL }}>
   // Charger les valeurs côté client
   (async function() {
     const valuesList = document.getElementById('values-list');
-    if (!valuesList) return;
+    if (!valuesList || !API_BASE_URL || !ASSET_URL) {
+      if (valuesList) {
+        valuesList.innerHTML = '<div class="values-error">Configuration API manquante</div>';
+      }
+      return;
+    }
 
-    const apiUrl = `${import.meta.env.PUBLIC_API_URL}/values/all`;
+    const apiUrl = `${API_BASE_URL}/values/all`;
     
     try {
       const res = await fetch(apiUrl);
@@ -31,8 +36,8 @@ const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
 
       valuesList.innerHTML = values.map((value) => `
         <div class="value-item">
-          <img src="${import.meta.env.PUBLIC_ASSET_URL}/files/${value.file_id}/download" alt="${value.name}" />
-          <p>${value.name}</p>
+          <img src="${ASSET_URL}/files/${value.file_id}/download" alt="${value.name || ''}" />
+          <p>${value.name || ''}</p>
         </div>
       `).join('');
     } catch (err) {
