@@ -4,61 +4,78 @@ interface Props {
 }
 
 const { id } = Astro.props;
-
-const API_BASE_URL = import.meta.env.PUBLIC_API_URL;
-let presentation: any = null;
-let error: string | null = null;
-
-// Vérifier que l'URL de l'API est définie
-if (!API_BASE_URL) {
-  error = 'Configuration API manquante';
-} else {
-  const API_ENDPOINT = `${API_BASE_URL}/presentations/${id}`;
-  
-  try {
-    const response = await fetch(API_ENDPOINT);
-    
-    if (response.ok) {
-      presentation = await response.json();
-    } else {
-      error = `Erreur ${response.status}: ${response.statusText}`;
-    }
-  } catch (err) {
-    error = `Erreur de connexion: ${err instanceof Error ? err.message : 'Erreur inconnue'}`;
-  }
-}
+const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
 ---
 
 <div class="presentation-card" data-animate="true">
-  {error ? (
-    <div class="presentation-error">
-      <svg class="icon error-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-        <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
-        <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
-      </svg>
-      <p>Impossible de charger la présentation: {error}</p>
-    </div>
-  ) : presentation ? (
-    <div class="presentation-content">
-      <div class="presentation-text" set:html={presentation.presentation_text ? 
-        presentation.presentation_text.split('\n').map((paragraph: string, index: number) => 
-          paragraph.trim() ? `<p>${paragraph.trim()}</p>` : ''
-        ).join('')
-      : 'Aucun contenu disponible'}></div>
-    </div>
-  ) : (
-    <div class="presentation-loading">
-      <svg class="icon loading-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="31.416" stroke-dashoffset="31.416">
-          <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416" repeatCount="indefinite"/>
-          <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416" repeatCount="indefinite"/>
-        </circle>
-      </svg>
-      <p>Chargement de la présentation...</p>
-    </div>
-  )}
+  <div class="presentation-loading" id={`presentation-${id}`}>
+    <svg class="icon loading-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="31.416" stroke-dashoffset="31.416">
+        <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416" repeatCount="indefinite"/>
+        <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+    <p>Chargement de la présentation...</p>
+  </div>
 </div>
+
+<script define:vars={{ id, API_BASE_URL }}>
+  // Charger la présentation côté client
+  (async function() {
+    const container = document.getElementById(`presentation-${id}`);
+    if (!container || !API_BASE_URL) {
+      if (container) {
+        container.innerHTML = '<div class="presentation-error"><p>Configuration API manquante</p></div>';
+      }
+      return;
+    }
+
+    const API_ENDPOINT = `${API_BASE_URL}/presentations/${id}`;
+    
+    try {
+      const response = await fetch(API_ENDPOINT);
+      
+      if (response.ok) {
+        const presentation = await response.json();
+        const text = presentation.presentation_text ? 
+          presentation.presentation_text.split('\n')
+            .map((paragraph: string) => paragraph.trim())
+            .filter((paragraph: string) => paragraph)
+            .map((paragraph: string) => `<p>${paragraph}</p>`)
+            .join('')
+          : '<p>Aucun contenu disponible</p>';
+        
+        container.innerHTML = `
+          <div class="presentation-content">
+            <div class="presentation-text">${text}</div>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="presentation-error">
+            <svg class="icon error-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
+              <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <p>Erreur ${response.status}: ${response.statusText}</p>
+          </div>
+        `;
+      }
+    } catch (err) {
+      container.innerHTML = `
+        <div class="presentation-error">
+          <svg class="icon error-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
+            <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <p>Erreur de connexion: ${err instanceof Error ? err.message : 'Erreur inconnue'}</p>
+        </div>
+      `;
+    }
+  })();
+</script>
 
 <style>
   .presentation-card {

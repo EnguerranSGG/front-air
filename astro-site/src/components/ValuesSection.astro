@@ -1,25 +1,54 @@
 ---
-let values = [];
-
-try {
-  const res = await fetch(import.meta.env.PUBLIC_API_URL + '/values/all');
-  const data = await res.json();
-  console.log('Données récupérées côté API :', data);
-  values = Array.isArray(data) ? data : [];
-} catch (err) {
-  console.error('Erreur lors du fetch API :', err);
-}
+const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
+const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
 ---
 
 <section class="values">
   <h2>Nos valeurs</h2>
-  <div class="values-list">
-    {values.map((value) => (
-      <div class="value-item" key={value.value_id}>
-        <img src={`${import.meta.env.PUBLIC_ASSET_URL}/files/${value.file_id}/download`} alt={value.name} />
-        <p>{value.name}</p>
-      </div>
-    ))}
+  <div class="values-list" id="values-list">
+    <div class="values-loading">Chargement des valeurs...</div>
   </div>
 </section>
+
+<script>
+  // Charger les valeurs côté client
+  (async function() {
+    const valuesList = document.getElementById('values-list');
+    if (!valuesList) return;
+
+    const apiUrl = `${import.meta.env.PUBLIC_API_URL}/values/all`;
+    
+    try {
+      const res = await fetch(apiUrl);
+      const data = await res.json();
+      console.log('Données récupérées côté API :', data);
+      const values = Array.isArray(data) ? data : [];
+      
+      if (values.length === 0) {
+        valuesList.innerHTML = '<div class="values-empty">Aucune valeur disponible</div>';
+        return;
+      }
+
+      valuesList.innerHTML = values.map((value) => `
+        <div class="value-item">
+          <img src="${import.meta.env.PUBLIC_ASSET_URL}/files/${value.file_id}/download" alt="${value.name}" />
+          <p>${value.name}</p>
+        </div>
+      `).join('');
+    } catch (err) {
+      console.error('Erreur lors du fetch API :', err);
+      valuesList.innerHTML = '<div class="values-error">Erreur lors du chargement des valeurs</div>';
+    }
+  })();
+</script>
+
+<style>
+  .values-loading,
+  .values-empty,
+  .values-error {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+  }
+</style>
 
