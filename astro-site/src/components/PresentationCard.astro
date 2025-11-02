@@ -39,9 +39,9 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
         const presentation = await response.json();
         const text = presentation.presentation_text ? 
           presentation.presentation_text.split('\n')
-            .map((paragraph: string) => paragraph.trim())
-            .filter((paragraph: string) => paragraph)
-            .map((paragraph: string) => `<p>${paragraph}</p>`)
+            .map((paragraph) => paragraph.trim())
+            .filter((paragraph) => paragraph)
+            .map((paragraph) => `<p>${paragraph}</p>`)
             .join('')
           : '<p>Aucun contenu disponible</p>';
         
