@@ -70,8 +70,10 @@ const buildDate = new Date().toLocaleDateString('fr-FR');
     console.log('Date de build (fallback):', '{buildDate}');
 
     try {
-      // Utiliser localhost pour les requêtes côté client (navigateur)
-      const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : import.meta.env.PUBLIC_API_URL;
+      // Construire l'URL de l'API en utilisant l'origine actuelle
+      const baseUrl = window.location.hostname === 'localhost' 
+        ? 'http://localhost:3000/api' 
+        : window.location.origin + '/api';
       const apiUrl = baseUrl + '/last-update';
       console.log('Appel API:', apiUrl);
       console.log('Base URL utilisée:', baseUrl);
