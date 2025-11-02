@@ -18,6 +18,7 @@ const structureTypes = [
 </section>
 
 <script define:vars={{ API_BASE_URL, structureTypes: JSON.stringify(structureTypes) }}>
+  // API_BASE_URL est disponible dans le script
   // Charger les structures côté client
   (async function() {
     const container = document.getElementById('structures-container');
@@ -76,8 +77,8 @@ const structureTypes = [
       container.querySelectorAll('.structure-card').forEach(card => {
         const structureData = JSON.parse(card.getAttribute('data-structure').replace(/&quot;/g, '"'));
         // Pour l'instant, afficher les données directement car StructureCard nécessite une refactorisation
-        card.innerHTML = `
-          <img src="${structureData.file_id ? `${window.location.origin}/files/${structureData.file_id}/download` : ''}" alt="${structureData.name || ''}" />
+              card.innerHTML = `
+          <img src="${structureData.file_id ? `${API_BASE_URL}/files/${structureData.file_id}/download` : ''}" alt="${structureData.name || ''}" />
           <div class="structure-info">
             <h3>${structureData.name || ''}</h3>
             <p>${structureData.description || ''}</p>

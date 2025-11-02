@@ -1,7 +1,7 @@
 ---
 const { structure } = Astro.props;
 const hasImage = structure?.file_id;
-const baseUrl = import.meta.env.PUBLIC_ASSET_URL;
+const baseUrl = import.meta.env.PUBLIC_API_URL || '';
 ---
 
 <div class="structure-card" data-animate="true">
