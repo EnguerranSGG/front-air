@@ -1,38 +1,96 @@
 ---
-import PresentationCard from './PresentationCard.astro';
-
-let counselors = [];
-
-try {
-  const res = await fetch(import.meta.env.PUBLIC_API_URL + '/counselors/all');
-  const data = await res.json();
-  counselors = Array.isArray(data) ? data : [];
-} catch (err) {
-  console.error('Erreur lors du fetch API :', err);
-}
+const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
 ---
 
 <section class="counselors-section animate-fade-in">
   <h2>Notre conseil d'administration</h2>
   
-  <div class="counselors-grid">
-    {counselors.map((counselor, index) => (
-      <div class="counselor-card animate-slide-up" key={counselor.counselor_id} style={`animation-delay: ${0.3 + index * 0.2}s`}>
-        <div class="counselor-avatar">
-          <div class="avatar-placeholder">
-            <span>{counselor.counselor_firstname.charAt(0)}{counselor.counselor_lastname.charAt(0)}</span>
-          </div>
-        </div>
-        <div class="counselor-info">
-          <h3 class="counselor-name">{counselor.counselor_firstname} {counselor.counselor_lastname}</h3>
-          <p class="counselor-function">{counselor.counselor_function}</p>
-        </div>
-      </div>
-    ))}
+  <div class="counselors-grid" id="counselors-grid">
+    <div class="counselors-loading">Chargement des conseillers...</div>
   </div>
 </section>
 
+<script define:vars={{ API_BASE_URL }}>
+  // Charger les conseillers côté client
+  (async function() {
+    const counselorsGrid = document.getElementById('counselors-grid');
+    if (!counselorsGrid || !API_BASE_URL) {
+      if (counselorsGrid) {
+        counselorsGrid.innerHTML = '<div class="counselors-error">Configuration API manquante</div>';
+      }
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/counselors/all`);
+      const data = await res.json();
+      const counselors = Array.isArray(data) ? data : [];
+      
+      if (counselors.length === 0) {
+        counselorsGrid.innerHTML = '<p>Aucun conseiller disponible</p>';
+        return;
+      }
+
+      counselorsGrid.innerHTML = counselors.map((counselor, index) => `
+        <div class="counselor-card animate-slide-up" style="animation-delay: ${0.3 + index * 0.2}s">
+          <div class="counselor-avatar">
+            <div class="avatar-placeholder">
+              <span>${(counselor.counselor_firstname || '').charAt(0)}${(counselor.counselor_lastname || '').charAt(0)}</span>
+            </div>
+          </div>
+          <div class="counselor-info">
+            <h3 class="counselor-name">${counselor.counselor_firstname || ''} ${counselor.counselor_lastname || ''}</h3>
+            <p class="counselor-function">${counselor.counselor_function || ''}</p>
+          </div>
+        </div>
+      `).join('');
+
+      initCounselorAnimations();
+    } catch (err) {
+      console.error('Erreur lors du fetch API :', err);
+      counselorsGrid.innerHTML = '<div class="counselors-error">Erreur lors du chargement des conseillers</div>';
+    }
+  })();
+
+  function initCounselorAnimations() {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const cards = entry.target.querySelectorAll('.counselor-card');
+          cards.forEach((card, index) => {
+            setTimeout(() => {
+              card.classList.add('animate-slide-up');
+            }, index * 200);
+          });
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    const counselorsSection = document.querySelector('.counselors-section');
+    if (counselorsSection) {
+      observer.observe(counselorsSection);
+    }
+  }
+</script>
+
 <style>
+  .counselors-loading,
+  .counselors-error {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+  }
+
+  .counselors-error {
+    color: #dc3545;
+  }
+
   /* === STYLES MODERNES POUR LA SECTION CONSEILLERS === */
   
   .counselors-section {
@@ -143,14 +201,6 @@ try {
     transform: scale(1.05);
   }
 
-  .counselor-presentation {
-    color: #64748b;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    margin: 0;
-    font-weight: 500;
-  }
-
   /* === ANIMATIONS === */
   .animate-fade-in {
     opacity: 0;
@@ -201,91 +251,5 @@ try {
     .counselor-function {
       font-size: 0.9rem;
     }
-
-    .counselor-presentation {
-      font-size: 0.9rem;
-    }
-
-    /* Animations plus rapides sur mobile */
-    .animate-slide-up {
-      animation-duration: 0.4s;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .counselors-grid {
-      gap: 1rem;
-    }
-
-    .counselor-card {
-      padding: 1.2rem;
-    }
-
-    .avatar-placeholder {
-      width: 60px;
-      height: 60px;
-      font-size: 1.1rem;
-    }
-  }
-
-  /* === ACCESSIBILITÉ === */
-  @media (prefers-reduced-motion: reduce) {
-    .animate-fade-in,
-    .animate-slide-up {
-      animation: none;
-      opacity: 1;
-      transform: none;
-    }
-    
-    .counselor-card:hover {
-      transform: none;
-    }
-    
-    .counselor-card:hover .avatar-placeholder {
-      transform: none;
-    }
-    
-    .counselor-card:hover .counselor-function {
-      transform: none;
-    }
   }
 </style>
-
-<script>
-  // Animation au scroll avec Intersection Observer
-  function initCounselorAnimations() {
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const cards = entry.target.querySelectorAll('.counselor-card');
-          cards.forEach((card, index) => {
-            setTimeout(() => {
-              card.classList.add('animate-slide-up');
-            }, index * 200);
-          });
-          observer.unobserve(entry.target);
-        }
-      });
-    }, observerOptions);
-
-    const counselorsSection = document.querySelector('.counselors-section');
-    if (counselorsSection) {
-      observer.observe(counselorsSection);
-    }
-  }
-
-  // Initialiser les animations quand le DOM est chargé
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCounselorAnimations);
-  } else {
-    initCounselorAnimations();
-  }
-
-  // Réinitialiser les animations si nécessaire
-  document.addEventListener('astro:page-load', initCounselorAnimations);
-</script>

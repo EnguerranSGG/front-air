@@ -1,85 +1,125 @@
 ---
 import StructureCard from '../components/StructureCard.astro';
 
-// Types de structures à récupérer
+const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
 const structureTypes = [
   'Boutique solidaire',
   'Pôle formation', 
   'Pôle asile',
   'Pôle intégration'
 ];
-
-// Interface pour typer les données
-interface Structure {
-  structure_id: number;
-  name: string;
-  description: string;
-  link?: string;
-  phone_number?: string;
-  address?: string;
-  file_id?: number;
-  missions?: Array<{ content: string }>;
-}
-
-interface StructuresByType {
-  [typeName: string]: Structure[];
-}
-
-let structuresByType: StructuresByType = {};
-
-try {
-  // Récupérer les structures pour chaque type
-  const promises = structureTypes.map(async (typeName) => {
-    try {
-      const res = await fetch(import.meta.env.PUBLIC_API_URL + `/structures/by-type-name/${encodeURIComponent(typeName)}`);
-      if (res.ok) {
-        const data = await res.json();
-        return { typeName, structures: Array.isArray(data) ? data : [] };
-      } else {
-        console.warn(`Aucune structure trouvée pour le type: ${typeName}`);
-        return { typeName, structures: [] };
-      }
-    } catch (err) {
-      console.error(`Erreur lors du fetch des structures pour ${typeName}:`, err);
-      return { typeName, structures: [] };
-    }
-  });
-
-  const results = await Promise.all(promises);
-  
-  // Organiser les structures par type
-  results.forEach(({ typeName, structures }) => {
-    if (structures.length > 0) {
-      // Trier les structures par structure_id croissant
-      structures.sort((a, b) => a.structure_id - b.structure_id);
-      // Filtrer pour exclure le siège social (structure_id 1)
-      structures = structures.filter(structure => structure.structure_id !== 1);
-      structuresByType[typeName] = structures;
-    }
-  });
-
-  console.log('Structures organisées par type :', structuresByType);
-} catch (err) {
-  console.error('Erreur lors du fetch des structures :', err);
-}
 ---
 
 <section class="structures-section">
   <h2>Nos différentes structures</h2>
-
-  {Object.keys(structuresByType).length > 0 ? (
-    Object.entries(structuresByType).map(([typeName, structures]) => (
-      <div class="structure-type-group">
-        <h3 class="structure-type-title">{typeName}</h3>
-        <div class="structures-grid">
-          {structures.map((structure) => structure && <StructureCard structure={structure} />)}
-        </div>
-      </div>
-    ))
-  ) : (
-    <p>Aucune structure disponible pour le moment.</p>
-  )}
+  <div id="structures-container">
+    <div class="structures-loading">Chargement des structures...</div>
+  </div>
 </section>
+
+<script define:vars={{ API_BASE_URL, structureTypes: JSON.stringify(structureTypes) }}>
+  // Charger les structures côté client
+  (async function() {
+    const container = document.getElementById('structures-container');
+    if (!container || !API_BASE_URL) {
+      if (container) {
+        container.innerHTML = '<p>Configuration API manquante</p>';
+      }
+      return;
+    }
+
+    try {
+      const types = JSON.parse(structureTypes);
+      const promises = types.map(async (typeName) => {
+        try {
+          const res = await fetch(`${API_BASE_URL}/structures/by-type-name/${encodeURIComponent(typeName)}`);
+          if (res.ok) {
+            const data = await res.json();
+            return { typeName, structures: Array.isArray(data) ? data : [] };
+          }
+          return { typeName, structures: [] };
+        } catch (err) {
+          console.error(`Erreur lors du fetch des structures pour ${typeName}:`, err);
+          return { typeName, structures: [] };
+        }
+      });
+
+      const results = await Promise.all(promises);
+      const structuresByType = {};
+      
+      results.forEach(({ typeName, structures }) => {
+        if (structures.length > 0) {
+          structures.sort((a, b) => a.structure_id - b.structure_id);
+          structures = structures.filter(s => s.structure_id !== 1);
+          structuresByType[typeName] = structures;
+        }
+      });
+
+      if (Object.keys(structuresByType).length === 0) {
+        container.innerHTML = '<p>Aucune structure disponible pour le moment.</p>';
+        return;
+      }
+
+      container.innerHTML = Object.entries(structuresByType).map(([typeName, structures]) => `
+        <div class="structure-type-group">
+          <h3 class="structure-type-title">${typeName}</h3>
+          <div class="structures-grid">
+            ${structures.map(s => {
+              const structureData = JSON.stringify(s).replace(/"/g, '&quot;');
+              return `<div class="structure-card" data-structure='${structureData}' data-animate="true"></div>`;
+            }).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      // Charger dynamiquement les StructureCard pour chaque structure
+      container.querySelectorAll('.structure-card').forEach(card => {
+        const structureData = JSON.parse(card.getAttribute('data-structure').replace(/&quot;/g, '"'));
+        // Pour l'instant, afficher les données directement car StructureCard nécessite une refactorisation
+        card.innerHTML = `
+          <img src="${structureData.file_id ? `${window.location.origin}/files/${structureData.file_id}/download` : ''}" alt="${structureData.name || ''}" />
+          <div class="structure-info">
+            <h3>${structureData.name || ''}</h3>
+            <p>${structureData.description || ''}</p>
+            ${structureData.address ? `<p><strong>Adresse:</strong> ${structureData.address}</p>` : ''}
+            ${structureData.phone_number ? `<p><strong>Téléphone:</strong> ${structureData.phone_number}</p>` : ''}
+            ${structureData.link ? `<a href="${structureData.link}" target="_blank">En savoir plus</a>` : ''}
+          </div>
+        `;
+      });
+
+      // Initialiser les animations
+      initScrollAnimations();
+    } catch (err) {
+      console.error('Erreur lors du fetch des structures :', err);
+      container.innerHTML = '<p>Erreur lors du chargement des structures</p>';
+    }
+  })();
+
+  function initScrollAnimations() {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const delay = Array.from(entry.target.parentElement?.children || []).indexOf(entry.target) * 150;
+          setTimeout(() => {
+            entry.target.classList.add('animate-in');
+          }, delay);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    const structureCards = document.querySelectorAll('.structure-card[data-animate="true"]');
+    structureCards.forEach((card) => {
+      observer.observe(card);
+    });
+  }
+</script>
 
 <style>
   .structures-section {
@@ -92,6 +132,12 @@ try {
     margin-bottom: 3rem;
     font-size: 2.5rem;
     color: #4b2aa5;
+  }
+
+  .structures-loading {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
   }
 
   .structure-type-group {
@@ -132,7 +178,21 @@ try {
     margin: 0 auto;
   }
 
-  /* Version mobile */
+  .structure-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+  }
+
+  .structure-card.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
   @media (max-width: 768px) {
     .structures-section {
       padding: 2rem 1rem;
@@ -158,46 +218,3 @@ try {
     }
   }
 </style>
-
-<script>
-  // Animation au scroll avec Intersection Observer
-  function initScrollAnimations() {
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          // Ajouter un délai pour créer un effet de cascade
-          const delay = Array.from(entry.target.parentElement?.children || []).indexOf(entry.target) * 150;
-          
-          setTimeout(() => {
-            entry.target.classList.add('animate-in');
-          }, delay);
-          
-          // Arrêter d'observer cet élément une fois qu'il est animé
-          observer.unobserve(entry.target);
-        }
-      });
-    }, observerOptions);
-
-    // Observer toutes les cartes de structures
-    const structureCards = document.querySelectorAll('.structure-card[data-animate="true"]');
-    structureCards.forEach((card) => {
-      observer.observe(card);
-    });
-  }
-
-  // Initialiser les animations quand le DOM est chargé
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initScrollAnimations);
-  } else {
-    initScrollAnimations();
-  }
-
-  // Réinitialiser les animations si nécessaire (par exemple lors de navigation SPA)
-  document.addEventListener('astro:page-load', initScrollAnimations);
-</script>
-
