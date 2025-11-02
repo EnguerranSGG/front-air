@@ -1,6 +1,5 @@
 ---
 const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
-const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
 ---
 
 <section class="values">
@@ -10,11 +9,11 @@ const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
   </div>
 </section>
 
-<script define:vars={{ API_BASE_URL, ASSET_URL }}>
+<script define:vars={{ API_BASE_URL }}>
   // Charger les valeurs côté client
   (async function() {
     const valuesList = document.getElementById('values-list');
-    if (!valuesList || !API_BASE_URL || !ASSET_URL) {
+    if (!valuesList || !API_BASE_URL) {
       if (valuesList) {
         valuesList.innerHTML = '<div class="values-error">Configuration API manquante</div>';
       }
@@ -37,7 +36,7 @@ const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
       valuesList.innerHTML = values.map((value) => {
         // Gérer les deux cas : file_id direct ou file_id via l'objet file
         const fileId = value.file_id || value.file?.file_id;
-        const imageUrl = fileId ? `${ASSET_URL}/files/${fileId}/download` : '';
+        const imageUrl = fileId ? `${API_BASE_URL}/files/${fileId}/download` : '';
         return `
           <div class="value-item">
             ${imageUrl ? `<img src="${imageUrl}" alt="${value.name || ''}" />` : '<div class="value-placeholder">Pas d\'image</div>'}

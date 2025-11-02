@@ -1,6 +1,5 @@
 ---
 const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
-const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
 ---
 
 <h2>Notre dernière actualité</h2>
@@ -8,11 +7,11 @@ const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
   <div class="news-loading">Chargement de la dernière actualité...</div>
 </div>
 
-<script define:vars={{ API_BASE_URL, ASSET_URL }}>
+<script define:vars={{ API_BASE_URL }}>
   // Charger la dernière actualité côté client
   (async function() {
     const container = document.getElementById('latest-news-container');
-    if (!container || !API_BASE_URL || !ASSET_URL) {
+    if (!container || !API_BASE_URL) {
       if (container) {
         container.innerHTML = '<p>Configuration API manquante</p>';
       }
@@ -29,7 +28,7 @@ const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
         return;
       }
 
-      const imageUrl = latestNews.file?.file_id ? `${ASSET_URL}/files/${latestNews.file.file_id}/download` : '';
+      const imageUrl = latestNews.file?.file_id ? `${API_BASE_URL}/files/${latestNews.file.file_id}/download` : '';
       
       container.innerHTML = `
         <section class="latest-news-section">

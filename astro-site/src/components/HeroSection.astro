@@ -1,13 +1,12 @@
 ---
 // Les données seront chargées côté client
 const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
-const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
 // Note: Les variables doivent être passées via define:vars dans les scripts
 ---
 
 <section class="hero">
   <div class="hero-container">
-    <img src={`${ASSET_URL}/files/8/download`} alt="Illustration accueil insertion" class="hero-image animate-slide-up" />
+    <img src={`${API_BASE_URL}/files/8/download`} alt="Illustration accueil insertion" class="hero-image animate-slide-up" />
 
     <div class="hero-overlay animate-slide-right">
       <h4 class="animate-fade-in-delayed hero-title" id="hero-title">Chargement...</h4>

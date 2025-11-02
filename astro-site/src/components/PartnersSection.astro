@@ -1,6 +1,5 @@
 ---
 const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
-const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
 ---
 
 <section class="partners-carousel">
@@ -10,11 +9,11 @@ const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
   </div>
 </section>
 
-<script define:vars={{ API_BASE_URL, ASSET_URL }}>
+<script define:vars={{ API_BASE_URL }}>
   // Charger les partenaires côté client
   (async function() {
     const carousel = document.getElementById('partners-carousel');
-    if (!carousel || !API_BASE_URL || !ASSET_URL) {
+    if (!carousel || !API_BASE_URL) {
       if (carousel) {
         carousel.innerHTML = '<div class="partners-error">Configuration API manquante</div>';
       }
@@ -35,7 +34,7 @@ const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
       const partnersX3 = [...partners, ...partners, ...partners];
       
       carousel.innerHTML = partnersX3.map((partner, index) => {
-        const imageUrl = partner.file_id ? `${ASSET_URL}/files/${partner.file_id}/download` : '';
+        const imageUrl = partner.file_id ? `${API_BASE_URL}/files/${partner.file_id}/download` : '';
         return `
           <div class="carousel-item">
             ${imageUrl ? `<img src="${imageUrl}" alt="${partner.name || ''}" loading="lazy" />` : '<div class="partner-placeholder">Pas d\'image</div>'}

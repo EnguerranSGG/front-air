@@ -1,6 +1,5 @@
 ---
 const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
-const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
 ---
 
 <section class="offers-section">
@@ -12,7 +11,7 @@ const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
   </div>
 </section>
 
-<script define:vars={{ API_BASE_URL, ASSET_URL }}>
+<script define:vars={{ API_BASE_URL }}>
   // Fonction pour copier l'email dans le presse-papier
   function copyEmailToClipboard() {
     const email = 'secretariat@asso-air.org';
@@ -73,7 +72,7 @@ const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
     const offersList = document.getElementById('offers-list');
     const presentationText = document.getElementById('offers-presentation-text');
     
-    if (!offersList || !API_BASE_URL || !ASSET_URL) {
+    if (!offersList || !API_BASE_URL) {
       if (offersList) {
         offersList.innerHTML = '<div class="offers-error">Configuration API manquante</div>';
       }
@@ -113,7 +112,7 @@ const ASSET_URL = import.meta.env.PUBLIC_ASSET_URL || '';
       }
 
       offersList.innerHTML = jobOffers.map((offer, index) => {
-        const imageUrl = offer.file_id ? `${ASSET_URL}/files/${offer.file_id}/download` : '';
+        const imageUrl = offer.file_id ? `${API_BASE_URL}/files/${offer.file_id}/download` : '';
         return `
           <div class="offer-card" data-offer-id="${offer.job_offer_id}">
             ${imageUrl ? `<img src="${imageUrl}" alt="${offer.name || ''}" />` : ''}
