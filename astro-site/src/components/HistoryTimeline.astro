@@ -25,28 +25,35 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
       return;
     }
 
-    try {
-      const res = await fetch(`${API_BASE_URL}/times/all`);
-      const data = await res.json();
-      const events = Array.isArray(data) ? data.sort((a, b) => b.year - a.year) : [];
-      
-      if (events.length === 0) {
-        timeline.innerHTML = '<p>Aucun événement historique disponible</p>';
-        return;
+    const loadPromise = (async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/times/all`);
+        const data = await res.json();
+        const events = Array.isArray(data) ? data.sort((a, b) => b.year - a.year) : [];
+        
+        if (events.length === 0) {
+          timeline.innerHTML = '<p>Aucun événement historique disponible</p>';
+          return;
+        }
+
+        timeline.innerHTML = events.map((event, index) => `
+          <div class="timeline-item ${index % 2 === 0 ? 'left' : 'right'}" key="${index}">
+            <div class="content">${event.event_description || ''}</div>
+            <div class="year">${event.year || ''}</div>
+          </div>
+        `).join('');
+
+        // Initialiser les animations
+        initTimelineAnimations();
+      } catch (err) {
+        console.error('Erreur lors du fetch des événements temporels :', err);
+        timeline.innerHTML = '<p>Erreur lors du chargement de l\'historique</p>';
       }
-
-      timeline.innerHTML = events.map((event, index) => `
-        <div class="timeline-item ${index % 2 === 0 ? 'left' : 'right'}" key="${index}">
-          <div class="content">${event.event_description || ''}</div>
-          <div class="year">${event.year || ''}</div>
-        </div>
-      `).join('');
-
-      // Initialiser les animations
-      initTimelineAnimations();
-    } catch (err) {
-      console.error('Erreur lors du fetch des événements temporels :', err);
-      timeline.innerHTML = '<p>Erreur lors du chargement de l\'historique</p>';
+    })();
+    
+    // Enregistrer la promesse pour le système de chargement global
+    if (window.registerPageLoad) {
+      window.registerPageLoad(loadPromise);
     }
   })();
 

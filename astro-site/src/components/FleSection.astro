@@ -54,21 +54,27 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
 <script define:vars={{ API_BASE_URL }}>
   // Charger toutes les données FLE côté client
   (async function() {
+    const allPromises = [];
+    
     // Charger le titre principal
-    try {
-      const titleRes = await fetch(`${API_BASE_URL}/files/11/title`);
-      if (titleRes.ok) {
-        const title = await titleRes.text();
-        const titleEl = document.getElementById('fle-main-title');
-        if (titleEl) titleEl.textContent = title;
+    const titlePromise = (async () => {
+      try {
+        const titleRes = await fetch(`${API_BASE_URL}/files/11/title`);
+        if (titleRes.ok) {
+          const title = await titleRes.text();
+          const titleEl = document.getElementById('fle-main-title');
+          if (titleEl) titleEl.textContent = title;
+        }
+      } catch (err) {
+        console.error('Erreur fetch titre principal :', err);
       }
-    } catch (err) {
-      console.error('Erreur fetch titre principal :', err);
-    }
+    })();
+    allPromises.push(titlePromise);
 
     // Charger les statistiques FLE
     const statsContainer = document.getElementById('fle-stats');
-    try {
+    const statsPromise = (async () => {
+      try {
       const statsRes = await fetch(`${API_BASE_URL}/statistics/by-type-name/FLE`);
       const statsData = await statsRes.json();
       const stats = Array.isArray(statsData) ? statsData : [];
@@ -82,18 +88,21 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
         `).join('');
         
         initFleStatsAnimations();
-      } else if (statsContainer) {
-        statsContainer.innerHTML = '<p>Aucune statistique disponible</p>';
+        } else if (statsContainer) {
+          statsContainer.innerHTML = '<p>Aucune statistique disponible</p>';
+        }
+      } catch (err) {
+        console.error('Erreur fetch statistiques FLE :', err);
+        if (statsContainer) statsContainer.innerHTML = '<p>Erreur lors du chargement des statistiques</p>';
       }
-    } catch (err) {
-      console.error('Erreur fetch statistiques FLE :', err);
-      if (statsContainer) statsContainer.innerHTML = '<p>Erreur lors du chargement des statistiques</p>';
-    }
+    })();
+    allPromises.push(statsPromise);
 
     // Charger les sections satisfaction
     const satisfactionContainer = document.getElementById('satisfaction-container');
-    if (satisfactionContainer) {
-      try {
+    const satisfactionPromise = (async () => {
+      if (satisfactionContainer) {
+        try {
         const [satTitle, code1Title, code2Title, fle1Title, fle2Title] = await Promise.all([
           fetch(`${API_BASE_URL}/files/26/title`).then(r => r.ok ? r.text() : ''),
           fetch(`${API_BASE_URL}/files/27/title`).then(r => r.ok ? r.text() : ''),
@@ -138,8 +147,16 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
         `;
       } catch (err) {
         console.error('Erreur lors du chargement des sections satisfaction :', err);
-        satisfactionContainer.innerHTML = '<p>Erreur lors du chargement</p>';
+        if (satisfactionContainer) {
+          satisfactionContainer.innerHTML = '<p>Erreur lors du chargement</p>';
+        }
       }
+    })();
+    allPromises.push(satisfactionPromise);
+    
+    // Enregistrer toutes les promesses pour le système de chargement global
+    if (window.registerPageLoad) {
+      allPromises.forEach(promise => window.registerPageLoad(promise));
     }
   })();
 

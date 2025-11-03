@@ -29,9 +29,10 @@ const structureTypes = [
       return;
     }
 
-    try {
-      const types = JSON.parse(structureTypes);
-      const promises = types.map(async (typeName) => {
+    const loadPromise = (async () => {
+      try {
+        const types = JSON.parse(structureTypes);
+        const promises = types.map(async (typeName) => {
         try {
           const res = await fetch(`${API_BASE_URL}/structures/by-type-name/${encodeURIComponent(typeName)}`);
           if (res.ok) {
@@ -139,9 +140,15 @@ const structureTypes = [
 
       // Initialiser les animations
       initScrollAnimations();
-    } catch (err) {
-      console.error('Erreur lors du fetch des structures :', err);
-      container.innerHTML = '<p>Erreur lors du chargement des structures</p>';
+      } catch (err) {
+        console.error('Erreur lors du fetch des structures :', err);
+        container.innerHTML = '<p>Erreur lors du chargement des structures</p>';
+      }
+    })();
+    
+    // Enregistrer la promesse pour le système de chargement global
+    if (window.registerPageLoad) {
+      window.registerPageLoad(loadPromise);
     }
   })();
 
