@@ -61,13 +61,18 @@ const structureTypes = [
         return;
       }
 
+      // Stocker les données dans un objet JavaScript plutôt que dans des attributs HTML
+      const structuresDataMap = new Map();
+      let structureIndex = 0;
+
       container.innerHTML = Object.entries(structuresByType).map(([typeName, structures]) => `
         <div class="structure-type-group">
           <h3 class="structure-type-title">${typeName}</h3>
           <div class="structures-grid">
             ${structures.map(s => {
-              const structureData = JSON.stringify(s).replace(/"/g, '&quot;');
-              return `<div class="structure-card" data-structure='${structureData}' data-animate="true"></div>`;
+              const index = structureIndex++;
+              structuresDataMap.set(index, s);
+              return `<div class="structure-card" data-structure-index="${index}" data-animate="true"></div>`;
             }).join('')}
           </div>
         </div>
@@ -75,16 +80,28 @@ const structureTypes = [
 
       // Charger dynamiquement les StructureCard pour chaque structure
       container.querySelectorAll('.structure-card').forEach(card => {
-        const structureData = JSON.parse(card.getAttribute('data-structure').replace(/&quot;/g, '"'));
+        const index = parseInt(card.getAttribute('data-structure-index'));
+        const structureData = structuresDataMap.get(index);
+        
+        if (!structureData) return;
+
+        // Échapper les caractères spéciaux pour l'insertion HTML
+        const escapeHtml = (text) => {
+          if (!text) return '';
+          const div = document.createElement('div');
+          div.textContent = text;
+          return div.innerHTML;
+        };
+
         // Pour l'instant, afficher les données directement car StructureCard nécessite une refactorisation
-              card.innerHTML = `
-          <img src="${structureData.file_id ? `${API_BASE_URL}/files/${structureData.file_id}/download` : ''}" alt="${structureData.name || ''}" />
+        card.innerHTML = `
+          ${structureData.file_id ? `<img src="${API_BASE_URL}/files/${structureData.file_id}/download" alt="${escapeHtml(structureData.name || '')}" />` : ''}
           <div class="structure-info">
-            <h3>${structureData.name || ''}</h3>
-            <p>${structureData.description || ''}</p>
-            ${structureData.address ? `<p><strong>Adresse:</strong> ${structureData.address}</p>` : ''}
-            ${structureData.phone_number ? `<p><strong>Téléphone:</strong> ${structureData.phone_number}</p>` : ''}
-            ${structureData.link ? `<a href="${structureData.link}" target="_blank">En savoir plus</a>` : ''}
+            <h3>${escapeHtml(structureData.name || '')}</h3>
+            <p>${escapeHtml(structureData.description || '')}</p>
+            ${structureData.address ? `<p><strong>Adresse:</strong> ${escapeHtml(structureData.address)}</p>` : ''}
+            ${structureData.phone_number ? `<p><strong>Téléphone:</strong> ${escapeHtml(structureData.phone_number)}</p>` : ''}
+            ${structureData.link ? `<a href="${escapeHtml(structureData.link)}" target="_blank" rel="noopener noreferrer">En savoir plus</a>` : ''}
           </div>
         `;
       });
