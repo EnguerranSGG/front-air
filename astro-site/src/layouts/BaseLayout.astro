@@ -42,13 +42,71 @@ import '../styles/fle.css';
     <Footer />
 
     <script>
-      // Système de chargement global pour la page d'accueil uniquement
+      // Système de chargement global pour toutes les pages
       window.pageLoadPromises = window.pageLoadPromises || [];
+      window.pageLoadStartTime = Date.now();
       
       // Fonction pour enregistrer une promesse de chargement (accessible globalement)
       window.registerPageLoad = function(promise) {
         window.pageLoadPromises.push(promise);
       };
+      
+      // Réinitialiser les promesses à chaque navigation (pour les pages Astro)
+      window.addEventListener('beforeunload', function() {
+        window.pageLoadPromises = [];
+        window.pageLoadStartTime = Date.now();
+      });
+      
+      // Gérer la navigation Astro (SPA)
+      document.addEventListener('astro:page-load', function() {
+        window.pageLoadPromises = [];
+        window.pageLoadStartTime = Date.now();
+        
+        const loader = document.getElementById('page-loader');
+        const main = document.querySelector('main');
+        
+        if (loader && main) {
+          loader.style.display = 'flex';
+          loader.classList.remove('loader-hidden');
+          main.classList.add('page-loading');
+          main.style.opacity = '0';
+          main.style.transform = 'translateY(20px)';
+        }
+        
+        // Masquer les indicateurs de chargement individuels lors de la navigation
+        const individualLoaders = document.querySelectorAll('.values-loading, .stats-loading, .partners-loading, .news-loading, .presentation-loading, .hero-loading, .timeline-loading, .offers-loading, .structures-loading, .counselors-loading, .satisfaction-loading');
+        individualLoaders.forEach(el => {
+          if (el) el.style.display = 'none';
+        });
+        
+        // Attendre que toutes les sections enregistrent leurs promesses
+        setTimeout(async () => {
+          const checkAllLoaded = setInterval(async () => {
+            if (window.pageLoadPromises.length === 0) {
+              const timeSinceLoad = Date.now() - (window.pageLoadStartTime || Date.now());
+              if (timeSinceLoad > 2000) {
+                clearInterval(checkAllLoaded);
+                hidePageLoader();
+                return;
+              }
+            }
+            
+            if (window.pageLoadPromises.length > 0) {
+              const allSettled = await Promise.allSettled(window.pageLoadPromises);
+              const allResolved = allSettled.every(result => result.status === 'fulfilled' || result.status === 'rejected');
+              if (allResolved) {
+                clearInterval(checkAllLoaded);
+                hidePageLoader();
+              }
+            }
+          }, 200);
+          
+          setTimeout(() => {
+            clearInterval(checkAllLoaded);
+            hidePageLoader();
+          }, 10000);
+        }, 1000);
+      });
       
       // Fonction pour masquer le loader global une fois tout chargé
       async function hidePageLoader() {
@@ -86,44 +144,49 @@ import '../styles/fle.css';
         const loader = document.getElementById('page-loader');
         const main = document.querySelector('main');
         
-        // Sur la page d'accueil, attendre que toutes les sections soient chargées
-        if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
-          // Marquer le main comme étant en chargement
-          if (main) {
-            main.classList.add('home-page-loading');
-            main.style.opacity = '0';
-            main.style.transform = 'translateY(20px)';
-          }
-          
-          // Attendre que toutes les sections enregistrent leurs promesses
-          setTimeout(async () => {
-            // Vérifier périodiquement si toutes les promesses sont résolues
-            const checkAllLoaded = setInterval(async () => {
-              if (window.pageLoadPromises.length > 0) {
-                const allSettled = await Promise.allSettled(window.pageLoadPromises);
-                const allResolved = allSettled.every(result => result.status === 'fulfilled' || result.status === 'rejected');
-                if (allResolved) {
-                  clearInterval(checkAllLoaded);
-                  hidePageLoader();
-                }
-              }
-            }, 200);
-            
-            // Timeout de sécurité : masquer le loader après 10 secondes max
-            setTimeout(() => {
-              clearInterval(checkAllLoaded);
-              hidePageLoader();
-            }, 10000);
-          }, 1000); // Attendre 1 seconde pour que toutes les sections s'enregistrent
-        } else {
-          // Sur les autres pages, masquer le loader après un court délai
-          setTimeout(() => {
-            loader.classList.add('loader-hidden');
-            setTimeout(() => {
-              loader.style.display = 'none';
-            }, 500);
-          }, 800);
+        // Marquer le main comme étant en chargement pour toutes les pages
+        if (main) {
+          main.classList.add('page-loading');
+          main.style.opacity = '0';
+          main.style.transform = 'translateY(20px)';
         }
+        
+        // Masquer les indicateurs de chargement individuels
+        const individualLoaders = document.querySelectorAll('.values-loading, .stats-loading, .partners-loading, .news-loading, .presentation-loading, .hero-loading, .timeline-loading, .offers-loading, .structures-loading, .counselors-loading, .satisfaction-loading');
+        individualLoaders.forEach(el => {
+          if (el) el.style.display = 'none';
+        });
+        
+        // Attendre que toutes les sections enregistrent leurs promesses
+        setTimeout(async () => {
+          // Vérifier périodiquement si toutes les promesses sont résolues
+          const checkAllLoaded = setInterval(async () => {
+            // Si aucune promesse n'a été enregistrée après 2 secondes, masquer le loader
+            if (window.pageLoadPromises.length === 0) {
+              const timeSinceLoad = Date.now() - (window.pageLoadStartTime || Date.now());
+              if (timeSinceLoad > 2000) {
+                clearInterval(checkAllLoaded);
+                hidePageLoader();
+                return;
+              }
+            }
+            
+            if (window.pageLoadPromises.length > 0) {
+              const allSettled = await Promise.allSettled(window.pageLoadPromises);
+              const allResolved = allSettled.every(result => result.status === 'fulfilled' || result.status === 'rejected');
+              if (allResolved) {
+                clearInterval(checkAllLoaded);
+                hidePageLoader();
+              }
+            }
+          }, 200);
+          
+          // Timeout de sécurité : masquer le loader après 10 secondes max
+          setTimeout(() => {
+            clearInterval(checkAllLoaded);
+            hidePageLoader();
+          }, 10000);
+        }, 1000); // Attendre 1 seconde pour que toutes les sections s'enregistrent
       });
 
       // Animation lors de la navigation (pour les liens internes)
@@ -220,11 +283,10 @@ import '../styles/fle.css';
     }
   }
 
-  /* Animation d'entrée pour le contenu principal (sur les autres pages) */
-  main:not(.home-page-loading) {
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeInUp 0.8s ease-out 0.3s forwards;
+  /* Animation d'entrée pour le contenu principal (quand le loader est masqué) */
+  main:not(.page-loading) {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   @keyframes fadeInUp {

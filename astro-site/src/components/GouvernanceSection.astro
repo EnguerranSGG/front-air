@@ -1,23 +1,41 @@
 ---
-let title = '';
-const apiUrl = `${import.meta.env.PUBLIC_API_URL}/files/17/title`;
-
-try {
-  const response = await fetch(apiUrl);
-  
-  if (response.ok) {
-    title = await response.text();
-  } else {
-    console.error("Erreur HTTP:", response.status);
-  }
-} catch (err) {
-  console.error("Erreur fetch lors de la récupération du titre :", err);
-}
+const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
 ---
-<h2>{title}</h2>
+<h2 id="governance-title">Chargement...</h2>
 <div class="governance">
 <img class="organigrame"
-  src={`${import.meta.env.PUBLIC_API_URL}/files/17/download`}
+  src={`${API_BASE_URL}/files/17/download`}
   alt="organigrame de l'association"
 />
 </div>
+
+<script define:vars={{ API_BASE_URL }}>
+  // Charger le titre côté client
+  (async function() {
+    const titleElement = document.getElementById('governance-title');
+    if (!titleElement || !API_BASE_URL) {
+      if (titleElement) titleElement.textContent = 'Notre gouvernance';
+      return;
+    }
+
+    const loadPromise = (async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/files/17/title`);
+        if (response.ok) {
+          const title = await response.text();
+          titleElement.textContent = title;
+        } else {
+          titleElement.textContent = 'Notre gouvernance';
+        }
+      } catch (err) {
+        console.error("Erreur fetch lors de la récupération du titre :", err);
+        titleElement.textContent = 'Notre gouvernance';
+      }
+    })();
+    
+    // Enregistrer la promesse pour le système de chargement global
+    if (window.registerPageLoad) {
+      window.registerPageLoad(loadPromise);
+    }
+  })();
+</script>

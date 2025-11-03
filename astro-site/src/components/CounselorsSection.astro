@@ -21,37 +21,44 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
       return;
     }
 
-    try {
-      const res = await fetch(`${API_BASE_URL}/counselors/all`);
-      const data = await res.json();
-      const counselors = Array.isArray(data) ? data : [];
-      
-      if (counselors.length === 0) {
-        counselorsGrid.innerHTML = '<p>Aucun conseiller disponible</p>';
-        return;
-      }
+    const loadPromise = (async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/counselors/all`);
+        const data = await res.json();
+        const counselors = Array.isArray(data) ? data : [];
+        
+        if (counselors.length === 0) {
+          counselorsGrid.innerHTML = '<p>Aucun conseiller disponible</p>';
+          return;
+        }
 
-      counselorsGrid.innerHTML = counselors.map((counselor, index) => `
-        <div class="counselor-card animate-slide-up" style="animation-delay: ${0.3 + index * 0.2}s">
-          <div class="counselor-avatar">
-            <div class="avatar-placeholder">
-              <span>${(counselor.counselor_firstname || '').charAt(0)}${(counselor.counselor_lastname || '').charAt(0)}</span>
+        counselorsGrid.innerHTML = counselors.map((counselor, index) => `
+          <div class="counselor-card animate-slide-up" style="animation-delay: ${0.3 + index * 0.2}s">
+            <div class="counselor-avatar">
+              <div class="avatar-placeholder">
+                <span>${(counselor.counselor_firstname || '').charAt(0)}${(counselor.counselor_lastname || '').charAt(0)}</span>
+              </div>
+            </div>
+            <div class="counselor-info">
+              <h3 class="counselor-name">${counselor.counselor_firstname || ''} ${counselor.counselor_lastname || ''}</h3>
+              <p class="counselor-function">${counselor.counselor_function || ''}</p>
             </div>
           </div>
-          <div class="counselor-info">
-            <h3 class="counselor-name">${counselor.counselor_firstname || ''} ${counselor.counselor_lastname || ''}</h3>
-            <p class="counselor-function">${counselor.counselor_function || ''}</p>
-          </div>
-        </div>
-      `).join('');
+        `).join('');
 
-      // Forcer le reflow pour s'assurer que les styles sont appliqués
-      counselorsGrid.offsetHeight;
+        // Forcer le reflow pour s'assurer que les styles sont appliqués
+        counselorsGrid.offsetHeight;
 
-      initCounselorAnimations();
-    } catch (err) {
-      console.error('Erreur lors du fetch API :', err);
-      counselorsGrid.innerHTML = '<div class="counselors-error">Erreur lors du chargement des conseillers</div>';
+        initCounselorAnimations();
+      } catch (err) {
+        console.error('Erreur lors du fetch API :', err);
+        counselorsGrid.innerHTML = '<div class="counselors-error">Erreur lors du chargement des conseillers</div>';
+      }
+    })();
+    
+    // Enregistrer la promesse pour le système de chargement global
+    if (window.registerPageLoad) {
+      window.registerPageLoad(loadPromise);
     }
   })();
 

@@ -79,7 +79,8 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
       return;
     }
 
-    try {
+    const loadPromise = (async () => {
+      try {
       // Charger la présentation
       try {
         const presRes = await fetch(`${API_BASE_URL}/presentations/3`);
@@ -151,9 +152,15 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
         button.addEventListener('click', copyEmailToClipboard);
       });
 
-    } catch (err) {
-      console.error('Erreur lors du fetch API :', err);
-      offersList.innerHTML = '<div class="offers-error">Erreur lors du chargement des offres d\'emploi</div>';
+      } catch (err) {
+        console.error('Erreur lors du fetch API :', err);
+        offersList.innerHTML = '<div class="offers-error">Erreur lors du chargement des offres d\'emploi</div>';
+      }
+    })();
+    
+    // Enregistrer la promesse pour le système de chargement global
+    if (window.registerPageLoad) {
+      window.registerPageLoad(loadPromise);
     }
   })();
 </script>
