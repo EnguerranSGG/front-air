@@ -198,7 +198,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
   }
 </script>
 
-<style>
+<style is:global>
   .stats-loading,
   .satisfaction-loading {
     text-align: center;
@@ -404,6 +404,10 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
     border-radius: 15px;
     box-shadow: 0 6px 25px rgba(0, 70, 164, 0.15);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
   .satisfaction-image-container:hover {
@@ -413,10 +417,14 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
 
   .satisfaction-image {
     width: 100%;
+    max-width: 100%;
     height: auto;
     border-radius: 10px;
     margin-bottom: 1rem;
     transition: transform 0.3s ease;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .satisfaction-image:hover {
@@ -430,6 +438,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
+    width: 100%;
   }
 
   .image-title-block {
@@ -440,6 +449,8 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    width: 100%;
   }
 
   .double-image {
@@ -515,6 +526,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
     .double-image-row {
       flex-direction: column;
       gap: 1.5rem;
+      align-items: center;
     }
 
     .image-title-block {
