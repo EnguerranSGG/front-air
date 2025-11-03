@@ -52,10 +52,27 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
 </div>
 
 <script define:vars={{ API_BASE_URL }}>
+  // Fonction helper pour attendre que registerPageLoad soit disponible
+  function registerPromiseWhenReady(promise) {
+    // Toujours enregistrer, même si registerPageLoad n'est pas encore disponible
+    // car on peut l'ajouter directement au tableau
+    if (!window.pageLoadPromises) {
+      window.pageLoadPromises = [];
+    }
+    
+    // Ajouter directement la promesse au tableau
+    window.pageLoadPromises.push(promise);
+    
+    // Si registerPageLoad existe, on peut aussi l'utiliser (pour la compatibilité)
+    if (window.registerPageLoad) {
+      // La promesse est déjà dans le tableau, mais on peut aussi l'enregistrer via la fonction
+      // pour déclencher d'éventuels événements
+      window.registerPageLoad(promise);
+    }
+  }
+  
   // Charger toutes les données FLE côté client
   (async function() {
-    const allPromises = [];
-    
     // Charger le titre principal
     const titlePromise = (async () => {
       try {
@@ -69,25 +86,25 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
         console.error('Erreur fetch titre principal :', err);
       }
     })();
-    allPromises.push(titlePromise);
+    registerPromiseWhenReady(titlePromise);
 
     // Charger les statistiques FLE
     const statsContainer = document.getElementById('fle-stats');
     const statsPromise = (async () => {
       try {
-      const statsRes = await fetch(`${API_BASE_URL}/statistics/by-type-name/FLE`);
-      const statsData = await statsRes.json();
-      const stats = Array.isArray(statsData) ? statsData : [];
-      
-      if (stats.length > 0 && statsContainer) {
-        statsContainer.innerHTML = stats.map((stat, index) => `
-          <div class="stat-block animate-slide-up" style="animation-delay: ${0.8 + index * 0.2}s">
-            <strong class="stat-value" data-target="${stat.value}">${stat.is_percentage ? '0%' : '0'}</strong>
-            <p class="stat-label">${stat.label || ''}<br />en ${stat.year || ''}</p>
-          </div>
-        `).join('');
+        const statsRes = await fetch(`${API_BASE_URL}/statistics/by-type-name/FLE`);
+        const statsData = await statsRes.json();
+        const stats = Array.isArray(statsData) ? statsData : [];
         
-        initFleStatsAnimations();
+        if (stats.length > 0 && statsContainer) {
+          statsContainer.innerHTML = stats.map((stat, index) => `
+            <div class="stat-block animate-slide-up" style="animation-delay: ${0.8 + index * 0.2}s">
+              <strong class="stat-value" data-target="${stat.value}">${stat.is_percentage ? '0%' : '0'}</strong>
+              <p class="stat-label">${stat.label || ''}<br />en ${stat.year || ''}</p>
+            </div>
+          `).join('');
+          
+          initFleStatsAnimations();
         } else if (statsContainer) {
           statsContainer.innerHTML = '<p>Aucune statistique disponible</p>';
         }
@@ -96,68 +113,64 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
         if (statsContainer) statsContainer.innerHTML = '<p>Erreur lors du chargement des statistiques</p>';
       }
     })();
-    allPromises.push(statsPromise);
+    registerPromiseWhenReady(statsPromise);
 
     // Charger les sections satisfaction
     const satisfactionContainer = document.getElementById('satisfaction-container');
     const satisfactionPromise = (async () => {
       if (satisfactionContainer) {
         try {
-        const [satTitle, code1Title, code2Title, fle1Title, fle2Title] = await Promise.all([
-          fetch(`${API_BASE_URL}/files/26/title`).then(r => r.ok ? r.text() : ''),
-          fetch(`${API_BASE_URL}/files/27/title`).then(r => r.ok ? r.text() : ''),
-          fetch(`${API_BASE_URL}/files/28/title`).then(r => r.ok ? r.text() : ''),
-          fetch(`${API_BASE_URL}/files/29/title`).then(r => r.ok ? r.text() : ''),
-          fetch(`${API_BASE_URL}/files/30/title`).then(r => r.ok ? r.text() : '')
-        ]);
+          const [satTitle, code1Title, code2Title, fle1Title, fle2Title] = await Promise.all([
+            fetch(`${API_BASE_URL}/files/26/title`).then(r => r.ok ? r.text() : ''),
+            fetch(`${API_BASE_URL}/files/27/title`).then(r => r.ok ? r.text() : ''),
+            fetch(`${API_BASE_URL}/files/28/title`).then(r => r.ok ? r.text() : ''),
+            fetch(`${API_BASE_URL}/files/29/title`).then(r => r.ok ? r.text() : ''),
+            fetch(`${API_BASE_URL}/files/30/title`).then(r => r.ok ? r.text() : '')
+          ]);
 
-        satisfactionContainer.innerHTML = `
-          <section class="satisfaction-section">
-            <h2 class="satisfaction-title">${satTitle || 'Satisfaction des stagiaires'}</h2>
-            <div class="satisfaction-image-container">
-              <img src="${API_BASE_URL}/files/26/download" alt="Satisfaction des stagiaires" class="satisfaction-image" />
-            </div>
-          </section>
-          <section class="satisfaction-section">
-            <h2 class="satisfaction-title">Code de la route</h2>
-            <div class="satisfaction-image-container double-image-row">
-              <div class="image-title-block">
-                <img src="${API_BASE_URL}/files/27/download" alt="${code1Title || ''}" class="satisfaction-image double-image" />
-                <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">${code1Title || ''}</h3>
+          satisfactionContainer.innerHTML = `
+            <section class="satisfaction-section">
+              <h2 class="satisfaction-title">${satTitle || 'Satisfaction des stagiaires'}</h2>
+              <div class="satisfaction-image-container">
+                <img src="${API_BASE_URL}/files/26/download" alt="Satisfaction des stagiaires" class="satisfaction-image" />
               </div>
-              <div class="image-title-block">
-                <img src="${API_BASE_URL}/files/28/download" alt="${code2Title || ''}" class="satisfaction-image double-image" />
-                <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">${code2Title || ''}</h3>
+            </section>
+            <section class="satisfaction-section">
+              <h2 class="satisfaction-title">Code de la route</h2>
+              <div class="satisfaction-image-container double-image-row">
+                <div class="image-title-block">
+                  <img src="${API_BASE_URL}/files/27/download" alt="${code1Title || ''}" class="satisfaction-image double-image" />
+                  <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">${code1Title || ''}</h3>
+                </div>
+                <div class="image-title-block">
+                  <img src="${API_BASE_URL}/files/28/download" alt="${code2Title || ''}" class="satisfaction-image double-image" />
+                  <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">${code2Title || ''}</h3>
+                </div>
               </div>
-            </div>
-          </section>
-          <section class="satisfaction-section">
-            <h2 class="satisfaction-title">FLE pro et numérique</h2>
-            <div class="satisfaction-image-container double-image-row">
-              <div class="image-title-block">
-                <img src="${API_BASE_URL}/files/29/download" alt="${fle1Title || ''}" class="satisfaction-image double-image" />
-                <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">${fle1Title || ''}</h3>
+            </section>
+            <section class="satisfaction-section">
+              <h2 class="satisfaction-title">FLE pro et numérique</h2>
+              <div class="satisfaction-image-container double-image-row">
+                <div class="image-title-block">
+                  <img src="${API_BASE_URL}/files/29/download" alt="${fle1Title || ''}" class="satisfaction-image double-image" />
+                  <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">${fle1Title || ''}</h3>
+                </div>
+                <div class="image-title-block">
+                  <img src="${API_BASE_URL}/files/30/download" alt="${fle2Title || ''}" class="satisfaction-image double-image" />
+                  <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">${fle2Title || ''}</h3>
+                </div>
               </div>
-              <div class="image-title-block">
-                <img src="${API_BASE_URL}/files/30/download" alt="${fle2Title || ''}" class="satisfaction-image double-image" />
-                <h3 class="satisfaction-title" style="font-size: 1.3rem; margin-top: 1rem;">${fle2Title || ''}</h3>
-              </div>
-            </div>
-          </section>
-        `;
-      } catch (err) {
-        console.error('Erreur lors du chargement des sections satisfaction :', err);
-        if (satisfactionContainer) {
-          satisfactionContainer.innerHTML = '<p>Erreur lors du chargement</p>';
+            </section>
+          `;
+        } catch (err) {
+          console.error('Erreur lors du chargement des sections satisfaction :', err);
+          if (satisfactionContainer) {
+            satisfactionContainer.innerHTML = '<p>Erreur lors du chargement</p>';
+          }
         }
       }
     })();
-    allPromises.push(satisfactionPromise);
-    
-    // Enregistrer toutes les promesses pour le système de chargement global
-    if (window.registerPageLoad) {
-      allPromises.forEach(promise => window.registerPageLoad(promise));
-    }
+    registerPromiseWhenReady(satisfactionPromise);
   })();
 
   function initFleStatsAnimations() {

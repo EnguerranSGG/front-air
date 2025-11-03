@@ -52,6 +52,10 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
     })();
     
     // Enregistrer la promesse pour le système de chargement global
+    if (!window.pageLoadPromises) {
+      window.pageLoadPromises = [];
+    }
+    window.pageLoadPromises.push(loadPromise);
     if (window.registerPageLoad) {
       window.registerPageLoad(loadPromise);
     }
