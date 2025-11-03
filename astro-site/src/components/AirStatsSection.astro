@@ -19,31 +19,38 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
       return;
     }
 
-    try {
-      const res = await fetch(`${API_BASE_URL}/statistics/by-type-name/AIR`);
-      const data = await res.json();
-      const stats = Array.isArray(data) ? data : [];
-      
-      if (stats.length === 0) {
-        statsList.innerHTML = '<p>Aucune statistique disponible</p>';
-        return;
+    const loadPromise = (async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/statistics/by-type-name/AIR`);
+        const data = await res.json();
+        const stats = Array.isArray(data) ? data : [];
+        
+        if (stats.length === 0) {
+          statsList.innerHTML = '<p>Aucune statistique disponible</p>';
+          return;
+        }
+
+        statsList.innerHTML = stats.map((stat, index) => `
+          <div class="stat-item animate-slide-up" style="animation-delay: ${0.8 + index * 0.2}s">
+            <strong class="air-stat-value" data-target="${stat.value}">${stat.is_percentage ? '0%' : '0'}</strong>
+            <p class="stat-label">${stat.label || ''}<br/>en ${stat.year || ''}</p>
+          </div>
+        `).join('');
+
+        // Forcer le reflow pour s'assurer que les styles sont appliqués
+        statsList.offsetHeight;
+
+        // Initialiser les animations
+        initStatsAnimations();
+      } catch (err) {
+        console.error('Erreur fetch statistiques AIR :', err);
+        statsList.innerHTML = '<div class="stats-error">Erreur lors du chargement des statistiques</div>';
       }
-
-      statsList.innerHTML = stats.map((stat, index) => `
-        <div class="stat-item animate-slide-up" style="animation-delay: ${0.8 + index * 0.2}s">
-          <strong class="air-stat-value" data-target="${stat.value}">${stat.is_percentage ? '0%' : '0'}</strong>
-          <p class="stat-label">${stat.label || ''}<br/>en ${stat.year || ''}</p>
-        </div>
-      `).join('');
-
-      // Forcer le reflow pour s'assurer que les styles sont appliqués
-      statsList.offsetHeight;
-
-      // Initialiser les animations
-      initStatsAnimations();
-    } catch (err) {
-      console.error('Erreur fetch statistiques AIR :', err);
-      statsList.innerHTML = '<div class="stats-error">Erreur lors du chargement des statistiques</div>';
+    })();
+    
+    // Enregistrer la promesse pour le système de chargement global
+    if (window.registerPageLoad) {
+      window.registerPageLoad(loadPromise);
     }
   })();
 

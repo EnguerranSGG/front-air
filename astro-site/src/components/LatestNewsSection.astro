@@ -18,33 +18,40 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
       return;
     }
 
-    try {
-      const res = await fetch(`${API_BASE_URL}/news/latest`);
-      const data = await res.json();
-      const latestNews = data;
-      
-      if (!latestNews) {
-        container.innerHTML = '<p>Aucune actualité disponible</p>';
-        return;
-      }
+    const loadPromise = (async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/news/latest`);
+        const data = await res.json();
+        const latestNews = data;
+        
+        if (!latestNews) {
+          container.innerHTML = '<p>Aucune actualité disponible</p>';
+          return;
+        }
 
-      const imageUrl = latestNews.file?.file_id ? `${API_BASE_URL}/files/${latestNews.file.file_id}/download` : '';
-      
-      container.innerHTML = `
-        <section class="latest-news-section">
-          <div class="news-container">
-            ${imageUrl ? `<img class="news-image" src="${imageUrl}" alt="${latestNews.name || ''}" />` : ''}
-            <div class="news-content">
-              <h3 class="news-title">${latestNews.name || ''}</h3>
-              <p class="news-description">${latestNews.description || ''}</p>
-              ${latestNews.link ? `<a href="${latestNews.link}" target="_blank" rel="noopener noreferrer" class="news-link">En savoir plus</a>` : ''}
+        const imageUrl = latestNews.file?.file_id ? `${API_BASE_URL}/files/${latestNews.file.file_id}/download` : '';
+        
+        container.innerHTML = `
+          <section class="latest-news-section">
+            <div class="news-container">
+              ${imageUrl ? `<img class="news-image" src="${imageUrl}" alt="${latestNews.name || ''}" />` : ''}
+              <div class="news-content">
+                <h3 class="news-title">${latestNews.name || ''}</h3>
+                <p class="news-description">${latestNews.description || ''}</p>
+                ${latestNews.link ? `<a href="${latestNews.link}" target="_blank" rel="noopener noreferrer" class="news-link">En savoir plus</a>` : ''}
+              </div>
             </div>
-          </div>
-        </section>
-      `;
-    } catch (err) {
-      console.error('Erreur lors du fetch de la dernière actualité :', err);
-      container.innerHTML = '<p>Erreur lors du chargement de l\'actualité</p>';
+          </section>
+        `;
+      } catch (err) {
+        console.error('Erreur lors du fetch de la dernière actualité :', err);
+        container.innerHTML = '<p>Erreur lors du chargement de l\'actualité</p>';
+      }
+    })();
+    
+    // Enregistrer la promesse pour le système de chargement global
+    if (window.registerPageLoad) {
+      window.registerPageLoad(loadPromise);
     }
   })();
 </script>
