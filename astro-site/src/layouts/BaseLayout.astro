@@ -48,8 +48,18 @@ import '../styles/fle.css';
       
       // Fonction pour enregistrer une promesse de chargement (accessible globalement)
       window.registerPageLoad = function(promise) {
+        if (!window.pageLoadPromises) {
+          window.pageLoadPromises = [];
+        }
         window.pageLoadPromises.push(promise);
+        // Déclencher une vérification si on était en attente
+        if (window.pageLoadCheckInterval) {
+          // La vérification continue déjà, pas besoin de faire quoi que ce soit
+        }
       };
+      
+      // Flag pour indiquer que tous les scripts ont été exécutés
+      window.allScriptsLoaded = false;
       
       // Réinitialiser les promesses à chaque navigation (pour les pages Astro)
       window.addEventListener('beforeunload', function() {
@@ -61,6 +71,7 @@ import '../styles/fle.css';
       document.addEventListener('astro:page-load', function() {
         window.pageLoadPromises = [];
         window.pageLoadStartTime = Date.now();
+        window.allScriptsLoaded = false;
         
         const loader = document.getElementById('page-loader');
         const main = document.querySelector('main');
@@ -79,33 +90,66 @@ import '../styles/fle.css';
           if (el) el.style.display = 'none';
         });
         
-        // Attendre que toutes les sections enregistrent leurs promesses
-        setTimeout(async () => {
-          const checkAllLoaded = setInterval(async () => {
+        // Attendre que tous les scripts soient chargés et exécutés
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            window.allScriptsLoaded = true;
+            
+            // Si aucune promesse n'a été enregistrée, c'est probablement une page statique
             if (window.pageLoadPromises.length === 0) {
-              const timeSinceLoad = Date.now() - (window.pageLoadStartTime || Date.now());
-              if (timeSinceLoad > 2000) {
-                clearInterval(checkAllLoaded);
+              setTimeout(() => {
                 hidePageLoader();
-                return;
-              }
+              }, 500);
+              return;
             }
             
-            if (window.pageLoadPromises.length > 0) {
-              const allSettled = await Promise.allSettled(window.pageLoadPromises);
-              const allResolved = allSettled.every(result => result.status === 'fulfilled' || result.status === 'rejected');
-              if (allResolved) {
-                clearInterval(checkAllLoaded);
-                hidePageLoader();
+            // Stocker le nombre initial de promesses
+            let lastPromiseCount = window.pageLoadPromises.length;
+            let stableCount = 0;
+            
+            // Vérifier périodiquement si toutes les promesses sont résolues
+            const checkAllLoaded = setInterval(async () => {
+              // Faire une copie de la liste pour éviter les modifications pendant la vérification
+              const promises = [...window.pageLoadPromises];
+              
+              // Vérifier si de nouvelles promesses ont été ajoutées
+              if (promises.length !== lastPromiseCount) {
+                lastPromiseCount = promises.length;
+                stableCount = 0;
+                return; // Attendre que le nombre se stabilise
               }
-            }
-          }, 200);
-          
-          setTimeout(() => {
-            clearInterval(checkAllLoaded);
-            hidePageLoader();
-          }, 10000);
-        }, 1000);
+              
+              stableCount++;
+              
+              // Attendre que le nombre de promesses soit stable pendant au moins 3 vérifications (900ms)
+              if (stableCount < 3) {
+                return;
+              }
+              
+              if (promises.length > 0) {
+                const allSettled = await Promise.allSettled(promises);
+                const allResolved = allSettled.every(result => result.status === 'fulfilled' || result.status === 'rejected');
+                
+                if (allResolved) {
+                  // Attendre un peu plus pour s'assurer qu'aucune nouvelle promesse n'est enregistrée
+                  await new Promise(resolve => setTimeout(resolve, 500));
+                  
+                  // Vérifier une dernière fois
+                  if (window.pageLoadPromises.length === promises.length) {
+                    clearInterval(checkAllLoaded);
+                    hidePageLoader();
+                  }
+                }
+              }
+            }, 300);
+            
+            // Timeout de sécurité : masquer le loader après 15 secondes max
+            setTimeout(() => {
+              clearInterval(checkAllLoaded);
+              hidePageLoader();
+            }, 15000);
+          }, 1500); // Augmenter le délai pour laisser le temps aux scripts de s'exécuter
+        });
       });
       
       // Fonction pour masquer le loader global une fois tout chargé
@@ -113,9 +157,16 @@ import '../styles/fle.css';
         const loader = document.getElementById('page-loader');
         if (!loader) return;
         
+        // Éviter les appels multiples
+        if (loader.classList.contains('loader-hidden')) {
+          return;
+        }
+        
         try {
           // Attendre que toutes les promesses de chargement soient résolues
-          await Promise.allSettled(window.pageLoadPromises);
+          if (window.pageLoadPromises && window.pageLoadPromises.length > 0) {
+            await Promise.allSettled(window.pageLoadPromises);
+          }
           
           // Petit délai pour une transition fluide
           await new Promise(resolve => setTimeout(resolve, 300));
@@ -126,6 +177,7 @@ import '../styles/fle.css';
             // Afficher le contenu principal
             const main = document.querySelector('main');
             if (main) {
+              main.classList.remove('page-loading');
               main.style.opacity = '1';
               main.style.transform = 'translateY(0)';
             }
@@ -135,6 +187,12 @@ import '../styles/fle.css';
           loader.classList.add('loader-hidden');
           setTimeout(() => {
             loader.style.display = 'none';
+            const main = document.querySelector('main');
+            if (main) {
+              main.classList.remove('page-loading');
+              main.style.opacity = '1';
+              main.style.transform = 'translateY(0)';
+            }
           }, 500);
         }
       }
@@ -157,36 +215,53 @@ import '../styles/fle.css';
           if (el) el.style.display = 'none';
         });
         
-        // Attendre que toutes les sections enregistrent leurs promesses
-        setTimeout(async () => {
-          // Vérifier périodiquement si toutes les promesses sont résolues
-          const checkAllLoaded = setInterval(async () => {
-            // Si aucune promesse n'a été enregistrée après 2 secondes, masquer le loader
+        // Attendre que tous les scripts soient chargés et exécutés
+        // Utiliser requestAnimationFrame pour s'assurer que le DOM est prêt
+        requestAnimationFrame(() => {
+          // Attendre encore un peu pour que tous les scripts avec define:vars soient exécutés
+          setTimeout(() => {
+            window.allScriptsLoaded = true;
+            
+            // Si aucune promesse n'a été enregistrée, c'est probablement une page statique
             if (window.pageLoadPromises.length === 0) {
-              const timeSinceLoad = Date.now() - (window.pageLoadStartTime || Date.now());
-              if (timeSinceLoad > 2000) {
-                clearInterval(checkAllLoaded);
+              setTimeout(() => {
                 hidePageLoader();
-                return;
-              }
+              }, 500);
+              return;
             }
             
-            if (window.pageLoadPromises.length > 0) {
-              const allSettled = await Promise.allSettled(window.pageLoadPromises);
-              const allResolved = allSettled.every(result => result.status === 'fulfilled' || result.status === 'rejected');
-              if (allResolved) {
-                clearInterval(checkAllLoaded);
-                hidePageLoader();
+            // Vérifier périodiquement si toutes les promesses sont résolues
+            const checkAllLoaded = setInterval(async () => {
+              // Faire une copie de la liste pour éviter les modifications pendant la vérification
+              const promises = [...window.pageLoadPromises];
+              
+              if (promises.length > 0) {
+                const allSettled = await Promise.allSettled(promises);
+                const allResolved = allSettled.every(result => result.status === 'fulfilled' || result.status === 'rejected');
+                
+                // Vérifier aussi si de nouvelles promesses ont été ajoutées
+                const hasNewPromises = window.pageLoadPromises.length > promises.length;
+                
+                if (allResolved && !hasNewPromises) {
+                  // Attendre un peu plus pour s'assurer qu'aucune nouvelle promesse n'est enregistrée
+                  await new Promise(resolve => setTimeout(resolve, 300));
+                  
+                  // Vérifier une dernière fois si de nouvelles promesses ont été ajoutées
+                  if (window.pageLoadPromises.length === promises.length) {
+                    clearInterval(checkAllLoaded);
+                    hidePageLoader();
+                  }
+                }
               }
-            }
-          }, 200);
-          
-          // Timeout de sécurité : masquer le loader après 10 secondes max
-          setTimeout(() => {
-            clearInterval(checkAllLoaded);
-            hidePageLoader();
-          }, 10000);
-        }, 1000); // Attendre 1 seconde pour que toutes les sections s'enregistrent
+            }, 300);
+            
+            // Timeout de sécurité : masquer le loader après 15 secondes max
+            setTimeout(() => {
+              clearInterval(checkAllLoaded);
+              hidePageLoader();
+            }, 15000);
+          }, 1500); // Augmenter le délai pour laisser le temps aux scripts de s'exécuter
+        });
       });
 
       // Animation lors de la navigation (pour les liens internes)
