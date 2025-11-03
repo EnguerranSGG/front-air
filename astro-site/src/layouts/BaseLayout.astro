@@ -199,6 +199,11 @@ import '../styles/fle.css';
       
       // Animation de chargement de page
       document.addEventListener('DOMContentLoaded', function() {
+        // Réinitialiser les promesses au chargement de la page
+        window.pageLoadPromises = [];
+        window.pageLoadStartTime = Date.now();
+        window.allScriptsLoaded = false;
+        
         const loader = document.getElementById('page-loader');
         const main = document.querySelector('main');
         
@@ -216,51 +221,83 @@ import '../styles/fle.css';
         });
         
         // Attendre que tous les scripts soient chargés et exécutés
-        // Utiliser requestAnimationFrame pour s'assurer que le DOM est prêt
+        // Utiliser plusieurs requestAnimationFrame pour s'assurer que le DOM est prêt
         requestAnimationFrame(() => {
-          // Attendre encore un peu pour que tous les scripts avec define:vars soient exécutés
-          setTimeout(() => {
-            window.allScriptsLoaded = true;
-            
-            // Si aucune promesse n'a été enregistrée, c'est probablement une page statique
-            if (window.pageLoadPromises.length === 0) {
-              setTimeout(() => {
-                hidePageLoader();
-              }, 500);
-              return;
-            }
-            
-            // Vérifier périodiquement si toutes les promesses sont résolues
-            const checkAllLoaded = setInterval(async () => {
-              // Faire une copie de la liste pour éviter les modifications pendant la vérification
-              const promises = [...window.pageLoadPromises];
-              
-              if (promises.length > 0) {
-                const allSettled = await Promise.allSettled(promises);
-                const allResolved = allSettled.every(result => result.status === 'fulfilled' || result.status === 'rejected');
-                
-                // Vérifier aussi si de nouvelles promesses ont été ajoutées
-                const hasNewPromises = window.pageLoadPromises.length > promises.length;
-                
-                if (allResolved && !hasNewPromises) {
-                  // Attendre un peu plus pour s'assurer qu'aucune nouvelle promesse n'est enregistrée
-                  await new Promise(resolve => setTimeout(resolve, 300));
-                  
-                  // Vérifier une dernière fois si de nouvelles promesses ont été ajoutées
-                  if (window.pageLoadPromises.length === promises.length) {
-                    clearInterval(checkAllLoaded);
-                    hidePageLoader();
-                  }
-                }
-              }
-            }, 300);
-            
-            // Timeout de sécurité : masquer le loader après 15 secondes max
+          requestAnimationFrame(() => {
+            // Attendre encore un peu pour que tous les scripts avec define:vars soient exécutés
             setTimeout(() => {
-              clearInterval(checkAllLoaded);
-              hidePageLoader();
-            }, 15000);
-          }, 1500); // Augmenter le délai pour laisser le temps aux scripts de s'exécuter
+              window.allScriptsLoaded = true;
+              
+              // Attendre encore un peu pour laisser le temps aux scripts de s'enregistrer
+              setTimeout(() => {
+                // Si aucune promesse n'a été enregistrée, c'est probablement une page statique
+                if (window.pageLoadPromises.length === 0) {
+                  setTimeout(() => {
+                    hidePageLoader();
+                  }, 500);
+                  return;
+                }
+                
+                // Stocker le nombre initial de promesses
+                let lastPromiseCount = window.pageLoadPromises.length;
+                let stableCount = 0;
+                let consecutiveStableChecks = 0;
+                
+                // Vérifier périodiquement si toutes les promesses sont résolues
+                const checkAllLoaded = setInterval(async () => {
+                  // Faire une copie de la liste pour éviter les modifications pendant la vérification
+                  const promises = [...window.pageLoadPromises];
+                  
+                  // Vérifier si de nouvelles promesses ont été ajoutées
+                  if (promises.length !== lastPromiseCount) {
+                    lastPromiseCount = promises.length;
+                    stableCount = 0;
+                    consecutiveStableChecks = 0;
+                    return; // Attendre que le nombre se stabilise
+                  }
+                  
+                  stableCount++;
+                  
+                  // Attendre que le nombre de promesses soit stable pendant au moins 5 vérifications (1.5s)
+                  if (stableCount < 5) {
+                    return;
+                  }
+                  
+                  if (promises.length > 0) {
+                    const allSettled = await Promise.allSettled(promises);
+                    const allResolved = allSettled.every(result => result.status === 'fulfilled' || result.status === 'rejected');
+                    
+                    if (allResolved) {
+                      consecutiveStableChecks++;
+                      
+                      // Attendre 3 vérifications consécutives avec toutes les promesses résolues
+                      if (consecutiveStableChecks >= 3) {
+                        // Attendre un peu plus pour s'assurer qu'aucune nouvelle promesse n'est enregistrée
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        
+                        // Vérifier une dernière fois
+                        if (window.pageLoadPromises.length === promises.length) {
+                          clearInterval(checkAllLoaded);
+                          hidePageLoader();
+                        } else {
+                          // Nouvelles promesses ajoutées, réinitialiser
+                          consecutiveStableChecks = 0;
+                        }
+                      }
+                    } else {
+                      consecutiveStableChecks = 0;
+                    }
+                  }
+                }, 300);
+                
+                // Timeout de sécurité : masquer le loader après 15 secondes max
+                setTimeout(() => {
+                  clearInterval(checkAllLoaded);
+                  hidePageLoader();
+                }, 15000);
+              }, 500); // Délai supplémentaire pour laisser le temps aux scripts de s'enregistrer
+            }, 2000); // Augmenter le délai initial à 2 secondes
+          });
         });
       });
 
