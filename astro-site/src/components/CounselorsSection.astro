@@ -45,6 +45,9 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
         </div>
       `).join('');
 
+      // Forcer le reflow pour s'assurer que les styles sont appliqués
+      counselorsGrid.offsetHeight;
+
       initCounselorAnimations();
     } catch (err) {
       console.error('Erreur lors du fetch API :', err);
@@ -79,7 +82,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
   }
 </script>
 
-<style>
+<style is:global>
   .counselors-loading,
   .counselors-error {
     text-align: center;
