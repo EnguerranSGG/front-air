@@ -4,7 +4,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
 
 <section class="stats air-stats-section animate-fade-in">
   <div class="stats-list" id="air-stats-list">
-    <div class="stats-loading">Chargement des statistiques...</div>
+    <!-- Le contenu sera chargé dynamiquement -->
   </div>
 </section>
 
@@ -27,7 +27,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
         
         if (stats.length === 0) {
           statsList.innerHTML = '<p>Aucune statistique disponible</p>';
-          return;
+          return Promise.resolve(); // Résoudre la promesse même si pas de données
         }
 
         statsList.innerHTML = stats.map((stat, index) => `

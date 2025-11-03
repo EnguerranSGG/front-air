@@ -4,7 +4,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
 
 <h2>Notre dernière actualité</h2>
 <div id="latest-news-container">
-  <div class="news-loading">Chargement de la dernière actualité...</div>
+  <!-- Le contenu sera chargé dynamiquement -->
 </div>
 
 <script define:vars={{ API_BASE_URL }}>
@@ -26,7 +26,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
         
         if (!latestNews) {
           container.innerHTML = '<p>Aucune actualité disponible</p>';
-          return;
+          return Promise.resolve(); // Résoudre la promesse même si pas de données
         }
 
         const imageUrl = latestNews.file?.file_id ? `${API_BASE_URL}/files/${latestNews.file.file_id}/download` : '';

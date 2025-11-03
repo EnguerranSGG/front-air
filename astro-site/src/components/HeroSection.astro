@@ -9,71 +9,18 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
     <img src={`${API_BASE_URL}/files/8/download`} alt="Illustration accueil insertion" class="hero-image animate-slide-up" />
 
     <div class="hero-overlay animate-slide-right">
-      <h4 class="animate-fade-in-delayed hero-title" id="hero-title">
-        <span class="hero-loading" id="hero-loading">
-          <svg class="spinner-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="31.416" stroke-dashoffset="31.416">
-              <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416" repeatCount="indefinite"/>
-              <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416" repeatCount="indefinite"/>
-            </circle>
-          </svg>
-          <span class="hero-loading-text">Chargement...</span>
-        </span>
-        <span class="hero-title-text" id="hero-title-text" style="display: none;"></span>
-      </h4>
+      <h4 class="animate-fade-in-delayed hero-title" id="hero-title"></h4>
     </div>
   </div>
 </section>
 
 <script define:vars={{ API_BASE_URL }}>
-  // Système de chargement global pour la page d'accueil
-  window.pageLoadPromises = window.pageLoadPromises || [];
-  
-  // Fonction pour enregistrer une promesse de chargement (accessible globalement)
-  window.registerPageLoad = function(promise) {
-    window.pageLoadPromises.push(promise);
-  };
-  
-  // Fonction pour masquer le spinner une fois tout chargé
-  async function hideHeroSpinner() {
-    try {
-      // Attendre que toutes les promesses de chargement soient résolues
-      await Promise.allSettled(window.pageLoadPromises);
-      
-      // Petit délai pour une transition fluide
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      const loadingElement = document.getElementById('hero-loading');
-      const titleTextElement = document.getElementById('hero-title-text');
-      
-      if (loadingElement && titleTextElement) {
-        loadingElement.style.opacity = '0';
-        setTimeout(() => {
-          loadingElement.style.display = 'none';
-          titleTextElement.style.display = 'inline';
-          titleTextElement.style.opacity = '0';
-          setTimeout(() => {
-            titleTextElement.style.opacity = '1';
-          }, 50);
-        }, 300);
-      }
-    } catch (err) {
-      console.error('Erreur lors du masquage du spinner:', err);
-      const loadingElement = document.getElementById('hero-loading');
-      const titleTextElement = document.getElementById('hero-title-text');
-      if (loadingElement) loadingElement.style.display = 'none';
-      if (titleTextElement) titleTextElement.style.display = 'inline';
-    }
-  }
-
   // Charger le titre côté client
   (async function() {
-    const titleTextElement = document.getElementById('hero-title-text');
-    if (!titleTextElement || !API_BASE_URL) {
-      if (titleTextElement && !API_BASE_URL) {
-        titleTextElement.textContent = '';
-        // Masquer le spinner même si l'API n'est pas disponible
-        setTimeout(hideHeroSpinner, 500);
+    const titleElement = document.getElementById('hero-title');
+    if (!titleElement || !API_BASE_URL) {
+      if (titleElement && !API_BASE_URL) {
+        titleElement.textContent = '';
       }
       return;
     }
@@ -85,40 +32,20 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
         const response = await fetch(apiUrl);
         if (response.ok) {
           const title = await response.text();
-          titleTextElement.textContent = title;
+          titleElement.textContent = title;
         } else {
-          titleTextElement.textContent = '';
+          titleElement.textContent = '';
         }
       } catch (err) {
         console.error("Erreur fetch lors de la récupération du titre :", err);
-        titleTextElement.textContent = '';
+        titleElement.textContent = '';
       }
     })();
     
-    window.registerPageLoad(titlePromise);
-    
-    // Attendre que toutes les sections soient chargées
-    // On attend un peu pour que toutes les sections enregistrent leurs promesses
-    setTimeout(async () => {
-      // Vérifier périodiquement si toutes les promesses sont résolues
-      const checkAllLoaded = setInterval(async () => {
-        if (window.pageLoadPromises.length > 0) {
-          const allSettled = await Promise.allSettled(window.pageLoadPromises);
-          // Vérifier si toutes les promesses sont résolues
-          const allResolved = allSettled.every(result => result.status === 'fulfilled' || result.status === 'rejected');
-          if (allResolved) {
-            clearInterval(checkAllLoaded);
-            hideHeroSpinner();
-          }
-        }
-      }, 200);
-      
-      // Timeout de sécurité : masquer le spinner après 10 secondes max
-      setTimeout(() => {
-        clearInterval(checkAllLoaded);
-        hideHeroSpinner();
-      }, 10000);
-    }, 1000); // Attendre 1 seconde pour que toutes les sections s'enregistrent
+    // Enregistrer la promesse pour le système de chargement global
+    if (window.registerPageLoad) {
+      window.registerPageLoad(titlePromise);
+    }
   })();
 </script>
 
@@ -144,44 +71,6 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
     margin: 0;
     text-align: center;
     width: 100%;
-    min-height: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .hero-loading {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    transition: opacity 0.3s ease;
-  }
-
-  .hero-loading-text {
-    font-size: 1rem;
-    color: white;
-  }
-
-  .spinner-icon {
-    width: 2rem;
-    height: 2rem;
-    color: white;
-    animation: spin 2s linear infinite;
-  }
-
-  .hero-title-text {
-    transition: opacity 0.3s ease;
-  }
-
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
   }
 
   /* Ajuster les styles mobile pour correspondre exactement à FLE */
