@@ -285,6 +285,13 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
     animation: slideUpFadeStats 0.6s ease-out forwards;
   }
 
+  .fle-section {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0;
+  }
+
   .stats {
     padding: 3rem 2rem;
     text-align: center;
@@ -298,7 +305,8 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
     gap: 4rem;
     flex-wrap: wrap;
     max-width: 1000px;
-    width: 100%;
+    width: calc(100% - 4rem);
+    box-sizing: border-box;
   }
 
   .stat-block {
@@ -486,6 +494,8 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
       align-items: center;
       gap: 2rem;
       width: calc(100% - 2rem);
+      max-width: calc(100% - 2rem);
+      box-sizing: border-box;
     }
 
     .stat-block {
