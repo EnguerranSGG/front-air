@@ -36,6 +36,9 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
         </div>
       `).join('');
 
+      // Forcer le reflow pour s'assurer que les styles sont appliqués
+      statsList.offsetHeight;
+
       // Initialiser les animations
       initStatsAnimations();
     } catch (err) {
@@ -98,7 +101,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
   }
 </script>
 
-<style>
+<style is:global>
   .stats-loading,
   .stats-error {
     text-align: center;
