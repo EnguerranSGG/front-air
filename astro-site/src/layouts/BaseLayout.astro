@@ -238,18 +238,24 @@ import '../styles/fle.css';
                   return;
                 }
                 
+                console.log(`[Page Loader] ${window.pageLoadPromises.length} promesse(s) enregistrée(s)`);
+                
                 // Stocker le nombre initial de promesses
                 let lastPromiseCount = window.pageLoadPromises.length;
                 let stableCount = 0;
                 let consecutiveStableChecks = 0;
+                let checkCount = 0;
                 
                 // Vérifier périodiquement si toutes les promesses sont résolues
                 const checkAllLoaded = setInterval(async () => {
+                  checkCount++;
+                  
                   // Faire une copie de la liste pour éviter les modifications pendant la vérification
                   const promises = [...window.pageLoadPromises];
                   
                   // Vérifier si de nouvelles promesses ont été ajoutées
                   if (promises.length !== lastPromiseCount) {
+                    console.log(`[Page Loader] Nouvelle(s) promesse(s) détectée(s): ${promises.length} (était ${lastPromiseCount})`);
                     lastPromiseCount = promises.length;
                     stableCount = 0;
                     consecutiveStableChecks = 0;
@@ -267,8 +273,14 @@ import '../styles/fle.css';
                     const allSettled = await Promise.allSettled(promises);
                     const allResolved = allSettled.every(result => result.status === 'fulfilled' || result.status === 'rejected');
                     
+                    const pendingCount = allSettled.filter(r => r.status === 'pending').length;
+                    if (pendingCount > 0) {
+                      console.log(`[Page Loader] Vérification ${checkCount}: ${pendingCount} promesse(s) en attente sur ${promises.length}`);
+                    }
+                    
                     if (allResolved) {
                       consecutiveStableChecks++;
+                      console.log(`[Page Loader] Toutes les promesses résolues (vérification ${consecutiveStableChecks}/3)`);
                       
                       // Attendre 3 vérifications consécutives avec toutes les promesses résolues
                       if (consecutiveStableChecks >= 3) {
@@ -277,10 +289,12 @@ import '../styles/fle.css';
                         
                         // Vérifier une dernière fois
                         if (window.pageLoadPromises.length === promises.length) {
+                          console.log(`[Page Loader] ✅ Toutes les promesses sont résolues, masquage du loader`);
                           clearInterval(checkAllLoaded);
                           hidePageLoader();
                         } else {
                           // Nouvelles promesses ajoutées, réinitialiser
+                          console.log(`[Page Loader] ⚠️ Nouvelles promesses ajoutées, réinitialisation`);
                           consecutiveStableChecks = 0;
                         }
                       }
@@ -292,6 +306,7 @@ import '../styles/fle.css';
                 
                 // Timeout de sécurité : masquer le loader après 15 secondes max
                 setTimeout(() => {
+                  console.log(`[Page Loader] ⏱️ Timeout de sécurité atteint, masquage du loader`);
                   clearInterval(checkAllLoaded);
                   hidePageLoader();
                 }, 15000);
