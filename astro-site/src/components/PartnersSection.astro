@@ -5,7 +5,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
 <section class="partners-carousel">
   <h2>Financeurs, réseaux et partenaires</h2>
   <div class="carousel-track" id="partners-carousel">
-    <div class="partners-loading">Chargement des partenaires...</div>
+    <!-- Le contenu sera chargé dynamiquement -->
   </div>
 </section>
 
@@ -28,7 +28,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
         
         if (partners.length === 0) {
           carousel.innerHTML = '<p>Aucun partenaire disponible</p>';
-          return;
+          return Promise.resolve(); // Résoudre la promesse même si pas de données
         }
 
         // Répéter 3 fois pour un défilement fluide
