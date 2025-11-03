@@ -92,63 +92,100 @@ import '../styles/fle.css';
         
         // Attendre que tous les scripts soient chargés et exécutés
         requestAnimationFrame(() => {
-          setTimeout(() => {
-            window.allScriptsLoaded = true;
-            
-            // Si aucune promesse n'a été enregistrée, c'est probablement une page statique
-            if (window.pageLoadPromises.length === 0) {
-              setTimeout(() => {
-                hidePageLoader();
-              }, 500);
-              return;
-            }
-            
-            // Stocker le nombre initial de promesses
-            let lastPromiseCount = window.pageLoadPromises.length;
-            let stableCount = 0;
-            
-            // Vérifier périodiquement si toutes les promesses sont résolues
-            const checkAllLoaded = setInterval(async () => {
-              // Faire une copie de la liste pour éviter les modifications pendant la vérification
-              const promises = [...window.pageLoadPromises];
-              
-              // Vérifier si de nouvelles promesses ont été ajoutées
-              if (promises.length !== lastPromiseCount) {
-                lastPromiseCount = promises.length;
-                stableCount = 0;
-                return; // Attendre que le nombre se stabilise
-              }
-              
-              stableCount++;
-              
-              // Attendre que le nombre de promesses soit stable pendant au moins 3 vérifications (900ms)
-              if (stableCount < 3) {
-                return;
-              }
-              
-              if (promises.length > 0) {
-                const allSettled = await Promise.allSettled(promises);
-                const allResolved = allSettled.every(result => result.status === 'fulfilled' || result.status === 'rejected');
-                
-                if (allResolved) {
-                  // Attendre un peu plus pour s'assurer qu'aucune nouvelle promesse n'est enregistrée
-                  await new Promise(resolve => setTimeout(resolve, 500));
-                  
-                  // Vérifier une dernière fois
-                  if (window.pageLoadPromises.length === promises.length) {
-                    clearInterval(checkAllLoaded);
-                    hidePageLoader();
-                  }
-                }
-              }
-            }, 300);
-            
-            // Timeout de sécurité : masquer le loader après 15 secondes max
+          requestAnimationFrame(() => {
             setTimeout(() => {
-              clearInterval(checkAllLoaded);
-              hidePageLoader();
-            }, 15000);
-          }, 1500); // Augmenter le délai pour laisser le temps aux scripts de s'exécuter
+              window.allScriptsLoaded = true;
+              
+              // Attendre que le nombre de promesses se stabilise
+              let initialCheckCount = 0;
+              const waitForAllPromises = setInterval(() => {
+                initialCheckCount++;
+                
+                // Si on a déjà attendu 3 secondes
+                if (initialCheckCount > 10) { // 10 * 300ms = 3 secondes
+                  clearInterval(waitForAllPromises);
+                  startCheckingPromisesForNavigation();
+                } else if (initialCheckCount > 5) {
+                  // Après 1.5 secondes, vérifier si le nombre est stable
+                  const stableCheck = window.pageLoadPromises.length;
+                  setTimeout(() => {
+                    if (window.pageLoadPromises.length === stableCheck && stableCheck > 0) {
+                      clearInterval(waitForAllPromises);
+                      startCheckingPromisesForNavigation();
+                    }
+                  }, 500);
+                }
+              }, 300);
+              
+              function startCheckingPromisesForNavigation() {
+                // Si aucune promesse n'a été enregistrée, c'est probablement une page statique
+                if (window.pageLoadPromises.length === 0) {
+                  setTimeout(() => {
+                    hidePageLoader();
+                  }, 500);
+                  return;
+                }
+                
+                console.log(`[Page Loader Navigation] Début de la vérification avec ${window.pageLoadPromises.length} promesse(s)`);
+                
+                let lastPromiseCount = window.pageLoadPromises.length;
+                let stableCount = 0;
+                let consecutiveStableChecks = 0;
+                
+                const checkAllLoaded = setInterval(async () => {
+                  const promises = [...window.pageLoadPromises];
+                  
+                  if (promises.length !== lastPromiseCount) {
+                    console.log(`[Page Loader Navigation] Nouvelle(s) promesse(s): ${promises.length} (était ${lastPromiseCount})`);
+                    lastPromiseCount = promises.length;
+                    stableCount = 0;
+                    consecutiveStableChecks = 0;
+                    return;
+                  }
+                  
+                  stableCount++;
+                  
+                  if (stableCount < 5) {
+                    return;
+                  }
+                  
+                  if (promises.length > 0) {
+                    const allSettled = await Promise.allSettled(promises);
+                    const allResolved = allSettled.every(result => result.status === 'fulfilled' || result.status === 'rejected');
+                    
+                    if (!allResolved) {
+                      consecutiveStableChecks = 0;
+                      return;
+                    }
+                    
+                    consecutiveStableChecks++;
+                    console.log(`[Page Loader Navigation] Toutes les promesses résolues (vérification ${consecutiveStableChecks}/3)`);
+                    
+                    if (consecutiveStableChecks >= 3) {
+                      await new Promise(resolve => setTimeout(resolve, 500));
+                      
+                      if (window.pageLoadPromises.length === promises.length) {
+                        console.log(`[Page Loader Navigation] ✅ Toutes les promesses résolues`);
+                        clearInterval(checkAllLoaded);
+                        hidePageLoader();
+                      } else {
+                        console.log(`[Page Loader Navigation] ⚠️ Nouvelles promesses ajoutées, réinitialisation`);
+                        lastPromiseCount = window.pageLoadPromises.length;
+                        stableCount = 0;
+                        consecutiveStableChecks = 0;
+                      }
+                    }
+                  }
+                }, 300);
+                
+                setTimeout(() => {
+                  console.log(`[Page Loader Navigation] ⏱️ Timeout de sécurité atteint`);
+                  clearInterval(checkAllLoaded);
+                  hidePageLoader();
+                }, 15000);
+              }
+            }, 2000);
+          });
         });
       });
       
@@ -229,7 +266,29 @@ import '../styles/fle.css';
               window.allScriptsLoaded = true;
               
               // Attendre encore un peu pour laisser le temps aux scripts de s'enregistrer
-              setTimeout(() => {
+              // Puis attendre que le nombre de promesses se stabilise
+              let initialCheckCount = 0;
+              const waitForAllPromises = setInterval(() => {
+                initialCheckCount++;
+                const currentCount = window.pageLoadPromises.length;
+                
+                // Si on a déjà attendu 3 secondes et qu'aucune promesse n'a été ajoutée récemment
+                if (initialCheckCount > 10) { // 10 * 300ms = 3 secondes
+                  clearInterval(waitForAllPromises);
+                  startCheckingPromises();
+                } else if (initialCheckCount > 5) {
+                  // Après 1.5 secondes, vérifier si le nombre est stable
+                  const stableCheck = window.pageLoadPromises.length;
+                  setTimeout(() => {
+                    if (window.pageLoadPromises.length === stableCheck && stableCheck > 0) {
+                      clearInterval(waitForAllPromises);
+                      startCheckingPromises();
+                    }
+                  }, 500);
+                }
+              }, 300);
+              
+              function startCheckingPromises() {
                 // Si aucune promesse n'a été enregistrée, c'est probablement une page statique
                 if (window.pageLoadPromises.length === 0) {
                   setTimeout(() => {
@@ -238,7 +297,7 @@ import '../styles/fle.css';
                   return;
                 }
                 
-                console.log(`[Page Loader] ${window.pageLoadPromises.length} promesse(s) enregistrée(s)`);
+                console.log(`[Page Loader] Début de la vérification avec ${window.pageLoadPromises.length} promesse(s) enregistrée(s)`);
                 
                 // Stocker le nombre initial de promesses
                 let lastPromiseCount = window.pageLoadPromises.length;
@@ -270,36 +329,37 @@ import '../styles/fle.css';
                   }
                   
                   if (promises.length > 0) {
+                    // Utiliser Promise.allSettled qui attend que TOUTES les promesses soient résolues
                     const allSettled = await Promise.allSettled(promises);
                     const allResolved = allSettled.every(result => result.status === 'fulfilled' || result.status === 'rejected');
                     
-                    const pendingCount = allSettled.filter(r => r.status === 'pending').length;
-                    if (pendingCount > 0) {
-                      console.log(`[Page Loader] Vérification ${checkCount}: ${pendingCount} promesse(s) en attente sur ${promises.length}`);
+                    if (!allResolved) {
+                      const pendingResults = allSettled.filter(r => r.status === 'pending');
+                      console.log(`[Page Loader] Vérification ${checkCount}: ${pendingResults.length} promesse(s) encore en attente sur ${promises.length}`);
+                      consecutiveStableChecks = 0;
+                      return;
                     }
                     
-                    if (allResolved) {
-                      consecutiveStableChecks++;
-                      console.log(`[Page Loader] Toutes les promesses résolues (vérification ${consecutiveStableChecks}/3)`);
+                    consecutiveStableChecks++;
+                    console.log(`[Page Loader] Toutes les promesses résolues (vérification ${consecutiveStableChecks}/3)`);
+                    
+                    // Attendre 3 vérifications consécutives avec toutes les promesses résolues
+                    if (consecutiveStableChecks >= 3) {
+                      // Attendre un peu plus pour s'assurer qu'aucune nouvelle promesse n'est enregistrée
+                      await new Promise(resolve => setTimeout(resolve, 500));
                       
-                      // Attendre 3 vérifications consécutives avec toutes les promesses résolues
-                      if (consecutiveStableChecks >= 3) {
-                        // Attendre un peu plus pour s'assurer qu'aucune nouvelle promesse n'est enregistrée
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                        
-                        // Vérifier une dernière fois
-                        if (window.pageLoadPromises.length === promises.length) {
-                          console.log(`[Page Loader] ✅ Toutes les promesses sont résolues, masquage du loader`);
-                          clearInterval(checkAllLoaded);
-                          hidePageLoader();
-                        } else {
-                          // Nouvelles promesses ajoutées, réinitialiser
-                          console.log(`[Page Loader] ⚠️ Nouvelles promesses ajoutées, réinitialisation`);
-                          consecutiveStableChecks = 0;
-                        }
+                      // Vérifier une dernière fois si de nouvelles promesses ont été ajoutées
+                      if (window.pageLoadPromises.length === promises.length) {
+                        console.log(`[Page Loader] ✅ Toutes les ${promises.length} promesses sont résolues, masquage du loader`);
+                        clearInterval(checkAllLoaded);
+                        hidePageLoader();
+                      } else {
+                        // Nouvelles promesses ajoutées, réinitialiser
+                        console.log(`[Page Loader] ⚠️ Nouvelles promesses ajoutées (${window.pageLoadPromises.length} au lieu de ${promises.length}), réinitialisation`);
+                        lastPromiseCount = window.pageLoadPromises.length;
+                        stableCount = 0;
+                        consecutiveStableChecks = 0;
                       }
-                    } else {
-                      consecutiveStableChecks = 0;
                     }
                   }
                 }, 300);
@@ -310,7 +370,7 @@ import '../styles/fle.css';
                   clearInterval(checkAllLoaded);
                   hidePageLoader();
                 }, 15000);
-              }, 500); // Délai supplémentaire pour laisser le temps aux scripts de s'enregistrer
+              }
             }, 2000); // Augmenter le délai initial à 2 secondes
           });
         });
