@@ -22,31 +22,38 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
 
     const apiUrl = `${API_BASE_URL}/values/all`;
     
-    try {
-      const res = await fetch(apiUrl);
-      const data = await res.json();
-      console.log('Données récupérées côté API :', data);
-      const values = Array.isArray(data) ? data : [];
-      
-      if (values.length === 0) {
-        valuesList.innerHTML = '<div class="values-empty">Aucune valeur disponible</div>';
-        return;
-      }
+    const loadPromise = (async () => {
+      try {
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+        console.log('Données récupérées côté API :', data);
+        const values = Array.isArray(data) ? data : [];
+        
+        if (values.length === 0) {
+          valuesList.innerHTML = '<div class="values-empty">Aucune valeur disponible</div>';
+          return;
+        }
 
-      valuesList.innerHTML = values.map((value) => {
-        // Gérer les deux cas : file_id direct ou file_id via l'objet file
-        const fileId = value.file_id || value.file?.file_id;
-        const imageUrl = fileId ? `${API_BASE_URL}/files/${fileId}/download` : '';
-        return `
-          <div class="value-item">
-            ${imageUrl ? `<img src="${imageUrl}" alt="${value.name || ''}" />` : '<div class="value-placeholder">Pas d\'image</div>'}
-            <p>${value.name || ''}</p>
-          </div>
-        `;
-      }).join('');
-    } catch (err) {
-      console.error('Erreur lors du fetch API :', err);
-      valuesList.innerHTML = '<div class="values-error">Erreur lors du chargement des valeurs</div>';
+        valuesList.innerHTML = values.map((value) => {
+          // Gérer les deux cas : file_id direct ou file_id via l'objet file
+          const fileId = value.file_id || value.file?.file_id;
+          const imageUrl = fileId ? `${API_BASE_URL}/files/${fileId}/download` : '';
+          return `
+            <div class="value-item">
+              ${imageUrl ? `<img src="${imageUrl}" alt="${value.name || ''}" />` : '<div class="value-placeholder">Pas d\'image</div>'}
+              <p>${value.name || ''}</p>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error('Erreur lors du fetch API :', err);
+        valuesList.innerHTML = '<div class="values-error">Erreur lors du chargement des valeurs</div>';
+      }
+    })();
+    
+    // Enregistrer la promesse pour le système de chargement global
+    if (window.registerPageLoad) {
+      window.registerPageLoad(loadPromise);
     }
   })();
 </script>

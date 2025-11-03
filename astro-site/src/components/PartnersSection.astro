@@ -20,30 +20,37 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
       return;
     }
 
-    try {
-      const res = await fetch(`${API_BASE_URL}/partners/all`);
-      const data = await res.json();
-      const partners = Array.isArray(data) ? data : [];
-      
-      if (partners.length === 0) {
-        carousel.innerHTML = '<p>Aucun partenaire disponible</p>';
-        return;
-      }
+    const loadPromise = (async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/partners/all`);
+        const data = await res.json();
+        const partners = Array.isArray(data) ? data : [];
+        
+        if (partners.length === 0) {
+          carousel.innerHTML = '<p>Aucun partenaire disponible</p>';
+          return;
+        }
 
-      // Répéter 3 fois pour un défilement fluide
-      const partnersX3 = [...partners, ...partners, ...partners];
-      
-      carousel.innerHTML = partnersX3.map((partner, index) => {
-        const imageUrl = partner.file_id ? `${API_BASE_URL}/files/${partner.file_id}/download` : '';
-        return `
-          <div class="carousel-item">
-            ${imageUrl ? `<img src="${imageUrl}" alt="${partner.name || ''}" loading="lazy" />` : '<div class="partner-placeholder">Pas d\'image</div>'}
-          </div>
-        `;
-      }).join('');
-    } catch (err) {
-      console.error('Erreur lors de la récupération des partenaires :', err);
-      carousel.innerHTML = '<div class="partners-error">Erreur lors du chargement des partenaires</div>';
+        // Répéter 3 fois pour un défilement fluide
+        const partnersX3 = [...partners, ...partners, ...partners];
+        
+        carousel.innerHTML = partnersX3.map((partner, index) => {
+          const imageUrl = partner.file_id ? `${API_BASE_URL}/files/${partner.file_id}/download` : '';
+          return `
+            <div class="carousel-item">
+              ${imageUrl ? `<img src="${imageUrl}" alt="${partner.name || ''}" loading="lazy" />` : '<div class="partner-placeholder">Pas d\'image</div>'}
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error('Erreur lors de la récupération des partenaires :', err);
+        carousel.innerHTML = '<div class="partners-error">Erreur lors du chargement des partenaires</div>';
+      }
+    })();
+    
+    // Enregistrer la promesse pour le système de chargement global
+    if (window.registerPageLoad) {
+      window.registerPageLoad(loadPromise);
     }
   })();
 </script>
