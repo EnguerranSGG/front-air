@@ -18,6 +18,17 @@ const structureTypes = [
 </section>
 
 <script define:vars={{ API_BASE_URL, structureTypes: JSON.stringify(structureTypes) }}>
+  // Fonction helper pour enregistrer une promesse immédiatement
+  function registerPromiseWhenReady(promise) {
+    if (!window.pageLoadPromises) {
+      window.pageLoadPromises = [];
+    }
+    window.pageLoadPromises.push(promise);
+    if (window.registerPageLoad) {
+      window.registerPageLoad(promise);
+    }
+  }
+  
   // API_BASE_URL est disponible dans le script
   // Charger les structures côté client
   (async function() {
@@ -146,14 +157,8 @@ const structureTypes = [
       }
     })();
     
-    // Enregistrer la promesse pour le système de chargement global
-    if (!window.pageLoadPromises) {
-      window.pageLoadPromises = [];
-    }
-    window.pageLoadPromises.push(loadPromise);
-    if (window.registerPageLoad) {
-      window.registerPageLoad(loadPromise);
-    }
+    // Enregistrer la promesse immédiatement pour le système de chargement global
+    registerPromiseWhenReady(loadPromise);
   })();
 
   function initScrollAnimations() {
