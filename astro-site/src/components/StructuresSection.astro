@@ -18,21 +18,11 @@ const structureTypes = [
 </section>
 
 <script define:vars={{ API_BASE_URL, structureTypes: JSON.stringify(structureTypes) }}>
-  // Fonction helper pour enregistrer une promesse immédiatement
-  function registerPromiseWhenReady(promise) {
-    if (!window.pageLoadPromises) {
-      window.pageLoadPromises = [];
-    }
-    window.pageLoadPromises.push(promise);
-    if (window.registerPageLoad) {
-      window.registerPageLoad(promise);
-    }
-  }
+  // Créer la promesse immédiatement et l'enregistrer de manière synchrone
+  const container = document.getElementById('structures-container');
   
-  // API_BASE_URL est disponible dans le script
-  // Charger les structures côté client
-  (async function() {
-    const container = document.getElementById('structures-container');
+  // Créer la promesse de chargement immédiatement (sans IIFE async)
+  const loadPromise = (async () => {
     if (!container || !API_BASE_URL) {
       if (container) {
         container.innerHTML = '<p>Configuration API manquante</p>';
@@ -40,10 +30,9 @@ const structureTypes = [
       return;
     }
 
-    const loadPromise = (async () => {
-      try {
-        const types = JSON.parse(structureTypes);
-        const promises = types.map(async (typeName) => {
+    try {
+      const types = JSON.parse(structureTypes);
+      const promises = types.map(async (typeName) => {
         try {
           const res = await fetch(`${API_BASE_URL}/structures/by-type-name/${encodeURIComponent(typeName)}`);
           if (res.ok) {
@@ -151,15 +140,22 @@ const structureTypes = [
 
       // Initialiser les animations
       initScrollAnimations();
-      } catch (err) {
-        console.error('Erreur lors du fetch des structures :', err);
+    } catch (err) {
+      console.error('Erreur lors du fetch des structures :', err);
+      if (container) {
         container.innerHTML = '<p>Erreur lors du chargement des structures</p>';
       }
-    })();
-    
-    // Enregistrer la promesse immédiatement pour le système de chargement global
-    registerPromiseWhenReady(loadPromise);
+    }
   })();
+  
+  // Enregistrer la promesse immédiatement pour le système de chargement global
+  if (!window.pageLoadPromises) {
+    window.pageLoadPromises = [];
+  }
+  window.pageLoadPromises.push(loadPromise);
+  if (window.registerPageLoad) {
+    window.registerPageLoad(loadPromise);
+  }
 
   function initScrollAnimations() {
     const observerOptions = {
