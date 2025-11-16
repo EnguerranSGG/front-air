@@ -77,20 +77,11 @@ export class StructureComponent implements OnInit {
     const filesPromise = firstValueFrom(this.fileService.getAll());
     const structuresPromise = firstValueFrom(this.structureService.getAll());
 
-    // Enregistrer toutes les promesses dans le service de chargement
-    this.pageLoaderService.registerPageLoad(typesPromise);
-    this.pageLoaderService.registerPageLoad(filesPromise);
-    this.pageLoaderService.registerPageLoad(structuresPromise);
-
-    Promise.all([typesPromise, filesPromise])
-      .then(([typesData, filesData]) => {
+    // Créer une promesse combinée qui attend toutes les promesses ET le traitement final
+    const allDataPromise = Promise.all([typesPromise, filesPromise, structuresPromise])
+      .then(([typesData, filesData, structuresData]) => {
         this.structureTypes = typesData || [];
         this.files = filesData || [];
-
-        // Maintenant charger les structures une fois que les types sont disponibles
-        return structuresPromise;
-      })
-      .then((structuresData) => {
         this.structures = (structuresData || []).sort(
           (a, b) => a.structure_id - b.structure_id
         );
@@ -113,7 +104,11 @@ export class StructureComponent implements OnInit {
         console.error('Erreur lors du chargement initial:', error);
         this.toast.show('Erreur lors du chargement des données');
         this.isInitialLoading = false;
+        throw error; // Re-throw pour que la promesse soit rejetée
       });
+
+    // Enregistrer la promesse combinée dans le service de chargement
+    this.pageLoaderService.registerPageLoad(allDataPromise);
   }
 
   buildForm(structure?: Structure): FormGroup {
