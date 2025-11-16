@@ -10,6 +10,8 @@ import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
 import { RouterModule } from '@angular/router';
 import { PresentationService } from '../../services/presentation.service';
 import { Presentation } from '../../models/presentation.model';
+import { PageLoaderService } from '../../services/page-loader.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-history',
@@ -31,7 +33,8 @@ export class HistoryComponent implements OnInit {
     private timeService: TimeService,
     private fb: FormBuilder,
     private toastService: ToastService,
-    private presentationService: PresentationService
+    private presentationService: PresentationService,
+    private pageLoaderService: PageLoaderService
   ) {}
 
   ngOnInit(): void {
@@ -47,23 +50,36 @@ export class HistoryComponent implements OnInit {
   }
 
   loadTimes(): void {
-    this.timeService.getAll().subscribe((data) => {
-      this.times = data.sort((a, b) => b.year - a.year);
-    });
+    const timesPromise = firstValueFrom(this.timeService.getAll());
+    this.pageLoaderService.registerPageLoad(timesPromise);
+
+    timesPromise.then(
+      (data) => {
+        this.times = data.sort((a, b) => b.year - a.year);
+      },
+      (error) => {
+        console.error('Erreur lors du chargement des événements:', error);
+      }
+    );
   }
 
   private loadPresentation(): void {
     this.isLoadingPresentation = true;
-    this.presentationService.getById(2).subscribe({
-      next: (presentation) => {
+    const presentationPromise = firstValueFrom(
+      this.presentationService.getById(2)
+    );
+    this.pageLoaderService.registerPageLoad(presentationPromise);
+
+    presentationPromise.then(
+      (presentation) => {
         this.presentation = presentation;
         this.isLoadingPresentation = false;
       },
-      error: (error) => {
+      (error) => {
         console.error('Erreur lors du chargement de la présentation:', error);
         this.isLoadingPresentation = false;
       }
-    });
+    );
   }
 
   startCreate(): void {
@@ -91,7 +107,7 @@ export class HistoryComponent implements OnInit {
         this.createForm.reset();
         this.toastService.show('Evénement ajouté avec succès ✅');
       },
-      error: (err) => console.error('Erreur lors de l\'ajout:', err),
+      error: (err) => console.error("Erreur lors de l'ajout:", err),
     });
   }
 
