@@ -9,7 +9,6 @@ import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
 import { FileSelectorComponent } from '../files/files-selector.component';
-import { SpinnerComponent } from '../../utils/spinner/spinner.component';
 import { environment } from '../../../environments/environment';
 import { PageLoaderService } from '../../services/page-loader.service';
 import { firstValueFrom } from 'rxjs';
@@ -17,12 +16,7 @@ import { firstValueFrom } from 'rxjs';
 @Component({
   selector: 'app-partners',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    CommonModule,
-    FileSelectorComponent,
-    SpinnerComponent,
-  ],
+  imports: [ReactiveFormsModule, CommonModule, FileSelectorComponent],
   templateUrl: './partners.component.html',
   styleUrls: ['./partners.component.scss'],
 })

@@ -14,8 +14,6 @@ import { FileEntity } from '../../models/file.model';
 import { FileSelectorComponent } from '../files/files-selector.component';
 import { FileService } from '../../services/file.service';
 import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
-import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
-import { SpinnerComponent } from '../../utils/spinner/spinner.component';
 import { PageLoaderService } from '../../services/page-loader.service';
 import { firstValueFrom } from 'rxjs';
 
@@ -26,8 +24,6 @@ import { firstValueFrom } from 'rxjs';
     CommonModule,
     ReactiveFormsModule,
     FileSelectorComponent,
-    SanitizePipe,
-    SpinnerComponent,
   ],
   templateUrl: './values.component.html',
   styleUrls: ['./values.component.scss'],
@@ -68,11 +64,11 @@ export class ValuesComponent implements OnInit {
     const valuesPromise = firstValueFrom(this.valueService.getAll());
     const filesPromise = firstValueFrom(this.fileService.getAll());
 
-    // Enregistrer les promesses dans le service de chargement
-    this.pageLoaderService.registerPageLoad(valuesPromise);
-    this.pageLoaderService.registerPageLoad(filesPromise);
+    // Créer la promesse combinée et l'enregistrer immédiatement
+    const allDataPromise = Promise.all([valuesPromise, filesPromise]);
+    this.pageLoaderService.registerPageLoad(allDataPromise);
 
-    Promise.all([valuesPromise, filesPromise])
+    allDataPromise
       .then(([valuesData, filesData]) => {
         this.values = (valuesData || []).sort((a, b) =>
           a.name.localeCompare(b.name)
