@@ -19,11 +19,20 @@ import { FileService } from '../../services/file.service';
 import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
 import { sanitize } from 'class-sanitizer';
 import { SpinnerComponent } from '../../utils/spinner/spinner.component';
+import { PageLoaderService } from '../../services/page-loader.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-structure',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, FileSelectorComponent, SanitizePipe, SpinnerComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    FileSelectorComponent,
+    SanitizePipe,
+    SpinnerComponent,
+  ],
   templateUrl: './structures.component.html',
   styleUrls: ['./structures.component.scss'],
 })
@@ -51,7 +60,8 @@ export class StructureComponent implements OnInit {
     private structureTypeService: StructureTypeService,
     private toast: ToastService,
     private fileService: FileService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private pageLoaderService: PageLoaderService
   ) {}
 
   ngOnInit(): void {
@@ -61,32 +71,44 @@ export class StructureComponent implements OnInit {
 
   private loadInitialData(): void {
     this.isInitialLoading = true;
-    
+
     // Charger les types, fichiers et structures en parallèle
-    const typesPromise = this.structureTypeService.getAllWithFallback().toPromise();
-    const filesPromise = this.fileService.getAll().toPromise();
-    
+    const typesPromise = firstValueFrom(
+      this.structureTypeService.getAllWithFallback()
+    );
+    const filesPromise = firstValueFrom(this.fileService.getAll());
+    const structuresPromise = firstValueFrom(this.structureService.getAll());
+
+    // Enregistrer toutes les promesses dans le service de chargement
+    this.pageLoaderService.registerPageLoad(typesPromise);
+    this.pageLoaderService.registerPageLoad(filesPromise);
+    this.pageLoaderService.registerPageLoad(structuresPromise);
+
     Promise.all([typesPromise, filesPromise])
       .then(([typesData, filesData]) => {
         this.structureTypes = typesData || [];
         this.files = filesData || [];
-        
+
         // Maintenant charger les structures une fois que les types sont disponibles
-        return this.structureService.getAll().toPromise();
+        return structuresPromise;
       })
       .then((structuresData) => {
-        this.structures = (structuresData || []).sort((a, b) => a.structure_id - b.structure_id);
-        
+        this.structures = (structuresData || []).sort(
+          (a, b) => a.structure_id - b.structure_id
+        );
+
         // Peupler les objets structure_type manuellement
-        this.structures.forEach(structure => {
+        this.structures.forEach((structure) => {
           if (structure.structure_type_id && !structure.structure_type) {
-            const type = this.structureTypes.find(t => t.structure_type_id === structure.structure_type_id);
+            const type = this.structureTypes.find(
+              (t) => t.structure_type_id === structure.structure_type_id
+            );
             if (type) {
               structure.structure_type = type;
             }
           }
         });
-        
+
         this.isInitialLoading = false;
       })
       .catch((error) => {
@@ -98,34 +120,51 @@ export class StructureComponent implements OnInit {
 
   buildForm(structure?: Structure): FormGroup {
     return this.fb.group({
-      name: [structure?.name || '', [Validators.required, Validators.maxLength(60)]],
-      description: [structure?.description || '', [Validators.required, Validators.maxLength(330)]],
+      name: [
+        structure?.name || '',
+        [Validators.required, Validators.maxLength(60)],
+      ],
+      description: [
+        structure?.description || '',
+        [Validators.required, Validators.maxLength(330)],
+      ],
       address: [structure?.address || '', [Validators.maxLength(255)]],
       phone_number: [structure?.phone_number || '', [Validators.maxLength(25)]],
-      link: [structure?.link || '', [Validators.maxLength(255), Validators.pattern(/https?:\/\/.+/)]],
+      link: [
+        structure?.link || '',
+        [Validators.maxLength(255), Validators.pattern(/https?:\/\/.+/)],
+      ],
       file_id: [structure?.file?.file_id || null],
-      structure_type_id: [structure?.structure_type_id || null, [Validators.required]],
+      structure_type_id: [
+        structure?.structure_type_id || null,
+        [Validators.required],
+      ],
       missions: this.fb.array(
-        structure?.missions?.map(m => this.fb.control(m.content, [Validators.maxLength(250)])) || []
+        structure?.missions?.map((m) =>
+          this.fb.control(m.content, [Validators.maxLength(250)])
+        ) || []
       ),
     });
   }
 
   onFileSelect(fileId: number): void {
-    const targetForm = this.editingStructureId !== null ? this.editForm : this.createForm;
+    const targetForm =
+      this.editingStructureId !== null ? this.editForm : this.createForm;
     targetForm.patchValue({ file_id: fileId });
   }
 
   private loadStructures(): void {
     this.isLoading = true;
     this.structureService.getAll().subscribe({
-      next: data => {
+      next: (data) => {
         this.structures = data.sort((a, b) => a.structure_id - b.structure_id);
-        
+
         // Peupler les objets structure_type manuellement
-        this.structures.forEach(structure => {
+        this.structures.forEach((structure) => {
           if (structure.structure_type_id && !structure.structure_type) {
-            const type = this.structureTypes.find(t => t.structure_type_id === structure.structure_type_id);
+            const type = this.structureTypes.find(
+              (t) => t.structure_type_id === structure.structure_type_id
+            );
             if (type) {
               structure.structure_type = type;
             }
@@ -144,19 +183,21 @@ export class StructureComponent implements OnInit {
     if (this.selectedTypeFilter === 'all') {
       return this.structures;
     }
-    
+
     if (this.selectedTypeFilter === 'no-type') {
-      return this.structures.filter(structure => !structure.structure_type?.name);
+      return this.structures.filter(
+        (structure) => !structure.structure_type?.name
+      );
     }
-    
-    const filtered = this.structures.filter(structure => {
+
+    const filtered = this.structures.filter((structure) => {
       if (!structure.structure_type?.name) {
         return false;
       }
       const matches = structure.structure_type.name === this.selectedTypeFilter;
       return matches;
     });
-    
+
     return filtered;
   }
 
@@ -230,7 +271,9 @@ export class StructureComponent implements OnInit {
   }
 
   addMission(form: FormGroup): void {
-    (form.get('missions') as FormArray).push(this.fb.control('', [Validators.maxLength(250)]));
+    (form.get('missions') as FormArray).push(
+      this.fb.control('', [Validators.maxLength(250)])
+    );
   }
 
   removeMission(form: FormGroup, index: number): void {
@@ -243,14 +286,16 @@ export class StructureComponent implements OnInit {
       name: sanitize(formValue.name),
       description: sanitize(formValue.description),
       address: formValue.address ? sanitize(formValue.address) : null,
-      phone_number: formValue.phone_number ? sanitize(formValue.phone_number) : null,
+      phone_number: formValue.phone_number
+        ? sanitize(formValue.phone_number)
+        : null,
       link: formValue.link ? sanitize(formValue.link) : null,
       structure_type_id: formValue.structure_type_id,
       missions: (formValue.missions || []).map((content: string) => {
         return { content: sanitize(content) };
       }),
     };
-  
+
     return sanitized;
   }
 }
