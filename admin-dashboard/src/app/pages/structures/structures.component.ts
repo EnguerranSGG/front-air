@@ -18,7 +18,6 @@ import { FileSelectorComponent } from '../files/files-selector.component';
 import { FileService } from '../../services/file.service';
 import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
 import { sanitize } from 'class-sanitizer';
-import { SpinnerComponent } from '../../utils/spinner/spinner.component';
 import { PageLoaderService } from '../../services/page-loader.service';
 import { firstValueFrom } from 'rxjs';
 
@@ -31,7 +30,6 @@ import { firstValueFrom } from 'rxjs';
     FormsModule,
     FileSelectorComponent,
     SanitizePipe,
-    SpinnerComponent,
   ],
   templateUrl: './structures.component.html',
   styleUrls: ['./structures.component.scss'],
