@@ -8,14 +8,13 @@ import {
 import { CommonModule } from '@angular/common';
 import { FileService } from '../../services/file.service';
 import { ToastService } from '../../utils/toast/toast.service';
-import { SpinnerComponent } from '../../utils/spinner/spinner.component';
 import { PageLoaderService } from '../../services/page-loader.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-file',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, SpinnerComponent],
+  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './files.component.html',
   styleUrls: ['./files.component.scss'],
 })
