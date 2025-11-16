@@ -5,11 +5,12 @@ import { CommonModule } from '@angular/common';
 import { ToastComponent } from './utils/toast/toast.component';
 import { ToastService } from './utils/toast/toast.service';
 import { AuthService } from './services/auth.service';
+import { PageLoaderComponent } from './components/page-loader/page-loader.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, CommonModule, ToastComponent],
+  imports: [RouterOutlet, HeaderComponent, CommonModule, ToastComponent, PageLoaderComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })

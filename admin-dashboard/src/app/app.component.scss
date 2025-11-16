@@ -24,6 +24,9 @@
 .main-content {
   transition: all 0.3s ease;
   min-height: 100vh;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.5s ease-out forwards;
   
   &.with-header {
     @media (min-width: 769px) {
@@ -41,6 +44,13 @@
     // Pour la page de login sans header
     margin: 0;
     padding: 0;
+  }
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
   

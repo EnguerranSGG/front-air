@@ -4,9 +4,11 @@ import { HomeIllustrationComponent } from '../home-illustration/home-illustratio
 import { FleIllustrationComponent } from '../fle-illustration/fle-illustration.component';
 import { PresentationService } from '../../services/presentation.service';
 import { Presentation } from '../../models/presentation.model';
+import { PageLoaderService } from '../../services/page-loader.service';
 
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -25,7 +27,10 @@ export class DashboardComponent implements OnInit {
   presentation: Presentation | null = null;
   isLoading = false;
 
-  constructor(private presentationService: PresentationService) {}
+  constructor(
+    private presentationService: PresentationService,
+    private pageLoaderService: PageLoaderService
+  ) {}
 
   ngOnInit(): void {
     this.loadPresentation();
@@ -33,15 +38,20 @@ export class DashboardComponent implements OnInit {
 
   private loadPresentation(): void {
     this.isLoading = true;
-    this.presentationService.getById(1).subscribe({
-      next: (presentation) => {
+    
+    // Enregistrer la promesse de chargement
+    const presentationPromise = firstValueFrom(this.presentationService.getById(1));
+    this.pageLoaderService.registerPageLoad(presentationPromise);
+    
+    presentationPromise.then(
+      (presentation) => {
         this.presentation = presentation;
         this.isLoading = false;
       },
-      error: (error) => {
+      (error) => {
         console.error('Erreur lors du chargement de la présentation:', error);
         this.isLoading = false;
       }
-    });
+    );
   }
 }
