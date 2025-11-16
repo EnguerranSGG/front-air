@@ -2,7 +2,7 @@
   <h3 class="illustration-title">{{ fleIllustrationFile?.title || fleIllustrationFile?.name || 'Illustration du FLE' }}</h3>
 
   <div class="illustration-container">
-    <img [src]="fleIllustrationUrl" alt="Illustration du FLE" class="illustration" />
+    <img #fleImage [src]="fleIllustrationUrl" alt="Illustration du FLE" class="illustration" />
   </div>
 
   <div class="card-actions">

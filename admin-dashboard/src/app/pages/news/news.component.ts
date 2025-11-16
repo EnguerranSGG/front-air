@@ -16,6 +16,8 @@ import { FileService } from '../../services/file.service';
 import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
 import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
 import { SpinnerComponent } from '../../utils/spinner/spinner.component';
+import { PageLoaderService } from '../../services/page-loader.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-news',
@@ -51,7 +53,8 @@ export class NewsComponent implements OnInit {
     private fb: FormBuilder,
     private newsService: NewsService,
     private toast: ToastService,
-    private fileService: FileService
+    private fileService: FileService,
+    private pageLoaderService: PageLoaderService
   ) {}
 
   ngOnInit(): void {
@@ -81,30 +84,36 @@ export class NewsComponent implements OnInit {
   // 📥 Load News & Files
   private loadNews(): void {
     this.isLoading = true;
-    this.newsService.getAll().subscribe({
-      next: (data) => {
+    const newsPromise = firstValueFrom(this.newsService.getAll());
+    this.pageLoaderService.registerPageLoad(newsPromise);
+    
+    newsPromise.then(
+      (data) => {
         this.newsList = data.sort((a, b) => a.name.localeCompare(b.name));
         this.isLoading = false;
       },
-      error: () => {
+      () => {
         this.toast.show('Erreur lors du chargement des actualités');
         this.isLoading = false;
-      },
-    });
+      }
+    );
   }
 
   private getFiles(): void {
     this.isLoadingFiles = true;
-    this.fileService.getAll().subscribe({
-      next: (files) => {
+    const filesPromise = firstValueFrom(this.fileService.getAll());
+    this.pageLoaderService.registerPageLoad(filesPromise);
+    
+    filesPromise.then(
+      (files) => {
         this.files = files;
         this.isLoadingFiles = false;
       },
-      error: () => {
+      () => {
         this.toast.show('Erreur lors du chargement des fichiers');
         this.isLoadingFiles = false;
-      },
-    });
+      }
+    );
   }
 
   // 📎 File Selection

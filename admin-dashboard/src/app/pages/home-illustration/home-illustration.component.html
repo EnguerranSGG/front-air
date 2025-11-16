@@ -2,7 +2,7 @@
   <h3 class="illustration-title">{{ homeIllustrationFile?.title || homeIllustrationFile?.name || 'Illustration d\'accueil' }}</h3>
 
   <div class="illustration-container">
-    <img [src]="homeIllustrationUrl" alt="Illustration d'accueil" class="illustration" />
+    <img #homeImage [src]="homeIllustrationUrl" alt="Illustration d'accueil" class="illustration" />
   </div>
 
   <div class="card-actions">
