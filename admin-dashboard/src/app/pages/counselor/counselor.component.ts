@@ -8,11 +8,18 @@ import { Validators } from '@angular/forms';
 import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
 import { GovernanceComponent } from '../governance/governance.component';
 import { SpinnerComponent } from '../../utils/spinner/spinner.component';
+import { PageLoaderService } from '../../services/page-loader.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, GovernanceComponent, SpinnerComponent],
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    GovernanceComponent,
+    SpinnerComponent,
+  ],
   templateUrl: './counselor.component.html',
   styleUrls: ['./counselor.component.scss'],
 })
@@ -27,13 +34,17 @@ export class CounselorComponent implements OnInit {
   constructor(
     private counselorService: CounselorService,
     private fb: FormBuilder,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private pageLoaderService: PageLoaderService
   ) {}
 
   ngOnInit(): void {
     this.loadCounselors();
     this.createForm = this.fb.group({
-      counselor_firstname: ['', [Validators.required, Validators.maxLength(30)]],
+      counselor_firstname: [
+        '',
+        [Validators.required, Validators.maxLength(30)],
+      ],
       counselor_lastname: ['', [Validators.required, Validators.maxLength(30)]],
       counselor_function: ['', [Validators.required, Validators.maxLength(50)]],
     });
@@ -41,15 +52,18 @@ export class CounselorComponent implements OnInit {
 
   loadCounselors(): void {
     this.isLoading = true;
-    this.counselorService.getAll().subscribe({
-      next: (data) => {
+    const counselorsPromise = firstValueFrom(this.counselorService.getAll());
+    this.pageLoaderService.registerPageLoad(counselorsPromise);
+
+    counselorsPromise.then(
+      (data) => {
         this.counselors = data.sort((a, b) => b.counselor_id - a.counselor_id);
         this.isLoading = false;
       },
-      error: () => {
+      () => {
         this.isLoading = false;
-      },
-    });
+      }
+    );
   }
 
   startCreate(): void {
@@ -95,7 +109,7 @@ export class CounselorComponent implements OnInit {
       counselor_function: [
         counselor.counselor_function,
         [Validators.required, Validators.maxLength(50)],
-      ]
+      ],
     });
   }
 
@@ -112,25 +126,34 @@ export class CounselorComponent implements OnInit {
     }
     const sanitizedPayload = sanitizeFormValue(this.editForm.value);
 
-    this.counselorService.update(counselor.counselor_id, sanitizedPayload).subscribe({
-      next: (updatedCounselor) => {
-        console.log('Mise à jour réussie:', updatedCounselor);
-        const index = this.counselors.findIndex((c) => c.counselor_id === counselor.counselor_id);
-        if (index !== -1) {
-          this.counselors[index] = { ...this.counselors[index], ...updatedCounselor };
-        }
-        this.editingCounselorId = null;
-        this.loadCounselors();
-        this.editForm.reset();
-        this.toastService.show('Conseiller modifié avec succès ✏️');
-      },
-      error: () => console.error('Erreur lors de la modification:'),
-    });
+    this.counselorService
+      .update(counselor.counselor_id, sanitizedPayload)
+      .subscribe({
+        next: (updatedCounselor) => {
+          console.log('Mise à jour réussie:', updatedCounselor);
+          const index = this.counselors.findIndex(
+            (c) => c.counselor_id === counselor.counselor_id
+          );
+          if (index !== -1) {
+            this.counselors[index] = {
+              ...this.counselors[index],
+              ...updatedCounselor,
+            };
+          }
+          this.editingCounselorId = null;
+          this.loadCounselors();
+          this.editForm.reset();
+          this.toastService.show('Conseiller modifié avec succès ✏️');
+        },
+        error: () => console.error('Erreur lors de la modification:'),
+      });
   }
 
   deleteCounselor(counselor_id: number): void {
     if (confirm('Supprimer ce conseiller ?')) {
-      this.counselorService.delete(counselor_id).subscribe(() => this.loadCounselors());
+      this.counselorService
+        .delete(counselor_id)
+        .subscribe(() => this.loadCounselors());
       this.toastService.show('Conseiller supprimé avec succès 🗑️');
     }
   }

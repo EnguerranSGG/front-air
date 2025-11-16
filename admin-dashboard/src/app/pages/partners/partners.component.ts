@@ -11,11 +11,18 @@ import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
 import { FileSelectorComponent } from '../files/files-selector.component';
 import { SpinnerComponent } from '../../utils/spinner/spinner.component';
 import { environment } from '../../../environments/environment';
+import { PageLoaderService } from '../../services/page-loader.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-partners',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, FileSelectorComponent, SpinnerComponent],
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    FileSelectorComponent,
+    SpinnerComponent,
+  ],
   templateUrl: './partners.component.html',
   styleUrls: ['./partners.component.scss'],
 })
@@ -35,7 +42,8 @@ export class PartnersComponent implements OnInit {
     private partnerService: PartnerService,
     private fileService: FileService,
     private fb: FormBuilder,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private pageLoaderService: PageLoaderService
   ) {
     this.initForms();
   }
@@ -47,24 +55,29 @@ export class PartnersComponent implements OnInit {
   private initForms(): void {
     this.createForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(50)]],
-      file_id: [null]
+      file_id: [null],
     });
 
     this.editForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(50)]],
-      file_id: [null]
+      file_id: [null],
     });
   }
 
   private async loadData(): Promise<void> {
     try {
       this.isInitialLoading = true;
-      
+
       // Charger les partenaires et les fichiers en parallèle
-      const [partnersData, filesData] = await Promise.all([
-        this.partnerService.getAll().toPromise(),
-        this.fileService.getAll().toPromise()
+      const loadPromise = Promise.all([
+        firstValueFrom(this.partnerService.getAll()),
+        firstValueFrom(this.fileService.getAll()),
       ]);
+
+      // Enregistrer la promesse dans le service de chargement
+      this.pageLoaderService.registerPageLoad(loadPromise);
+
+      const [partnersData, filesData] = await loadPromise;
 
       this.partners = partnersData || [];
       this.files = filesData || [];
@@ -89,7 +102,7 @@ export class PartnersComponent implements OnInit {
       const formData = this.createForm.value;
       const sanitizedData = {
         name: sanitizeFormValue(formData.name),
-        file_id: formData.file_id
+        file_id: formData.file_id,
       };
 
       this.partnerService.create(sanitizedData).subscribe({
@@ -103,7 +116,7 @@ export class PartnersComponent implements OnInit {
         error: (error) => {
           console.error('Erreur lors de la création:', error);
           this.toastService.show('Erreur lors de la création du partenaire');
-        }
+        },
       });
     }
   }
@@ -112,7 +125,7 @@ export class PartnersComponent implements OnInit {
     this.editingPartnerId = partner.parteners_id;
     this.editForm.patchValue({
       name: partner.name,
-      file_id: partner.file_id
+      file_id: partner.file_id,
     });
     this.showEditFileSelector = false;
   }
@@ -122,20 +135,24 @@ export class PartnersComponent implements OnInit {
       const formData = this.editForm.value;
       const sanitizedData = {
         name: sanitizeFormValue(formData.name),
-        file_id: formData.file_id
+        file_id: formData.file_id,
       };
 
-      this.partnerService.update(partner.parteners_id, sanitizedData).subscribe({
-        next: () => {
-          this.toastService.show('Partenaire modifié avec succès');
-          this.cancelEdit();
-          this.loadData();
-        },
-        error: (error) => {
-          console.error('Erreur lors de la modification:', error);
-          this.toastService.show('Erreur lors de la modification du partenaire');
-        }
-      });
+      this.partnerService
+        .update(partner.parteners_id, sanitizedData)
+        .subscribe({
+          next: () => {
+            this.toastService.show('Partenaire modifié avec succès');
+            this.cancelEdit();
+            this.loadData();
+          },
+          error: (error) => {
+            console.error('Erreur lors de la modification:', error);
+            this.toastService.show(
+              'Erreur lors de la modification du partenaire'
+            );
+          },
+        });
     }
   }
 
@@ -155,10 +172,8 @@ export class PartnersComponent implements OnInit {
         error: (error) => {
           console.error('Erreur lors de la suppression:', error);
           this.toastService.show('Erreur lors de la suppression du partenaire');
-        }
+        },
       });
     }
   }
-
-
-} 
+}

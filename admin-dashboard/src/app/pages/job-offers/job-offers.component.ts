@@ -13,6 +13,8 @@ import { FileSelectorComponent } from '../../pages/files/files-selector.componen
 import { environment } from '../../../environments/environment';
 import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
 import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
+import { PageLoaderService } from '../../services/page-loader.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-job-offer',
@@ -22,13 +24,13 @@ import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
     CommonModule,
     RouterModule,
     FileSelectorComponent,
-    SanitizePipe
+    SanitizePipe,
   ],
   templateUrl: './job-offers.component.html',
-  styleUrls: ['./job-offers.component.scss']
+  styleUrls: ['./job-offers.component.scss'],
 })
 export class JobOfferComponent implements OnInit {
-  apiUrl = environment.API_URL;  
+  apiUrl = environment.API_URL;
   form!: FormGroup;
   jobOffers: any[] = [];
   editingId: number | null = null;
@@ -43,7 +45,8 @@ export class JobOfferComponent implements OnInit {
     private service: JobOfferService,
     private fileService: FileService,
     private presentationService: PresentationService,
-    private toast: ToastService
+    private toast: ToastService,
+    private pageLoaderService: PageLoaderService
   ) {}
 
   ngOnInit(): void {
@@ -52,7 +55,10 @@ export class JobOfferComponent implements OnInit {
       job_type: ['', [Validators.required, Validators.maxLength(60)]],
       city: ['', [Validators.maxLength(50)]],
       file_id: [null], // Optionnel, pas de validateurs
-      link: ['', [Validators.maxLength(255), Validators.pattern(/https?:\/\/.+/)]],
+      link: [
+        '',
+        [Validators.maxLength(255), Validators.pattern(/https?:\/\/.+/)],
+      ],
       description: ['', [Validators.required, Validators.maxLength(350)]],
     });
 
@@ -62,33 +68,50 @@ export class JobOfferComponent implements OnInit {
   }
 
   getFiles(): void {
-    this.fileService.getAll().subscribe({
-      next: (files) => (this.files = files),
-      error: () => this.toast.show('Erreur lors du chargement des fichiers'),
-    });
+    const filesPromise = firstValueFrom(this.fileService.getAll());
+    this.pageLoaderService.registerPageLoad(filesPromise);
+
+    filesPromise.then(
+      (files) => {
+        this.files = files;
+      },
+      () => {
+        this.toast.show('Erreur lors du chargement des fichiers');
+      }
+    );
   }
 
   loadPresentation(): void {
     this.isLoadingPresentation = true;
-    this.presentationService.getById(3).subscribe({
-      next: (presentation) => {
+    const presentationPromise = firstValueFrom(
+      this.presentationService.getById(3)
+    );
+    this.pageLoaderService.registerPageLoad(presentationPromise);
+
+    presentationPromise.then(
+      (presentation) => {
         this.presentation = presentation;
         this.isLoadingPresentation = false;
       },
-      error: (error) => {
+      (error) => {
         console.error('Erreur lors du chargement de la présentation:', error);
         this.isLoadingPresentation = false;
       }
-    });
+    );
   }
 
   loadOffers(): void {
-    this.service.getAll().subscribe({
-      next: (data) => {
+    const offersPromise = firstValueFrom(this.service.getAll());
+    this.pageLoaderService.registerPageLoad(offersPromise);
+
+    offersPromise.then(
+      (data) => {
         this.jobOffers = data;
       },
-      error: () => this.toast.show("Erreur lors du chargement des offres"),
-    });
+      () => {
+        this.toast.show('Erreur lors du chargement des offres');
+      }
+    );
   }
 
   onSubmit(): void {
@@ -105,7 +128,9 @@ export class JobOfferComponent implements OnInit {
 
     action.subscribe({
       next: () => {
-        this.toast.show(`Offre ${this.editingId ? 'modifiée' : 'créée'} avec succès`);
+        this.toast.show(
+          `Offre ${this.editingId ? 'modifiée' : 'créée'} avec succès`
+        );
         this.loadOffers();
         this.reset();
       },
@@ -130,10 +155,10 @@ export class JobOfferComponent implements OnInit {
     if (confirm('Supprimer cette offre ?')) {
       this.service.delete(id).subscribe({
         next: () => {
-          this.toast.show("Offre supprimée");
+          this.toast.show('Offre supprimée');
           this.loadOffers();
         },
-        error: () => this.toast.show("Erreur lors de la suppression"),
+        error: () => this.toast.show('Erreur lors de la suppression'),
       });
     }
   }

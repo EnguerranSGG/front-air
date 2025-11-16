@@ -1,9 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FileService } from '../../services/file.service';
 import { ToastService } from '../../utils/toast/toast.service';
 import { SpinnerComponent } from '../../utils/spinner/spinner.component';
+import { PageLoaderService } from '../../services/page-loader.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-file',
@@ -22,7 +29,8 @@ export class FileComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private fileService: FileService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private pageLoaderService: PageLoaderService
   ) {}
 
   ngOnInit(): void {
@@ -41,20 +49,24 @@ export class FileComponent implements OnInit {
   // Récupère les fichiers existants
   getFiles(): void {
     const PROTECTED_FILE_IDS = [8, 11, 16, 17, 18, 26, 27, 28, 29, 30];
-  
+
     this.isLoading = true;
-    this.fileService.getAll().subscribe({
-      next: (files) => {
-        this.files = files.filter(file => !PROTECTED_FILE_IDS.includes(file.file_id));
+    const filesPromise = firstValueFrom(this.fileService.getAll());
+    this.pageLoaderService.registerPageLoad(filesPromise);
+
+    filesPromise.then(
+      (files) => {
+        this.files = files.filter(
+          (file) => !PROTECTED_FILE_IDS.includes(file.file_id)
+        );
         this.isLoading = false;
       },
-      error: () => {
+      () => {
         this.toastService.show('Erreur lors du chargement des fichiers');
         this.isLoading = false;
-      },
-    });
+      }
+    );
   }
-  
 
   // Gère la sélection de fichier
   onFileSelected(event: Event): void {
@@ -62,15 +74,14 @@ export class FileComponent implements OnInit {
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
       this.fileForm.patchValue({ file: this.selectedFile });
-  
+
       // Nom automatique du fichier (non modifiable)
       this.fileForm.patchValue({ name: this.selectedFile.name });
-      
+
       // Forcer la mise à jour du champ name
       this.fileForm.get('name')?.updateValueAndValidity();
     }
   }
-  
 
   // Crée ou met à jour un fichier
   onSubmit(): void {
@@ -78,7 +89,7 @@ export class FileComponent implements OnInit {
 
     const formData = new FormData();
     formData.append('file', this.selectedFile);
-    
+
     // Pour la création seulement, ajouter le nom
     if (!this.editingFileId) {
       formData.append('name', this.selectedFile.name);
@@ -90,7 +101,9 @@ export class FileComponent implements OnInit {
 
     request.subscribe({
       next: () => {
-        this.toastService.show(`Fichier ${this.editingFileId ? 'modifié' : 'créé'} avec succès`);
+        this.toastService.show(
+          `Fichier ${this.editingFileId ? 'modifié' : 'créé'} avec succès`
+        );
         this.getFiles();
         this.resetForm();
       },
@@ -103,20 +116,20 @@ export class FileComponent implements OnInit {
     this.editingFileId = file.file_id;
     // Vider le champ nom - il sera rempli lors de la sélection du fichier
     this.fileForm.patchValue({ name: '' });
-    
+
     // Scroll vers le haut - méthode simplifiée et fiable
     setTimeout(() => {
       const formElement = document.querySelector('.create-form');
       if (formElement) {
-        formElement.scrollIntoView({ 
-          behavior: 'smooth', 
+        formElement.scrollIntoView({
+          behavior: 'smooth',
           block: 'start',
-          inline: 'nearest'
+          inline: 'nearest',
         });
       } else {
         window.scrollTo({
           top: 0,
-          behavior: 'smooth'
+          behavior: 'smooth',
         });
       }
     }, 100);
@@ -135,7 +148,7 @@ export class FileComponent implements OnInit {
 
   // Télécharge un fichier
   onDownload(file: any): void {
-    this.fileService.download(file.file_id).subscribe(blob => {
+    this.fileService.download(file.file_id).subscribe((blob) => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -155,5 +168,4 @@ export class FileComponent implements OnInit {
   cancelEdit(): void {
     this.resetForm();
   }
-  
 }

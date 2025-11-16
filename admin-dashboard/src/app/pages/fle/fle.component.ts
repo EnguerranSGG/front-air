@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
 import { FileEntity } from '../../models/file.model';
 import { firstValueFrom } from 'rxjs';
+import { PageLoaderService } from '../../services/page-loader.service';
 
 interface FleItem {
   id: number;
@@ -32,10 +33,11 @@ export class FleComponent implements OnInit {
   isLoading = true;
 
   constructor(
-    private fileService: FileService, 
+    private fileService: FileService,
     private authService: AuthService,
     private toast: ToastService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private pageLoaderService: PageLoaderService
   ) {}
 
   ngOnInit(): void {
@@ -45,45 +47,87 @@ export class FleComponent implements OnInit {
 
   initForm(): void {
     this.updateForm = this.fb.group({
-      title: ['']
+      title: [''],
     });
   }
 
   loadFleItems(): void {
     this.isLoading = true;
-    
+
     // IDs des fichiers FLE basés sur le composant FleSection.astro
     const fleFileIds = [
-      { id: 11, title: 'Image principale FLE', description: 'Image principale de la section FLE. Pas de PDF.' },
-      { id: 26, title: 'Satisfaction des stagiaires', description: 'Tableau de satisfaction des stagiaires FLE. Pas de PDF.' },
-      { id: 27, title: 'Code de la route 1', description: 'Tableau des auto-évaluations du code de la route. Pas de PDF.' },
-      { id: 28, title: 'Code de la route 2', description: 'Tableau des d\'acquisitions de compétences du code de la route. Pas de PDF.' },
-      { id: 29, title: 'FLE pro et numérique 1', description: 'Tableau des auto-évaluations du FLE pro et numérique. Pas de PDF.' },
-      { id: 30, title: 'FLE pro et numérique 2', description: 'Tableau des d\'acquisitions de compétences du FLE pro et numérique. Pas de PDF.' },
-      { id: 16, title: 'Flyer FLE', description: 'Flyer de présentation du FLE. PDF uniquement.' },
-      { id: 18, title: 'Certification FLE', description: 'Certification Qualiopi du FLE. PDF uniquement.' }
+      {
+        id: 11,
+        title: 'Image principale FLE',
+        description: 'Image principale de la section FLE. Pas de PDF.',
+      },
+      {
+        id: 26,
+        title: 'Satisfaction des stagiaires',
+        description: 'Tableau de satisfaction des stagiaires FLE. Pas de PDF.',
+      },
+      {
+        id: 27,
+        title: 'Code de la route 1',
+        description:
+          'Tableau des auto-évaluations du code de la route. Pas de PDF.',
+      },
+      {
+        id: 28,
+        title: 'Code de la route 2',
+        description:
+          "Tableau des d'acquisitions de compétences du code de la route. Pas de PDF.",
+      },
+      {
+        id: 29,
+        title: 'FLE pro et numérique 1',
+        description:
+          'Tableau des auto-évaluations du FLE pro et numérique. Pas de PDF.',
+      },
+      {
+        id: 30,
+        title: 'FLE pro et numérique 2',
+        description:
+          "Tableau des d'acquisitions de compétences du FLE pro et numérique. Pas de PDF.",
+      },
+      {
+        id: 16,
+        title: 'Flyer FLE',
+        description: 'Flyer de présentation du FLE. PDF uniquement.',
+      },
+      {
+        id: 18,
+        title: 'Certification FLE',
+        description: 'Certification Qualiopi du FLE. PDF uniquement.',
+      },
     ];
 
     // Charger les informations de chaque fichier
-    const loadPromises = fleFileIds.map(item => 
+    const loadPromises = fleFileIds.map((item) =>
       firstValueFrom(this.fileService.getById(item.id))
-        .then(file => ({
+        .then((file) => ({
           id: item.id,
           title: file?.title || item.title,
           description: item.description,
           file: file || null,
-          imageUrl: `${this.fileService.getApiUrl()}/${item.id}/download?ts=${Date.now()}`
+          imageUrl: `${this.fileService.getApiUrl()}/${
+            item.id
+          }/download?ts=${Date.now()}`,
         }))
         .catch(() => ({
           id: item.id,
           title: item.title,
           description: item.description,
           file: null,
-          imageUrl: ''
+          imageUrl: '',
         }))
     );
 
-    Promise.all(loadPromises).then(items => {
+    // Enregistrer la promesse principale dans le service de chargement
+    const allItemsPromise = Promise.all(loadPromises);
+    this.pageLoaderService.registerPageLoad(allItemsPromise);
+
+    allItemsPromise.then((items) => {
       this.fleItems = items;
       this.isLoading = false;
     });
@@ -93,10 +137,10 @@ export class FleComponent implements OnInit {
     this.selectedItem = item;
     this.isModalOpen = true;
     this.selectedFile = null;
-    
+
     // Remplir le formulaire avec les valeurs actuelles
     this.updateForm.patchValue({
-      title: item.title || ''
+      title: item.title || '',
     });
   }
 
@@ -111,7 +155,7 @@ export class FleComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      
+
       // Validation de la taille du fichier (10MB max)
       const maxSize = 10 * 1024 * 1024; // 10MB en bytes
       if (file.size > maxSize) {
@@ -120,7 +164,7 @@ export class FleComponent implements OnInit {
         this.selectedFile = null;
         return;
       }
-      
+
       this.selectedFile = file;
     }
   }
@@ -137,7 +181,7 @@ export class FleComponent implements OnInit {
 
     const title = this.updateForm.get('title')?.value;
     const originalTitle = this.selectedItem.file?.title || '';
-    
+
     // Vérifier si le titre a changé
     const titleChanged = title !== originalTitle;
     const hasNewFile = this.selectedFile !== null;
@@ -151,22 +195,24 @@ export class FleComponent implements OnInit {
 
     // Si seulement le titre a changé (pas de nouveau fichier)
     if (titleChanged && !hasNewFile) {
-      this.fileService.updateMetadata(this.selectedItem.id, title || '').subscribe({
-        next: () => {
-          this.toast.show('Titre mis à jour');
-          this.loadFleItems(); // Recharger pour mettre à jour l'affichage
-          this.closeModal();
-        },
-        error: () => {
-          this.toast.show('Erreur lors de la mise à jour du titre');
-        },
-      });
+      this.fileService
+        .updateMetadata(this.selectedItem.id, title || '')
+        .subscribe({
+          next: () => {
+            this.toast.show('Titre mis à jour');
+            this.loadFleItems(); // Recharger pour mettre à jour l'affichage
+            this.closeModal();
+          },
+          error: () => {
+            this.toast.show('Erreur lors de la mise à jour du titre');
+          },
+        });
       return;
     }
 
     // Si un fichier est sélectionné (avec ou sans changement de titre)
     const formData = new FormData();
-    
+
     // Toujours ajouter le titre (même s'il est vide) pour s'assurer qu'il est mis à jour
     formData.append('title', title || '');
 
@@ -187,7 +233,9 @@ export class FleComponent implements OnInit {
         if (error.status === 403) {
           this.toast.show('Accès interdit. Vérifiez vos permissions.');
         } else if (error.status === 413) {
-          this.toast.show('Fichier trop volumineux. Réduisez la taille du fichier.');
+          this.toast.show(
+            'Fichier trop volumineux. Réduisez la taille du fichier.'
+          );
         } else if (error.status === 401) {
           this.toast.show('Session expirée. Veuillez vous reconnecter.');
         } else {
@@ -198,7 +246,9 @@ export class FleComponent implements OnInit {
   }
 
   refreshImage(item: FleItem): void {
-    item.imageUrl = `${this.fileService.getApiUrl()}/${item.id}/download?ts=${Date.now()}`;
+    item.imageUrl = `${this.fileService.getApiUrl()}/${
+      item.id
+    }/download?ts=${Date.now()}`;
   }
 
   isPdfFile(item: FleItem): boolean {
@@ -212,4 +262,4 @@ export class FleComponent implements OnInit {
     }
     return 'image/*';
   }
-} 
+}

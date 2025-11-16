@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { StatisticService } from '../../services/statistic.service';
 import { ToastService } from '../../utils/toast/toast.service';
@@ -8,6 +13,8 @@ import { Statistic, StatisticType } from '../../models/statistic.modele';
 import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
 import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
 import { SpinnerComponent } from '../../utils/spinner/spinner.component';
+import { PageLoaderService } from '../../services/page-loader.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-statistics',
@@ -31,7 +38,8 @@ export class StatisticsComponent implements OnInit {
     private fb: FormBuilder,
     private statisticService: StatisticService,
     private toast: ToastService,
-    private statisticTypeService: StatisticTypeService
+    private statisticTypeService: StatisticTypeService,
+    private pageLoaderService: PageLoaderService
   ) {}
 
   ngOnInit(): void {
@@ -46,25 +54,18 @@ export class StatisticsComponent implements OnInit {
         statistic?.label || '',
         [Validators.required, Validators.maxLength(100)],
       ],
-      value: [
-        statistic?.value || 0,
-        [Validators.required, Validators.min(0)], 
-      ],
+      value: [statistic?.value || 0, [Validators.required, Validators.min(0)]],
       year: [
         statistic?.year || new Date().getFullYear(),
         [Validators.required, Validators.min(1900), Validators.max(2200)],
       ],
-      is_percentage: [
-        statistic?.is_percentage ?? false,
-        [Validators.required],
-      ],
+      is_percentage: [statistic?.is_percentage ?? false, [Validators.required]],
       type_id: [
         statistic?.type_id || null,
-        [Validators.required, Validators.min(1)], 
+        [Validators.required, Validators.min(1)],
       ],
     });
   }
-  
 
   onTypeFilterChange(event: Event): void {
     const selectElement = event.target as HTMLSelectElement;
@@ -72,37 +73,42 @@ export class StatisticsComponent implements OnInit {
     this.filteredType = selectedValue ? Number(selectedValue) : null;
     this.loadStatistics();
   }
-  
 
   loadStatistics(): void {
     this.isLoading = true;
-    this.statisticService.getAll().subscribe({
-      next: data => {
+    const statisticsPromise = firstValueFrom(this.statisticService.getAll());
+    this.pageLoaderService.registerPageLoad(statisticsPromise);
+
+    statisticsPromise.then(
+      (data) => {
         this.statistics = data;
         this.isLoading = false;
       },
-      error: () => {
+      () => {
         this.isLoading = false;
       }
-    });
+    );
   }
 
   loadTypes(): void {
     this.isLoadingTypes = true;
-    this.statisticTypeService.getAll().subscribe({
-      next: data => {
+    const typesPromise = firstValueFrom(this.statisticTypeService.getAll());
+    this.pageLoaderService.registerPageLoad(typesPromise);
+
+    typesPromise.then(
+      (data) => {
         this.types = data;
         this.isLoadingTypes = false;
       },
-      error: () => {
+      () => {
         this.isLoadingTypes = false;
       }
-    });
-  }  
+    );
+  }
 
   get filteredStatistics(): Statistic[] {
     if (!this.filteredType) return this.statistics;
-    return this.statistics.filter(s => s.type_id === this.filteredType);
+    return this.statistics.filter((s) => s.type_id === this.filteredType);
   }
 
   startEdit(stat: Statistic): void {
@@ -119,24 +125,25 @@ export class StatisticsComponent implements OnInit {
       this.toast.show('Veuillez corriger le formulaire avant de sauvegarder.');
       return;
     }
-  
+
     const payload = {
       ...this.editForm.value,
       value: Number(this.editForm.value.value),
       year: Number(this.editForm.value.year),
       type_id: Number(this.editForm.value.type_id),
     };
-  
+
     const sanitizedPayload = sanitizeFormValue(payload);
-  
-    this.statisticService.update(statistic_id, sanitizedPayload).subscribe(() => {
-      this.toast.show('Statistique mise à jour');
-      this.editingId = null;
-      this.loadStatistics();
-    });
+
+    this.statisticService
+      .update(statistic_id, sanitizedPayload)
+      .subscribe(() => {
+        this.toast.show('Statistique mise à jour');
+        this.editingId = null;
+        this.loadStatistics();
+      });
   }
-  
-  
+
   addStatistic(): void {
     if (this.createForm.valid) {
       const payload = {
@@ -147,7 +154,7 @@ export class StatisticsComponent implements OnInit {
       };
 
       const sanitizedPayload = sanitizeFormValue(payload);
-  
+
       this.statisticService.create(sanitizedPayload).subscribe(() => {
         this.toast.show('Statistique ajoutée');
         this.createForm.reset();
@@ -156,7 +163,6 @@ export class StatisticsComponent implements OnInit {
       });
     }
   }
-  
 
   deleteStatistic(id: number): void {
     if (confirm('Supprimer cette statistique ?')) {
