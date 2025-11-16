@@ -16,6 +16,11 @@ RUN npm ci
 # Copy source code
 COPY . .
 
+# Replace API_URL in environment.prod.ts with the build argument
+RUN if [ -n "$API_URL" ]; then \
+      sed -i "s|API_URL: '.*'|API_URL: '${API_URL}'|g" src/environments/environment.prod.ts; \
+    fi
+
 # Build the application for production
 RUN npm run build
 
