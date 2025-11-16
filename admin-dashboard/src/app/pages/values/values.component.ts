@@ -16,11 +16,19 @@ import { FileService } from '../../services/file.service';
 import { sanitizeFormValue } from '../../utils/sanitize/sanitize';
 import { SanitizePipe } from '../../utils/sanitize/sanitize.pipe';
 import { SpinnerComponent } from '../../utils/spinner/spinner.component';
+import { PageLoaderService } from '../../services/page-loader.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-value',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FileSelectorComponent, SanitizePipe, SpinnerComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FileSelectorComponent,
+    SanitizePipe,
+    SpinnerComponent,
+  ],
   templateUrl: './values.component.html',
   styleUrls: ['./values.component.scss'],
 })
@@ -44,7 +52,8 @@ export class ValuesComponent implements OnInit {
     private fb: FormBuilder,
     private valueService: ValueService,
     private toast: ToastService,
-    private fileService: FileService
+    private fileService: FileService,
+    private pageLoaderService: PageLoaderService
   ) {}
 
   ngOnInit(): void {
@@ -54,14 +63,20 @@ export class ValuesComponent implements OnInit {
 
   private loadInitialData(): void {
     this.isInitialLoading = true;
-    
+
     // Charger les valeurs et les fichiers en parallèle
-    const valuesPromise = this.valueService.getAll().toPromise();
-    const filesPromise = this.fileService.getAll().toPromise();
-    
+    const valuesPromise = firstValueFrom(this.valueService.getAll());
+    const filesPromise = firstValueFrom(this.fileService.getAll());
+
+    // Enregistrer les promesses dans le service de chargement
+    this.pageLoaderService.registerPageLoad(valuesPromise);
+    this.pageLoaderService.registerPageLoad(filesPromise);
+
     Promise.all([valuesPromise, filesPromise])
       .then(([valuesData, filesData]) => {
-        this.values = (valuesData || []).sort((a, b) => a.name.localeCompare(b.name));
+        this.values = (valuesData || []).sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
         this.files = filesData || [];
         this.isInitialLoading = false;
       })
@@ -81,7 +96,6 @@ export class ValuesComponent implements OnInit {
       file_id: [value?.file?.file_id || null],
     });
   }
-  
 
   onFileSelect(fileId: number): void {
     if (this.editingValueId !== null) {
@@ -115,7 +129,6 @@ export class ValuesComponent implements OnInit {
 
   addValue(): void {
     if (this.createForm.valid) {
-
       const sanitizedPayload = sanitizeFormValue(this.createForm.value);
 
       this.valueService.create(sanitizedPayload).subscribe({
@@ -140,7 +153,6 @@ export class ValuesComponent implements OnInit {
 
   saveEdit(value: Value): void {
     if (this.editForm.valid) {
-
       const sanitizedPayload = sanitizeFormValue(this.editForm.value);
 
       this.valueService.update(value.value_id, sanitizedPayload).subscribe({
