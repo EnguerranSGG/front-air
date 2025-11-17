@@ -17,7 +17,7 @@ import '../styles/fle.css';
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>A.I.R.</title> 
+    <title>A.I.R.</title>
   </head>
   <body>
     <Header />
@@ -82,6 +82,13 @@ import '../styles/fle.css';
           main.classList.add('page-loading');
           main.style.opacity = '0';
           main.style.transform = 'translateY(20px)';
+          
+          // Masquer seulement le footer pendant le chargement (le header reste visible)
+          const footer = document.querySelector('footer, .footer');
+          if (footer) {
+            footer.style.opacity = '0';
+            footer.style.pointerEvents = 'none';
+          }
         }
         
         // Masquer les indicateurs de chargement individuels lors de la navigation
@@ -209,14 +216,20 @@ import '../styles/fle.css';
           await new Promise(resolve => setTimeout(resolve, 300));
           
           loader.classList.add('loader-hidden');
-          setTimeout(() => {
+        setTimeout(() => {
             loader.style.display = 'none';
-            // Afficher le contenu principal
+            // Afficher le contenu principal et le footer
             const main = document.querySelector('main');
+            const footer = document.querySelector('footer, .footer');
+            
             if (main) {
               main.classList.remove('page-loading');
               main.style.opacity = '1';
               main.style.transform = 'translateY(0)';
+            }
+            if (footer) {
+              footer.style.opacity = '1';
+              footer.style.pointerEvents = 'auto';
             }
           }, 500);
         } catch (err) {
@@ -225,10 +238,16 @@ import '../styles/fle.css';
           setTimeout(() => {
             loader.style.display = 'none';
             const main = document.querySelector('main');
+            const footer = document.querySelector('footer, .footer');
+            
             if (main) {
               main.classList.remove('page-loading');
               main.style.opacity = '1';
               main.style.transform = 'translateY(0)';
+            }
+            if (footer) {
+              footer.style.opacity = '1';
+              footer.style.pointerEvents = 'auto';
             }
           }, 500);
         }
@@ -244,11 +263,18 @@ import '../styles/fle.css';
         const loader = document.getElementById('page-loader');
         const main = document.querySelector('main');
         
-        // Marquer le main comme étant en chargement pour toutes les pages
+        // Marquer le main et footer comme étant en chargement pour toutes les pages
         if (main) {
           main.classList.add('page-loading');
           main.style.opacity = '0';
           main.style.transform = 'translateY(20px)';
+        }
+        
+        // Masquer seulement le footer pendant le chargement (le header reste visible)
+        const footer = document.querySelector('footer, .footer');
+        if (footer) {
+          footer.style.opacity = '0';
+          footer.style.pointerEvents = 'none';
         }
         
         // Masquer les indicateurs de chargement individuels
@@ -420,6 +446,12 @@ import '../styles/fle.css';
   .header {
     position: relative;
     z-index: 10000;
+    transition: opacity 0.5s ease-out;
+  }
+  
+  footer,
+  .footer {
+    transition: opacity 0.5s ease-out;
   }
   
   /* Masquer le contenu principal sur la page d'accueil jusqu'à ce que tout soit chargé */
