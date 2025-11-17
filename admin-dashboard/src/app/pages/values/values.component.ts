@@ -58,14 +58,12 @@ export class ValuesComponent implements OnInit {
     this.isInitialLoading = true;
 
     // Charger les valeurs et les fichiers en parallèle
-    // Enregistrer chaque promesse séparément (comme dans history.component.ts)
+    // NE PAS enregistrer les promesses individuelles, seulement la promesse finale
     const valuesPromise = firstValueFrom(this.valueService.getAll());
-    this.pageLoaderService.registerPageLoad(valuesPromise);
-    
     const filesPromise = firstValueFrom(this.fileService.getAll());
-    this.pageLoaderService.registerPageLoad(filesPromise);
 
     // Créer une promesse qui attend que tout soit vraiment chargé et visible
+    // C'est la SEULE promesse qu'on enregistre dans le PageLoaderService
     const domReadyPromise = Promise.all([valuesPromise, filesPromise])
       .then(async ([valuesData, filesData]) => {
         this.values = (valuesData || []).sort((a, b) =>

@@ -75,26 +75,21 @@ export class StructureComponent implements OnInit {
     this.isInitialLoading = true;
 
     // Charger les types, fichiers et structures en parallèle
-    // Enregistrer chaque promesse séparément (comme dans history.component.ts)
+    // NE PAS enregistrer les promesses individuelles, seulement la promesse finale
     console.log('[Structures] 📡 Création des promesses de fetch...');
     const typesPromise = firstValueFrom(
       this.structureTypeService.getAllWithFallback()
     );
-    console.log('[Structures] ✅ Types promise créée, enregistrement...');
-    this.pageLoaderService.registerPageLoad(typesPromise);
-    console.log('[Structures] ✅ Types promise enregistrée');
+    console.log('[Structures] ✅ Types promise créée');
 
     const filesPromise = firstValueFrom(this.fileService.getAll());
-    console.log('[Structures] ✅ Files promise créée, enregistrement...');
-    this.pageLoaderService.registerPageLoad(filesPromise);
-    console.log('[Structures] ✅ Files promise enregistrée');
+    console.log('[Structures] ✅ Files promise créée');
 
     const structuresPromise = firstValueFrom(this.structureService.getAll());
-    console.log('[Structures] ✅ Structures promise créée, enregistrement...');
-    this.pageLoaderService.registerPageLoad(structuresPromise);
-    console.log('[Structures] ✅ Structures promise enregistrée');
+    console.log('[Structures] ✅ Structures promise créée');
 
     // Créer une promesse qui attend que tout soit vraiment chargé et visible
+    // C'est la SEULE promesse qu'on enregistre dans le PageLoaderService
     console.log('[Structures] 🔄 Création de domReadyPromise...');
     const domReadyPromise = Promise.all([
       typesPromise,

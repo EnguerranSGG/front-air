@@ -53,10 +53,8 @@ export class FileComponent implements OnInit {
     this.isLoading = true;
     const filesPromise = firstValueFrom(this.fileService.getAll());
     
-    // Enregistrer la promesse séparément (comme dans history.component.ts)
-    this.pageLoaderService.registerPageLoad(filesPromise);
-    
     // Créer une promesse qui attend que tout soit vraiment chargé et visible
+    // C'est la SEULE promesse qu'on enregistre dans le PageLoaderService
     const domReadyPromise = filesPromise
       .then(async (files) => {
         this.files = files.filter(

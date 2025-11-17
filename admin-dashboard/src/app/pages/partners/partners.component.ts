@@ -63,14 +63,12 @@ export class PartnersComponent implements OnInit {
     this.isInitialLoading = true;
 
     // Charger les partenaires et les fichiers en parallèle
-    // Enregistrer chaque promesse séparément (comme dans history.component.ts)
+    // NE PAS enregistrer les promesses individuelles, seulement la promesse finale
     const partnersPromise = firstValueFrom(this.partnerService.getAll());
-    this.pageLoaderService.registerPageLoad(partnersPromise);
-    
     const filesPromise = firstValueFrom(this.fileService.getAll());
-    this.pageLoaderService.registerPageLoad(filesPromise);
 
     // Créer une promesse qui attend que tout soit vraiment chargé et visible
+    // C'est la SEULE promesse qu'on enregistre dans le PageLoaderService
     const domReadyPromise = Promise.all([partnersPromise, filesPromise])
       .then(async ([partnersData, filesData]) => {
         this.partners = partnersData || [];
