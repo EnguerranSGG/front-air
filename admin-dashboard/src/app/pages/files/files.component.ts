@@ -56,26 +56,49 @@ export class FileComponent implements OnInit {
     // Enregistrer la promesse séparément (comme dans history.component.ts)
     this.pageLoaderService.registerPageLoad(filesPromise);
     
-    filesPromise
-      .then((files) => {
+    // Créer une promesse qui attend que tout soit vraiment chargé et visible
+    const domReadyPromise = filesPromise
+      .then(async (files) => {
         this.files = files.filter(
           (file) => !PROTECTED_FILE_IDS.includes(file.file_id)
         );
 
-        // Utiliser setTimeout pour laisser Angular mettre à jour le DOM
-        setTimeout(() => {
-          this.cdr.detectChanges();
-          // Attendre un frame de rendu supplémentaire
-          setTimeout(() => {
-            this.isLoading = false;
-            this.cdr.detectChanges();
-          }, 100);
-        }, 100);
+        // Forcer la détection de changement
+        this.cdr.detectChanges();
+        
+        // Attendre que le navigateur ait rendu le DOM (comme côté vitrine)
+        await new Promise(resolve => {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              resolve(undefined);
+            });
+          });
+        });
+        
+        // Mettre isLoading à false
+        this.isLoading = false;
+        
+        // Forcer à nouveau la détection de changement
+        this.cdr.detectChanges();
+        
+        // Attendre que le contenu soit visible dans le DOM
+        await new Promise(resolve => {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              // Délai supplémentaire pour garantir que le contenu est visible
+              setTimeout(() => resolve(undefined), 200);
+            });
+          });
+        });
       })
       .catch((error) => {
         this.toastService.show('Erreur lors du chargement des fichiers');
         this.isLoading = false;
+        throw error;
       });
+
+    // Enregistrer cette promesse finale qui attend que le DOM soit vraiment prêt
+    this.pageLoaderService.registerPageLoad(domReadyPromise);
   }
 
   // Gère la sélection de fichier

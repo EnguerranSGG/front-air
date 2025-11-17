@@ -65,29 +65,51 @@ export class ValuesComponent implements OnInit {
     const filesPromise = firstValueFrom(this.fileService.getAll());
     this.pageLoaderService.registerPageLoad(filesPromise);
 
-    // Attendre que toutes les données soient chargées avant de mettre à jour le DOM
-    Promise.all([valuesPromise, filesPromise])
-      .then(([valuesData, filesData]) => {
+    // Créer une promesse qui attend que tout soit vraiment chargé et visible
+    const domReadyPromise = Promise.all([valuesPromise, filesPromise])
+      .then(async ([valuesData, filesData]) => {
         this.values = (valuesData || []).sort((a, b) =>
           a.name.localeCompare(b.name)
         );
         this.files = filesData || [];
         
-        // Utiliser setTimeout pour laisser Angular mettre à jour le DOM
-        setTimeout(() => {
-          this.cdr.detectChanges();
-          // Attendre un frame de rendu supplémentaire
-          setTimeout(() => {
-            this.isInitialLoading = false;
-            this.cdr.detectChanges();
-          }, 100);
-        }, 100);
+        // Forcer la détection de changement
+        this.cdr.detectChanges();
+        
+        // Attendre que le navigateur ait rendu le DOM (comme côté vitrine)
+        await new Promise(resolve => {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              resolve(undefined);
+            });
+          });
+        });
+        
+        // Mettre isInitialLoading à false
+        this.isInitialLoading = false;
+        
+        // Forcer à nouveau la détection de changement
+        this.cdr.detectChanges();
+        
+        // Attendre que le contenu soit visible dans le DOM
+        await new Promise(resolve => {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              // Délai supplémentaire pour garantir que le contenu est visible
+              setTimeout(() => resolve(undefined), 200);
+            });
+          });
+        });
       })
       .catch((error) => {
         console.error('Erreur lors du chargement initial:', error);
         this.toast.show('Erreur lors du chargement des données');
         this.isInitialLoading = false;
+        throw error;
       });
+
+    // Enregistrer cette promesse finale qui attend que le DOM soit vraiment prêt
+    this.pageLoaderService.registerPageLoad(domReadyPromise);
   }
 
   buildForm(value?: Value): FormGroup {
