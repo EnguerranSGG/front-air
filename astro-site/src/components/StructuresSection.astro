@@ -18,11 +18,21 @@ const structureTypes = [
 </section>
 
 <script define:vars={{ API_BASE_URL, structureTypes: JSON.stringify(structureTypes) }}>
-  // Créer la promesse immédiatement et l'enregistrer de manière synchrone
+  // Fonction helper pour enregistrer les promesses (comme dans FleSection)
+  function registerPromiseWhenReady(promise) {
+    if (!window.pageLoadPromises) {
+      window.pageLoadPromises = [];
+    }
+    window.pageLoadPromises.push(promise);
+    if (window.registerPageLoad) {
+      window.registerPageLoad(promise);
+    }
+  }
+
   const container = document.getElementById('structures-container');
   
-  // Créer la promesse de chargement immédiatement (sans IIFE async)
-  const loadPromise = (async () => {
+  // Promesse principale pour charger les structures
+  const structuresPromise = (async () => {
     if (!container || !API_BASE_URL) {
       if (container) {
         container.innerHTML = '<p>Configuration API manquante</p>';
@@ -85,22 +95,20 @@ const structureTypes = [
         </div>
       `).join('');
 
-      // Charger dynamiquement les StructureCard pour chaque structure et attendre le chargement des images
-      const imagePromises = [];
-      
+      // Échapper les caractères spéciaux pour l'insertion HTML
+      const escapeHtml = (text) => {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      };
+
+      // Charger dynamiquement les StructureCard pour chaque structure
       container.querySelectorAll('.structure-card').forEach(card => {
         const index = parseInt(card.getAttribute('data-structure-index'));
         const structureData = structuresDataMap.get(index);
         
         if (!structureData) return;
-
-        // Échapper les caractères spéciaux pour l'insertion HTML
-        const escapeHtml = (text) => {
-          if (!text) return '';
-          const div = document.createElement('div');
-          div.textContent = text;
-          return div.innerHTML;
-        };
 
         // Vérifier si la structure a des missions
         const hasMissions = structureData._count?.missions > 0;
@@ -160,25 +168,6 @@ const structureTypes = [
           </div>
         `;
 
-        // Attendre le chargement de l'image si elle existe
-        if (structureData.file?.file_id) {
-          const img = card.querySelector('.structure-image img');
-          if (img) {
-            const imagePromise = new Promise((resolve, reject) => {
-              if (img.complete && img.naturalHeight !== 0) {
-                // Image déjà chargée
-                resolve();
-              } else {
-                img.onload = () => resolve();
-                img.onerror = () => resolve(); // Résoudre même en cas d'erreur pour ne pas bloquer
-                // Timeout de sécurité (10 secondes)
-                setTimeout(() => resolve(), 10000);
-              }
-            });
-            imagePromises.push(imagePromise);
-          }
-        }
-
         // Ajouter l'événement pour charger les missions si nécessaire
         if (hasMissions) {
           const toggleBtn = card.querySelector(`.missions-toggle-link[data-structure-id="${structureId}"]`);
@@ -233,46 +222,60 @@ const structureTypes = [
         }
       });
 
-      // Attendre que toutes les images soient chargées avant de continuer
-      await Promise.allSettled(imagePromises);
-
       // Forcer le reflow pour s'assurer que les styles sont appliqués
       container.offsetHeight;
 
       // Initialiser les animations
       initScrollAnimations();
-
-      // Attendre un peu pour que les animations soient initialisées et que le DOM soit stable
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      // Afficher le titre maintenant que tout est chargé
-      const title = document.querySelector('.structures-title');
-      if (title) {
-        title.style.opacity = '1';
-        title.style.visibility = 'visible';
-      }
     } catch (err) {
       console.error('Erreur lors du fetch des structures :', err);
       if (container) {
         container.innerHTML = '<p>Erreur lors du chargement des structures</p>';
       }
-      // Afficher le titre même en cas d'erreur
-      const title = document.querySelector('.structures-title');
-      if (title) {
-        title.style.opacity = '1';
-        title.style.visibility = 'visible';
-      }
     }
   })();
-  
-  // Enregistrer la promesse immédiatement pour le système de chargement global
-  if (!window.pageLoadPromises) {
-    window.pageLoadPromises = [];
-  }
-  window.pageLoadPromises.push(loadPromise);
-  if (window.registerPageLoad) {
-    window.registerPageLoad(loadPromise);
-  }
+  registerPromiseWhenReady(structuresPromise);
+
+  // Promesse pour charger les images (séparée, comme dans FleSection)
+  const imagesPromise = (async () => {
+    // Attendre que les structures soient chargées
+    await structuresPromise;
+    
+    // Attendre que toutes les images soient chargées
+    const images = container?.querySelectorAll('.structure-image img');
+    if (!images || images.length === 0) return;
+    
+    const imagePromises = Array.from(images).map(img => {
+      return new Promise((resolve) => {
+        if (img.complete && img.naturalHeight !== 0) {
+          resolve();
+        } else {
+          img.onload = () => resolve();
+          img.onerror = () => resolve(); // Résoudre même en cas d'erreur
+          setTimeout(() => resolve(), 10000); // Timeout de sécurité
+        }
+      });
+    });
+    
+    await Promise.allSettled(imagePromises);
+  })();
+  registerPromiseWhenReady(imagesPromise);
+
+  // Promesse pour afficher le titre (après que tout soit chargé)
+  const titlePromise = (async () => {
+    await Promise.allSettled([structuresPromise, imagesPromise]);
+    
+    // Attendre un peu pour que le DOM soit stable
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Afficher le titre maintenant que tout est chargé
+    const title = document.querySelector('.structures-title');
+    if (title) {
+      title.style.opacity = '1';
+      title.style.visibility = 'visible';
+    }
+  })();
+  registerPromiseWhenReady(titlePromise);
 
   function initScrollAnimations() {
     const observerOptions = {
