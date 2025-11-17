@@ -11,7 +11,7 @@ const structureTypes = [
 ---
 
 <section class="structures-section">
-  <h2>Nos différentes structures</h2>
+  <h2 class="structures-title" style="opacity: 0; visibility: hidden;">Nos différentes structures</h2>
   <div id="structures-container">
     <div class="structures-loading">Chargement des structures...</div>
   </div>
@@ -85,7 +85,9 @@ const structureTypes = [
         </div>
       `).join('');
 
-      // Charger dynamiquement les StructureCard pour chaque structure
+      // Charger dynamiquement les StructureCard pour chaque structure et attendre le chargement des images
+      const imagePromises = [];
+      
       container.querySelectorAll('.structure-card').forEach(card => {
         const index = parseInt(card.getAttribute('data-structure-index'));
         const structureData = structuresDataMap.get(index);
@@ -158,6 +160,25 @@ const structureTypes = [
           </div>
         `;
 
+        // Attendre le chargement de l'image si elle existe
+        if (structureData.file?.file_id) {
+          const img = card.querySelector('.structure-image img');
+          if (img) {
+            const imagePromise = new Promise((resolve, reject) => {
+              if (img.complete && img.naturalHeight !== 0) {
+                // Image déjà chargée
+                resolve();
+              } else {
+                img.onload = () => resolve();
+                img.onerror = () => resolve(); // Résoudre même en cas d'erreur pour ne pas bloquer
+                // Timeout de sécurité (10 secondes)
+                setTimeout(() => resolve(), 10000);
+              }
+            });
+            imagePromises.push(imagePromise);
+          }
+        }
+
         // Ajouter l'événement pour charger les missions si nécessaire
         if (hasMissions) {
           const toggleBtn = card.querySelector(`.missions-toggle-link[data-structure-id="${structureId}"]`);
@@ -212,15 +233,34 @@ const structureTypes = [
         }
       });
 
+      // Attendre que toutes les images soient chargées avant de continuer
+      await Promise.allSettled(imagePromises);
+
       // Forcer le reflow pour s'assurer que les styles sont appliqués
       container.offsetHeight;
 
       // Initialiser les animations
       initScrollAnimations();
+
+      // Attendre un peu pour que les animations soient initialisées et que le DOM soit stable
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Afficher le titre maintenant que tout est chargé
+      const title = document.querySelector('.structures-title');
+      if (title) {
+        title.style.opacity = '1';
+        title.style.visibility = 'visible';
+      }
     } catch (err) {
       console.error('Erreur lors du fetch des structures :', err);
       if (container) {
         container.innerHTML = '<p>Erreur lors du chargement des structures</p>';
+      }
+      // Afficher le titre même en cas d'erreur
+      const title = document.querySelector('.structures-title');
+      if (title) {
+        title.style.opacity = '1';
+        title.style.visibility = 'visible';
       }
     }
   })();
@@ -265,11 +305,13 @@ const structureTypes = [
     background: #f8f9fa;
   }
 
-  .structures-section h2 {
+  .structures-section h2,
+  .structures-section .structures-title {
     text-align: center;
     margin-bottom: 3rem;
     font-size: 2.5rem;
     color: #4b2aa5;
+    transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
   }
 
   .structures-loading {
