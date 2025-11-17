@@ -227,55 +227,51 @@ const structureTypes = [
 
       // Initialiser les animations
       initScrollAnimations();
+      
+      // Attendre que le DOM soit mis à jour et que les images soient dans le DOM
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      
+      // Attendre que toutes les images soient chargées AVANT de résoudre la promesse
+      const images = container?.querySelectorAll('.structure-image img');
+      if (images && images.length > 0) {
+        const imagePromises = Array.from(images).map(img => {
+          return new Promise((resolve) => {
+            if (img.complete && img.naturalHeight !== 0) {
+              resolve();
+            } else {
+              img.onload = () => resolve();
+              img.onerror = () => resolve(); // Résoudre même en cas d'erreur
+              setTimeout(() => resolve(), 10000); // Timeout de sécurité
+            }
+          });
+        });
+        
+        await Promise.allSettled(imagePromises);
+      }
+      
+      // Attendre un peu pour que le DOM soit stable
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Afficher le titre maintenant que tout est chargé
+      const title = document.querySelector('.structures-title');
+      if (title) {
+        title.style.opacity = '1';
+        title.style.visibility = 'visible';
+      }
     } catch (err) {
       console.error('Erreur lors du fetch des structures :', err);
       if (container) {
         container.innerHTML = '<p>Erreur lors du chargement des structures</p>';
       }
+      // Afficher le titre même en cas d'erreur
+      const title = document.querySelector('.structures-title');
+      if (title) {
+        title.style.opacity = '1';
+        title.style.visibility = 'visible';
+      }
     }
   })();
   registerPromiseWhenReady(structuresPromise);
-
-  // Promesse pour charger les images (séparée, comme dans FleSection)
-  const imagesPromise = (async () => {
-    // Attendre que les structures soient chargées
-    await structuresPromise;
-    
-    // Attendre que toutes les images soient chargées
-    const images = container?.querySelectorAll('.structure-image img');
-    if (!images || images.length === 0) return;
-    
-    const imagePromises = Array.from(images).map(img => {
-      return new Promise((resolve) => {
-        if (img.complete && img.naturalHeight !== 0) {
-          resolve();
-        } else {
-          img.onload = () => resolve();
-          img.onerror = () => resolve(); // Résoudre même en cas d'erreur
-          setTimeout(() => resolve(), 10000); // Timeout de sécurité
-        }
-      });
-    });
-    
-    await Promise.allSettled(imagePromises);
-  })();
-  registerPromiseWhenReady(imagesPromise);
-
-  // Promesse pour afficher le titre (après que tout soit chargé)
-  const titlePromise = (async () => {
-    await Promise.allSettled([structuresPromise, imagesPromise]);
-    
-    // Attendre un peu pour que le DOM soit stable
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    // Afficher le titre maintenant que tout est chargé
-    const title = document.querySelector('.structures-title');
-    if (title) {
-      title.style.opacity = '1';
-      title.style.visibility = 'visible';
-    }
-  })();
-  registerPromiseWhenReady(titlePromise);
 
   function initScrollAnimations() {
     const observerOptions = {
