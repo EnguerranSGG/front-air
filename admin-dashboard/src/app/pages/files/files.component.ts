@@ -59,14 +59,20 @@ export class FileComponent implements OnInit {
 
         // Forcer la détection de changement pour mettre à jour le DOM
         this.cdr.detectChanges();
-
-        // Attendre que le DOM soit mis à jour avant de résoudre la promesse
-        await new Promise((resolve) => setTimeout(resolve, 100));
-
+        
+        // Attendre que le navigateur ait rendu le DOM
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        
         this.isLoading = false;
-
-        // Attendre encore un peu pour que le contenu soit visible
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        
+        // Forcer à nouveau la détection de changement après avoir mis isLoading à false
+        this.cdr.detectChanges();
+        
+        // Attendre que le contenu soit visible dans le DOM
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        
+        // Délai supplémentaire pour garantir que le contenu est visible
+        await new Promise((resolve) => setTimeout(resolve, 200));
       })
       .catch((error) => {
         this.toastService.show('Erreur lors du chargement des fichiers');
