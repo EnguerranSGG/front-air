@@ -173,6 +173,15 @@ export class PageLoaderService {
           rejected,
           total: allSettled.length,
         });
+        
+        // Log détaillé de chaque promesse pour debug
+        allSettled.forEach((result, index) => {
+          if (result.status === 'rejected') {
+            console.error(`[PageLoaderService] ❌ Promesse ${index} rejetée:`, result.reason);
+          } else {
+            console.log(`[PageLoaderService] ✅ Promesse ${index} résolue`);
+          }
+        });
 
         // Promise.allSettled attend toujours que toutes les promesses soient résolues
         // donc toutes sont forcément fulfilled ou rejected, jamais pending

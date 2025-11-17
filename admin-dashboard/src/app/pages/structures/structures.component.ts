@@ -91,6 +91,8 @@ export class StructureComponent implements OnInit {
     // Créer une promesse qui attend que tout soit vraiment chargé et visible
     // C'est la SEULE promesse qu'on enregistre dans le PageLoaderService
     console.log('[Structures] 🔄 Création de domReadyPromise...');
+    
+    // Enregistrer la promesse IMMÉDIATEMENT après sa création (avant même qu'elle ne commence)
     const domReadyPromise = Promise.all([
       typesPromise,
       filesPromise,
@@ -171,10 +173,16 @@ export class StructureComponent implements OnInit {
         throw error;
       });
 
-    console.log('[Structures] 📝 Enregistrement de domReadyPromise...');
+    console.log('[Structures] 📝 Enregistrement de domReadyPromise IMMÉDIATEMENT...');
     // Enregistrer cette promesse finale qui attend que le DOM soit vraiment prêt
+    // IMPORTANT: Enregistrer AVANT que la promesse ne commence à s'exécuter
     this.pageLoaderService.registerPageLoad(domReadyPromise);
-    console.log('[Structures] ✅ domReadyPromise enregistrée');
+    console.log('[Structures] ✅ domReadyPromise enregistrée, total promesses:', this.pageLoaderService['loadingPromises']?.length || 'N/A');
+    
+    // Ajouter un catch pour voir si la promesse est rejetée
+    domReadyPromise.catch((error) => {
+      console.error('[Structures] ❌ domReadyPromise rejetée:', error);
+    });
   }
 
   buildForm(structure?: Structure): FormGroup {
