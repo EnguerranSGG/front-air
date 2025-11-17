@@ -31,30 +31,36 @@ const structureTypes = [
     }
 
     try {
-      const types = JSON.parse(structureTypes);
-      const promises = types.map(async (typeName) => {
-        try {
-          const res = await fetch(`${API_BASE_URL}/structures/by-type-name/${encodeURIComponent(typeName)}`);
-          if (res.ok) {
-            const data = await res.json();
-            return { typeName, structures: Array.isArray(data) ? data : [] };
-          }
-          return { typeName, structures: [] };
-        } catch (err) {
-          console.error(`Erreur lors du fetch des structures pour ${typeName}:`, err);
-          return { typeName, structures: [] };
-        }
-      });
+      // Utiliser la nouvelle route optimisée qui ne charge pas les missions
+      const res = await fetch(`${API_BASE_URL}/structures/all/public`);
+      if (!res.ok) {
+        throw new Error(`Erreur HTTP: ${res.status}`);
+      }
+      
+      const allStructures = await res.json();
+      if (!Array.isArray(allStructures)) {
+        throw new Error('Réponse invalide du serveur');
+      }
 
-      const results = await Promise.all(promises);
+      // Filtrer et grouper les structures par type
+      const types = JSON.parse(structureTypes);
       const structuresByType = {};
       
-      results.forEach(({ typeName, structures }) => {
-        if (structures.length > 0) {
-          structures.sort((a, b) => a.structure_id - b.structure_id);
-          structures = structures.filter(s => s.structure_id !== 1);
-          structuresByType[typeName] = structures;
-        }
+      allStructures
+        .filter(s => s.structure_id !== 1) // Exclure la structure ID 1
+        .forEach(structure => {
+          const typeName = structure.structure_type?.name;
+          if (typeName && types.includes(typeName)) {
+            if (!structuresByType[typeName]) {
+              structuresByType[typeName] = [];
+            }
+            structuresByType[typeName].push(structure);
+          }
+        });
+
+      // Trier les structures par ID dans chaque type
+      Object.keys(structuresByType).forEach(typeName => {
+        structuresByType[typeName].sort((a, b) => a.structure_id - b.structure_id);
       });
 
       if (Object.keys(structuresByType).length === 0) {
@@ -94,11 +100,15 @@ const structureTypes = [
           return div.innerHTML;
         };
 
+        // Vérifier si la structure a des missions
+        const hasMissions = structureData._count?.missions > 0;
+        const structureId = structureData.structure_id;
+
         // Générer la structure HTML identique à StructureCard
         card.innerHTML = `
-          ${structureData.file_id ? `
+          ${structureData.file?.file_id ? `
             <div class="structure-image">
-              <img src="${API_BASE_URL}/files/${structureData.file_id}/download" alt="${escapeHtml(structureData.name || '')}" />
+              <img src="${API_BASE_URL}/files/${structureData.file.file_id}/download" alt="${escapeHtml(structureData.name || '')}" />
             </div>
           ` : ''}
           <div class="structure-content">
@@ -131,8 +141,73 @@ const structureTypes = [
                 ${escapeHtml(structureData.address)}
               </p>
             ` : ''}
+            ${hasMissions ? `
+              <div class="missions-section" data-structure-id="${structureId}">
+                <button class="missions-toggle-btn" data-structure-id="${structureId}">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2A10 10 0 0 1 22 12A10 10 0 0 1 12 22A10 10 0 0 1 2 12A10 10 0 0 1 12 2M11 16.5L18 9.5L16.59 8.09L11 13.67L7.91 10.59L6.5 12L11 16.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>Voir missions</span>
+                  <svg class="icon chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <div class="missions-content" data-structure-id="${structureId}" style="display: none;">
+                  <div class="missions-loading">Chargement des missions...</div>
+                  <ul class="missions-list"></ul>
+                </div>
+              </div>
+            ` : ''}
           </div>
         `;
+
+        // Ajouter l'événement pour charger les missions si nécessaire
+        if (hasMissions) {
+          const toggleBtn = card.querySelector(`.missions-toggle-btn[data-structure-id="${structureId}"]`);
+          const missionsContent = card.querySelector(`.missions-content[data-structure-id="${structureId}"]`);
+          const missionsList = missionsContent?.querySelector('.missions-list');
+          const missionsLoading = missionsContent?.querySelector('.missions-loading');
+          let missionsLoaded = false;
+
+          toggleBtn?.addEventListener('click', async () => {
+            const isExpanded = missionsContent?.style.display !== 'none';
+            
+            if (isExpanded) {
+              // Fermer
+              missionsContent.style.display = 'none';
+              toggleBtn.querySelector('.chevron')?.setAttribute('style', 'transform: rotate(0deg);');
+            } else {
+              // Ouvrir
+              missionsContent.style.display = 'block';
+              toggleBtn.querySelector('.chevron')?.setAttribute('style', 'transform: rotate(180deg);');
+              
+              // Charger les missions si pas encore chargées
+              if (!missionsLoaded && missionsList && missionsLoading) {
+                try {
+                  const missionsRes = await fetch(`${API_BASE_URL}/missions/structure/${structureId}/public`);
+                  if (missionsRes.ok) {
+                    const missions = await missionsRes.json();
+                    if (Array.isArray(missions) && missions.length > 0) {
+                      missionsList.innerHTML = missions.map(mission => 
+                        `<li>${escapeHtml(mission.content || '')}</li>`
+                      ).join('');
+                      missionsLoading.style.display = 'none';
+                      missionsList.style.display = 'block';
+                    } else {
+                      missionsLoading.textContent = 'Aucune mission disponible';
+                    }
+                  } else {
+                    missionsLoading.textContent = 'Erreur lors du chargement des missions';
+                  }
+                  missionsLoaded = true;
+                } catch (err) {
+                  console.error('Erreur lors du chargement des missions:', err);
+                  missionsLoading.textContent = 'Erreur lors du chargement des missions';
+                }
+              }
+            }
+          });
+        }
       });
 
       // Forcer le reflow pour s'assurer que les styles sont appliqués
@@ -339,6 +414,85 @@ const structureTypes = [
   .link-icon {
     width: 1.2rem;
     height: 1.2rem;
+  }
+
+  .missions-section {
+    margin-top: 1rem;
+    border-top: 1px solid #ddd;
+    padding-top: 1rem;
+  }
+
+  .missions-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: #4b2aa5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .missions-toggle-btn:hover {
+    background: #3a1f7a;
+    transform: translateY(-2px);
+  }
+
+  .missions-toggle-btn:active {
+    transform: translateY(0);
+  }
+
+  .missions-toggle-btn .icon {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .missions-toggle-btn .chevron {
+    margin-left: auto;
+    transition: transform 0.3s ease;
+  }
+
+  .missions-content {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+
+  .missions-loading {
+    text-align: center;
+    color: #666;
+    padding: 1rem;
+  }
+
+  .missions-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: none;
+  }
+
+  .missions-list li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e0e0e0;
+    color: #333;
+    line-height: 1.6;
+  }
+
+  .missions-list li:last-child {
+    border-bottom: none;
+  }
+
+  .missions-list li::before {
+    content: '✓';
+    color: #4b2aa5;
+    font-weight: bold;
+    margin-right: 0.5rem;
   }
 
   @media (max-width: 768px) {
