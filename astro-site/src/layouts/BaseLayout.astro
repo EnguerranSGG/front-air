@@ -43,8 +43,13 @@ import '../styles/fle.css';
 
     <script>
       // Système de chargement global pour toutes les pages
-      window.pageLoadPromises = window.pageLoadPromises || [];
-      window.pageLoadStartTime = Date.now();
+      // NE PAS réinitialiser si des promesses ont déjà été enregistrées
+      if (!window.pageLoadPromises) {
+        window.pageLoadPromises = [];
+      }
+      if (!window.pageLoadStartTime) {
+        window.pageLoadStartTime = Date.now();
+      }
       
       // Fonction pour enregistrer une promesse de chargement (accessible globalement)
       window.registerPageLoad = function(promise) {
@@ -267,10 +272,15 @@ import '../styles/fle.css';
       
       // Animation de chargement de page
       document.addEventListener('DOMContentLoaded', function() {
-        // Réinitialiser les promesses au chargement de la page
-        window.pageLoadPromises = [];
+        // NE PAS réinitialiser les promesses si elles ont déjà été enregistrées
+        // (certains scripts peuvent s'exécuter avant DOMContentLoaded)
+        if (!window.pageLoadPromises || window.pageLoadPromises.length === 0) {
+          window.pageLoadPromises = [];
+        }
         window.pageLoadStartTime = Date.now();
         window.allScriptsLoaded = false;
+        
+        console.log(`[Page Loader] DOMContentLoaded: ${window.pageLoadPromises.length} promesse(s) déjà enregistrée(s)`);
         
         const loader = document.getElementById('page-loader');
         const main = document.querySelector('main');
