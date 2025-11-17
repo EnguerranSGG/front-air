@@ -306,6 +306,7 @@ import '../styles/fle.css';
             // Attendre encore un peu pour que tous les scripts avec define:vars soient exécutés
             setTimeout(() => {
               window.allScriptsLoaded = true;
+              console.log(`[Page Loader] Scripts chargés, ${window.pageLoadPromises?.length || 0} promesse(s) enregistrée(s)`);
               
               // Attendre encore un peu pour laisser le temps aux scripts de s'enregistrer
               // Puis attendre que le nombre de promesses se stabilise
@@ -313,9 +314,11 @@ import '../styles/fle.css';
               const waitForAllPromises = setInterval(() => {
                 initialCheckCount++;
                 const currentCount = window.pageLoadPromises.length;
+                console.log(`[Page Loader] Attente initiale (${initialCheckCount}/10): ${currentCount} promesse(s) détectée(s)`);
                 
                 // Si on a déjà attendu 3 secondes et qu'aucune promesse n'a été ajoutée récemment
                 if (initialCheckCount > 10) { // 10 * 300ms = 3 secondes
+                  console.log(`[Page Loader] Timeout initial atteint, démarrage de la vérification avec ${currentCount} promesse(s)`);
                   clearInterval(waitForAllPromises);
                   startCheckingPromises();
                 } else if (initialCheckCount > 5) {
@@ -323,6 +326,7 @@ import '../styles/fle.css';
                   const stableCheck = window.pageLoadPromises.length;
                   setTimeout(() => {
                     if (window.pageLoadPromises.length === stableCheck && stableCheck > 0) {
+                      console.log(`[Page Loader] Nombre de promesses stable (${stableCheck}), démarrage de la vérification`);
                       clearInterval(waitForAllPromises);
                       startCheckingPromises();
                     }
@@ -361,6 +365,11 @@ import '../styles/fle.css';
                     stableCount = 0;
                     consecutiveStableChecks = 0;
                     return; // Attendre que le nombre se stabilise
+                  }
+                  
+                  // Log périodique pour voir l'état des promesses
+                  if (checkCount % 10 === 0) {
+                    console.log(`[Page Loader] Vérification ${checkCount}: ${promises.length} promesse(s) en cours de vérification`);
                   }
                   
                   stableCount++;
