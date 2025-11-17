@@ -137,12 +137,10 @@ export class PageLoaderService {
         const rejected = allSettled.filter(
           (r) => r.status === 'rejected'
         ).length;
-        const pending = allSettled.filter((r) => r.status === 'pending').length;
 
         console.log('[PageLoaderService] 📊 État des promesses:', {
           fulfilled,
           rejected,
-          pending,
           total: allSettled.length,
         });
 
