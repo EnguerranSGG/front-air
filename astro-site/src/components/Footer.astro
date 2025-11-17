@@ -28,11 +28,46 @@ const buildDate = new Date().toLocaleDateString('fr-FR');
 </footer>
 
 <script>
-  // Fonction pour charger les informations du siège social côté client
+  // Cache avec TTL (Time To Live) de 1 heure pour les données du footer
+  const CACHE_TTL = 60 * 60 * 1000; // 1 heure en millisecondes
+  const CACHE_KEYS = {
+    SIEGE_SOCIAL: 'footer_siege_social',
+    LAST_UPDATE: 'footer_last_update',
+    CACHE_TIMESTAMP: 'footer_cache_timestamp'
+  };
+
+  // Fonction utilitaire pour vérifier si le cache est valide
+  function isCacheValid() {
+    const timestamp = localStorage.getItem(CACHE_KEYS.CACHE_TIMESTAMP);
+    if (!timestamp) return false;
+    const age = Date.now() - parseInt(timestamp, 10);
+    return age < CACHE_TTL;
+  }
+
+  // Fonction pour charger les informations du siège social côté client (avec cache)
   async function loadSiegeSocial() {
     const siegeInfo = document.getElementById('siege-info');
     if (!siegeInfo) return;
 
+    // Vérifier le cache d'abord
+    if (isCacheValid()) {
+      const cached = localStorage.getItem(CACHE_KEYS.SIEGE_SOCIAL);
+      if (cached) {
+        try {
+          const siegeSocial = JSON.parse(cached);
+          siegeInfo.innerHTML = `
+            <h4 class="siege-title">Siège social</h4>
+            ${siegeSocial.address ? `<p class="siege-address">${siegeSocial.address}</p>` : ''}
+            ${siegeSocial.phone_number ? `<p class="siege-phone">${siegeSocial.phone_number}</p>` : ''}
+          `;
+          return; // Utiliser le cache, pas besoin de fetch
+        } catch (e) {
+          // Cache corrompu, continuer avec le fetch
+        }
+      }
+    }
+
+    // Cache invalide ou inexistant, faire le fetch
     try {
       const baseUrl = window.location.hostname === 'localhost' 
         ? 'http://localhost:3000/api' 
@@ -44,6 +79,13 @@ const buildDate = new Date().toLocaleDateString('fr-FR');
         const siegeSocial = data.find(structure => structure.structure_id === 1);
         
         if (siegeSocial) {
+          // Mettre en cache
+          localStorage.setItem(CACHE_KEYS.SIEGE_SOCIAL, JSON.stringify({
+            address: siegeSocial.address,
+            phone_number: siegeSocial.phone_number
+          }));
+          localStorage.setItem(CACHE_KEYS.CACHE_TIMESTAMP, Date.now().toString());
+          
           siegeInfo.innerHTML = `
             <h4 class="siege-title">Siège social</h4>
             ${siegeSocial.address ? `<p class="siege-address">${siegeSocial.address}</p>` : ''}
@@ -70,24 +112,27 @@ const buildDate = new Date().toLocaleDateString('fr-FR');
     }
   }
 
-  // Fonction pour mettre à jour la date de dernière modification
+  // Fonction pour mettre à jour la date de dernière modification (avec cache)
   async function updateLastUpdateDate() {
     const lastUpdateElement = document.getElementById('last-update');
     if (!lastUpdateElement) return;
 
-    console.log('Début de updateLastUpdateDate');
-    console.log('Date de build (fallback):', '{buildDate}');
+    // Vérifier le cache d'abord
+    if (isCacheValid()) {
+      const cached = localStorage.getItem(CACHE_KEYS.LAST_UPDATE);
+      if (cached) {
+        lastUpdateElement.textContent = `Dernière mise à jour du site : ${cached}`;
+        return; // Utiliser le cache, pas besoin de fetch
+      }
+    }
 
+    // Cache invalide ou inexistant, faire le fetch
     try {
-      // Construire l'URL de l'API en utilisant l'origine actuelle
       const baseUrl = window.location.hostname === 'localhost' 
         ? 'http://localhost:3000/api' 
         : window.location.origin + '/api';
       const apiUrl = baseUrl + '/last-update';
-      console.log('Appel API:', apiUrl);
-      console.log('Base URL utilisée:', baseUrl);
       
-      console.log('Début du fetch...');
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
@@ -95,18 +140,19 @@ const buildDate = new Date().toLocaleDateString('fr-FR');
         },
         mode: 'cors'
       });
-      console.log('Fetch terminé, status:', response.status);
       
       if (response.ok) {
         const data = await response.json();
-        console.log('Données API reçues:', data);
         
         if (data.lastUpdate) {
           // Formater la date reçue de l'API
           const lastUpdateDate = new Date(data.lastUpdate).toLocaleDateString('fr-FR');
-          console.log('Date formatée depuis API:', lastUpdateDate);
+          
+          // Mettre en cache
+          localStorage.setItem(CACHE_KEYS.LAST_UPDATE, lastUpdateDate);
+          localStorage.setItem(CACHE_KEYS.CACHE_TIMESTAMP, Date.now().toString());
+          
           lastUpdateElement.textContent = `Dernière mise à jour du site : ${lastUpdateDate}`;
-          console.log('Date mise à jour dans le DOM');
         }
       } else {
         console.warn('Erreur lors de la récupération de la date de dernière modification:', response.status);
@@ -119,7 +165,7 @@ const buildDate = new Date().toLocaleDateString('fr-FR');
   }
 
   // Appeler les fonctions au chargement de la page
-  console.log('Script footer chargé');
+  // Note: Ces fonctions utilisent maintenant le cache, donc elles sont rapides
   loadSiegeSocial();
   updateLastUpdateDate();
 </script>
