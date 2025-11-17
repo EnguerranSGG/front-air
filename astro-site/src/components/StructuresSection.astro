@@ -143,11 +143,8 @@ const structureTypes = [
             ` : ''}
             ${hasMissions ? `
               <div class="missions-section" data-structure-id="${structureId}">
-                <button class="missions-toggle-btn" data-structure-id="${structureId}">
-                  <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2A10 10 0 0 1 22 12A10 10 0 0 1 12 22A10 10 0 0 1 2 12A10 10 0 0 1 12 2M11 16.5L18 9.5L16.59 8.09L11 13.67L7.91 10.59L6.5 12L11 16.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span>Voir missions</span>
+                <button class="missions-toggle-link" data-structure-id="${structureId}" type="button">
+                  <span>Voir les missions</span>
                   <svg class="icon chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
@@ -163,7 +160,7 @@ const structureTypes = [
 
         // Ajouter l'événement pour charger les missions si nécessaire
         if (hasMissions) {
-          const toggleBtn = card.querySelector(`.missions-toggle-btn[data-structure-id="${structureId}"]`);
+          const toggleBtn = card.querySelector(`.missions-toggle-link[data-structure-id="${structureId}"]`);
           const missionsContent = card.querySelector(`.missions-content[data-structure-id="${structureId}"]`);
           const missionsList = missionsContent?.querySelector('.missions-list');
           const missionsLoading = missionsContent?.querySelector('.missions-loading');
@@ -171,15 +168,20 @@ const structureTypes = [
 
           toggleBtn?.addEventListener('click', async () => {
             const isExpanded = missionsContent?.style.display !== 'none';
+            const chevron = toggleBtn.querySelector('.chevron');
             
             if (isExpanded) {
               // Fermer
               missionsContent.style.display = 'none';
-              toggleBtn.querySelector('.chevron')?.setAttribute('style', 'transform: rotate(0deg);');
+              if (chevron) {
+                chevron.classList.remove('expanded');
+              }
             } else {
               // Ouvrir
               missionsContent.style.display = 'block';
-              toggleBtn.querySelector('.chevron')?.setAttribute('style', 'transform: rotate(180deg);');
+              if (chevron) {
+                chevron.classList.add('expanded');
+              }
               
               // Charger les missions si pas encore chargées
               if (!missionsLoaded && missionsList && missionsLoading) {
@@ -422,39 +424,40 @@ const structureTypes = [
     padding-top: 1rem;
   }
 
-  .missions-toggle-btn {
-    display: flex;
+  .missions-toggle-link {
+    display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    width: 100%;
-    padding: 0.75rem 1rem;
-    background: #4b2aa5;
-    color: white;
+    background: none;
     border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.95rem;
+    padding: 0;
+    color: #4b2aa5;
+    font-size: 1rem;
     font-weight: 500;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.3s ease, opacity 0.3s ease;
+    font-family: inherit;
   }
 
-  .missions-toggle-btn:hover {
-    background: #3a1f7a;
-    transform: translateY(-2px);
+  .missions-toggle-link:hover {
+    color: #3a1f7a;
+    opacity: 0.8;
   }
 
-  .missions-toggle-btn:active {
-    transform: translateY(0);
+  .missions-toggle-link:active {
+    opacity: 0.6;
   }
 
-  .missions-toggle-btn .icon {
+  .missions-toggle-link .chevron {
     width: 1rem;
     height: 1rem;
+    transition: transform 0.3s ease;
+    transform: rotate(0deg);
   }
 
-  .missions-toggle-btn .chevron {
-    margin-left: auto;
-    transition: transform 0.3s ease;
+  .missions-toggle-link .chevron.expanded {
+    transform: rotate(180deg);
   }
 
   .missions-content {
