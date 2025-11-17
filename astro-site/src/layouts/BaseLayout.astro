@@ -86,7 +86,9 @@ import '../styles/fle.css';
           // Masquer seulement le footer pendant le chargement (le header reste visible)
           const footer = document.querySelector('footer, .footer');
           if (footer) {
+            footer.classList.add('page-loading');
             footer.style.opacity = '0';
+            footer.style.visibility = 'hidden';
             footer.style.pointerEvents = 'none';
           }
         }
@@ -231,8 +233,10 @@ import '../styles/fle.css';
               main.style.transform = 'translateY(0)';
             }
             if (footer) {
-              footer.style.opacity = '1';
-              footer.style.pointerEvents = 'auto';
+              footer.classList.remove('page-loading');
+              footer.style.opacity = '';
+              footer.style.visibility = '';
+              footer.style.pointerEvents = '';
             }
           }, 500);
         } catch (err) {
@@ -252,8 +256,10 @@ import '../styles/fle.css';
               main.style.transform = 'translateY(0)';
             }
             if (footer) {
-              footer.style.opacity = '1';
-              footer.style.pointerEvents = 'auto';
+              footer.classList.remove('page-loading');
+              footer.style.opacity = '';
+              footer.style.visibility = '';
+              footer.style.pointerEvents = '';
             }
           }, 500);
         }
@@ -273,13 +279,17 @@ import '../styles/fle.css';
         if (main) {
           main.classList.add('page-loading');
           main.style.opacity = '0';
+          main.style.visibility = 'hidden';
           main.style.transform = 'translateY(20px)';
+          main.style.pointerEvents = 'none';
         }
         
-        // Masquer seulement le footer pendant le chargement (le header reste visible)
+        // Masquer le footer pendant le chargement (le header reste visible)
         const footer = document.querySelector('footer, .footer');
         if (footer) {
+          footer.classList.add('page-loading');
           footer.style.opacity = '0';
+          footer.style.visibility = 'hidden';
           footer.style.pointerEvents = 'none';
         }
         
@@ -458,7 +468,17 @@ import '../styles/fle.css';
   
   footer,
   .footer {
-    transition: opacity 0.5s ease-out;
+    transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  
+  footer:not(.page-loading),
+  .footer:not(.page-loading) {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
   }
   
   /* Masquer le contenu principal jusqu'à ce que tout soit chargé */
