@@ -36,7 +36,7 @@ import '../styles/fle.css';
         <div class="loader-text">Chargement...</div>
       </div>
     </div>
-    <main class="page-loading">
+    <main class="page-loading" style="opacity: 0; visibility: hidden; pointer-events: none;">
       <slot />
     </main>
     <Footer />
@@ -224,7 +224,10 @@ import '../styles/fle.css';
             
             if (main) {
               main.classList.remove('page-loading');
-              // L'opacity et transform sont gérés par le CSS avec !important
+              // Retirer les styles inline pour laisser le CSS prendre le relais
+              main.style.opacity = '';
+              main.style.visibility = '';
+              main.style.pointerEvents = '';
               main.style.transform = 'translateY(0)';
             }
             if (footer) {
@@ -242,7 +245,10 @@ import '../styles/fle.css';
             
             if (main) {
               main.classList.remove('page-loading');
-              // L'opacity et transform sont gérés par le CSS avec !important
+              // Retirer les styles inline pour laisser le CSS prendre le relais
+              main.style.opacity = '';
+              main.style.visibility = '';
+              main.style.pointerEvents = '';
               main.style.transform = 'translateY(0)';
             }
             if (footer) {
@@ -456,15 +462,17 @@ import '../styles/fle.css';
   }
   
   /* Masquer le contenu principal jusqu'à ce que tout soit chargé */
-  main {
+  main.page-loading {
     opacity: 0 !important;
+    visibility: hidden !important;
     transform: translateY(20px);
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    transition: opacity 0.5s ease-out, visibility 0.5s ease-out, transform 0.5s ease-out;
     pointer-events: none;
   }
   
   main:not(.page-loading) {
     opacity: 1 !important;
+    visibility: visible !important;
     pointer-events: auto;
   }
 
