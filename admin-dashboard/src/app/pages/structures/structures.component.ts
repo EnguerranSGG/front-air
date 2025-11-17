@@ -63,8 +63,11 @@ export class StructureComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    console.log('[Structures] 🎬 ngOnInit() appelé');
     this.createForm = this.buildForm();
+    console.log('[Structures] 📝 Formulaire créé, appel de loadInitialData()...');
     this.loadInitialData();
+    console.log('[Structures] ✅ loadInitialData() appelé');
   }
 
   private loadInitialData(): void {
