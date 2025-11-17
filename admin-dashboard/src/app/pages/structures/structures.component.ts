@@ -79,7 +79,7 @@ export class StructureComponent implements OnInit {
 
     // Créer une promesse combinée qui attend toutes les promesses ET le traitement final
     const allDataPromise = Promise.all([typesPromise, filesPromise, structuresPromise])
-      .then(([typesData, filesData, structuresData]) => {
+      .then(async ([typesData, filesData, structuresData]) => {
         this.structureTypes = typesData || [];
         this.files = filesData || [];
         this.structures = (structuresData || []).sort(
@@ -98,7 +98,16 @@ export class StructureComponent implements OnInit {
           }
         });
 
+        // Forcer la détection de changement pour mettre à jour le DOM
+        this.cdr.detectChanges();
+        
+        // Attendre que le DOM soit mis à jour avant de résoudre la promesse
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         this.isInitialLoading = false;
+        
+        // Attendre encore un peu pour que le contenu soit visible
+        await new Promise(resolve => setTimeout(resolve, 100));
       })
       .catch((error) => {
         console.error('Erreur lors du chargement initial:', error);
