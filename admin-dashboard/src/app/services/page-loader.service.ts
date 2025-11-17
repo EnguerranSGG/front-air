@@ -64,7 +64,7 @@ export class PageLoaderService {
     );
     this.isChecking = true;
 
-    // Attendre que le nombre de promesses se stabilise
+    // Attendre que le nombre de promesses se stabilise (réduire les délais)
     let initialCheckCount = 0;
     const waitForStable = setInterval(() => {
       initialCheckCount++;
@@ -75,14 +75,15 @@ export class PageLoaderService {
         this.loadingPromises.length
       );
 
-      if (initialCheckCount > 10) {
-        // 3 secondes
+      // Réduire le timeout (de 10 à 5 checks = 1.5s au lieu de 3s)
+      if (initialCheckCount > 5) {
         console.log(
-          '[PageLoaderService] ⏰ Timeout atteint (10 checks), démarrage de checkAllLoaded()'
+          '[PageLoaderService] ⏰ Timeout atteint (5 checks), démarrage de checkAllLoaded()'
         );
         clearInterval(waitForStable);
         this.checkAllLoaded();
-      } else if (initialCheckCount > 5) {
+      } else if (initialCheckCount > 2) {
+        // Réduire le délai (de 5 à 2 checks)
         const stableCheck = this.loadingPromises.length;
         console.log(
           '[PageLoaderService] 🔍 Vérification de stabilité, nombre actuel:',
@@ -103,7 +104,7 @@ export class PageLoaderService {
               this.loadingPromises.length
             );
           }
-        }, 500);
+        }, 200); // Réduire de 500ms à 200ms
       }
     }, 300);
   }
@@ -150,7 +151,8 @@ export class PageLoaderService {
 
       stableCount++;
 
-      if (stableCount < 5) {
+      // Réduire le nombre de vérifications stables nécessaires (de 5 à 2)
+      if (stableCount < 2) {
         return;
       }
 
@@ -173,15 +175,6 @@ export class PageLoaderService {
           rejected,
           total: allSettled.length,
         });
-        
-        // Log détaillé de chaque promesse pour debug
-        allSettled.forEach((result, index) => {
-          if (result.status === 'rejected') {
-            console.error(`[PageLoaderService] ❌ Promesse ${index} rejetée:`, result.reason);
-          } else {
-            console.log(`[PageLoaderService] ✅ Promesse ${index} résolue`);
-          }
-        });
 
         // Promise.allSettled attend toujours que toutes les promesses soient résolues
         // donc toutes sont forcément fulfilled ou rejected, jamais pending
@@ -189,29 +182,22 @@ export class PageLoaderService {
 
         consecutiveStableChecks++;
         console.log(
-          '[PageLoaderService] ✅ Toutes les promesses résolues (fulfilled ou rejected), vérifications stables consécutives:',
+          '[PageLoaderService] ✅ Toutes les promesses résolues, vérifications stables consécutives:',
           consecutiveStableChecks,
-          'sur 3 requises'
+          'sur 2 requises'
         );
 
-        if (consecutiveStableChecks >= 3) {
+        // Réduire le nombre de vérifications stables consécutives nécessaires (de 3 à 1)
+        if (consecutiveStableChecks >= 1) {
           console.log(
-            '[PageLoaderService] ⏳ Attente de 500ms avant de masquer le loader...'
+            '[PageLoaderService] ⏳ Attente de 200ms avant de masquer le loader...'
           );
-          await new Promise((resolve) => setTimeout(resolve, 500));
+          await new Promise((resolve) => setTimeout(resolve, 200));
 
           if (this.loadingPromises.length === promises.length) {
             console.log(
               '[PageLoaderService] 🎉 Masquage du loader ! Nombre de promesses final:',
               promises.length
-            );
-            console.log(
-              '[PageLoaderService] 📊 Détails des promesses résolues:',
-              {
-                fulfilled: fulfilled,
-                rejected: rejected,
-                total: allSettled.length,
-              }
             );
             clearInterval(checkInterval);
             this.loadingState$.next(false);
@@ -227,10 +213,6 @@ export class PageLoaderService {
             stableCount = 0;
             consecutiveStableChecks = 0;
           }
-        } else {
-          console.log(
-            '[PageLoaderService] ⏳ Pas encore assez de vérifications stables, continuons...'
-          );
         }
       }
     }, 300);
