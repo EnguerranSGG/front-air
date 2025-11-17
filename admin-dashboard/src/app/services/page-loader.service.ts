@@ -34,7 +34,15 @@ export class PageLoaderService {
   }
 
   registerPageLoad(promise: Promise<any>): void {
+    console.log(
+      "[PageLoaderService] 📝 Enregistrement d'une nouvelle promesse, total avant:",
+      this.loadingPromises.length
+    );
     this.loadingPromises.push(promise);
+    console.log(
+      '[PageLoaderService] ✅ Promesse enregistrée, total maintenant:',
+      this.loadingPromises.length
+    );
     this.startChecking();
   }
 
@@ -71,8 +79,19 @@ export class PageLoaderService {
   }
 
   private async checkAllLoaded(): Promise<void> {
+    console.log(
+      '[PageLoaderService] 🔍 checkAllLoaded() appelé, nombre de promesses:',
+      this.loadingPromises.length
+    );
+
     if (this.loadingPromises.length === 0) {
+      console.log(
+        '[PageLoaderService] ⚠️ Aucune promesse, masquage du loader dans 500ms'
+      );
       setTimeout(() => {
+        console.log(
+          '[PageLoaderService] ✅ Masquage du loader (aucune promesse)'
+        );
         this.loadingState$.next(false);
         this.isChecking = false;
       }, 500);
@@ -87,6 +106,12 @@ export class PageLoaderService {
       const promises = [...this.loadingPromises];
 
       if (promises.length !== lastPromiseCount) {
+        console.log(
+          '[PageLoaderService] 📊 Nombre de promesses changé:',
+          lastPromiseCount,
+          '->',
+          promises.length
+        );
         lastPromiseCount = promises.length;
         stableCount = 0;
         consecutiveStableChecks = 0;
@@ -100,27 +125,61 @@ export class PageLoaderService {
       }
 
       if (promises.length > 0) {
+        console.log(
+          '[PageLoaderService] 🔄 Vérification de',
+          promises.length,
+          'promesse(s)...'
+        );
         const allSettled = await Promise.allSettled(promises);
+        const fulfilled = allSettled.filter(
+          (r) => r.status === 'fulfilled'
+        ).length;
+        const rejected = allSettled.filter(
+          (r) => r.status === 'rejected'
+        ).length;
+        const pending = allSettled.filter((r) => r.status === 'pending').length;
+
+        console.log('[PageLoaderService] 📊 État des promesses:', {
+          fulfilled,
+          rejected,
+          pending,
+          total: allSettled.length,
+        });
+
         const allResolved = allSettled.every(
           (result) =>
             result.status === 'fulfilled' || result.status === 'rejected'
         );
 
         if (!allResolved) {
+          console.log(
+            '[PageLoaderService] ⏳ Certaines promesses sont encore en attente...'
+          );
           consecutiveStableChecks = 0;
           return;
         }
 
         consecutiveStableChecks++;
+        console.log(
+          '[PageLoaderService] ✅ Toutes les promesses résolues, vérifications stables consécutives:',
+          consecutiveStableChecks
+        );
 
         if (consecutiveStableChecks >= 3) {
+          console.log(
+            '[PageLoaderService] ⏳ Attente de 500ms avant de masquer le loader...'
+          );
           await new Promise((resolve) => setTimeout(resolve, 500));
 
           if (this.loadingPromises.length === promises.length) {
+            console.log('[PageLoaderService] 🎉 Masquage du loader !');
             clearInterval(checkInterval);
             this.loadingState$.next(false);
             this.isChecking = false;
           } else {
+            console.log(
+              '[PageLoaderService] ⚠️ Nouvelles promesses ajoutées, reprise des vérifications'
+            );
             lastPromiseCount = this.loadingPromises.length;
             stableCount = 0;
             consecutiveStableChecks = 0;
@@ -131,6 +190,9 @@ export class PageLoaderService {
 
     // Timeout de sécurité
     setTimeout(() => {
+      console.log(
+        '[PageLoaderService] ⏰ Timeout de sécurité atteint (15s), masquage forcé du loader'
+      );
       clearInterval(checkInterval);
       this.loadingState$.next(false);
       this.isChecking = false;

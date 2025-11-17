@@ -68,33 +68,50 @@ export class StructureComponent implements OnInit {
   }
 
   private loadInitialData(): void {
+    console.log('[Structures] 🚀 Début de loadInitialData, isInitialLoading =', this.isInitialLoading);
     this.isInitialLoading = true;
 
     // Charger les types, fichiers et structures en parallèle
     // Enregistrer chaque promesse séparément (comme dans history.component.ts)
+    console.log('[Structures] 📡 Création des promesses de fetch...');
     const typesPromise = firstValueFrom(
       this.structureTypeService.getAllWithFallback()
     );
+    console.log('[Structures] ✅ Types promise créée, enregistrement...');
     this.pageLoaderService.registerPageLoad(typesPromise);
+    console.log('[Structures] ✅ Types promise enregistrée');
 
     const filesPromise = firstValueFrom(this.fileService.getAll());
+    console.log('[Structures] ✅ Files promise créée, enregistrement...');
     this.pageLoaderService.registerPageLoad(filesPromise);
+    console.log('[Structures] ✅ Files promise enregistrée');
 
     const structuresPromise = firstValueFrom(this.structureService.getAll());
+    console.log('[Structures] ✅ Structures promise créée, enregistrement...');
     this.pageLoaderService.registerPageLoad(structuresPromise);
+    console.log('[Structures] ✅ Structures promise enregistrée');
 
     // Créer une promesse qui attend que tout soit vraiment chargé et visible
+    console.log('[Structures] 🔄 Création de domReadyPromise...');
     const domReadyPromise = Promise.all([
       typesPromise,
       filesPromise,
       structuresPromise,
     ])
       .then(async ([typesData, filesData, structuresData]) => {
+        console.log('[Structures] 📦 Données reçues:', {
+          types: typesData?.length || 0,
+          files: filesData?.length || 0,
+          structures: structuresData?.length || 0
+        });
+        
         this.structureTypes = typesData || [];
         this.files = filesData || [];
         this.structures = (structuresData || []).sort(
           (a, b) => a.structure_id - b.structure_id
         );
+
+        console.log('[Structures] 📊 Structures triées:', this.structures.length);
 
         // Peupler les objets structure_type manuellement
         this.structures.forEach((structure) => {
@@ -108,43 +125,58 @@ export class StructureComponent implements OnInit {
           }
         });
 
+        console.log('[Structures] 🔄 Premier detectChanges()...');
         // Forcer la détection de changement
         this.cdr.detectChanges();
+        console.log('[Structures] ✅ Premier detectChanges() terminé');
 
         // Attendre que le navigateur ait rendu le DOM (comme côté vitrine)
+        console.log('[Structures] ⏳ Attente du premier requestAnimationFrame...');
         await new Promise((resolve) => {
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
+              console.log('[Structures] ✅ Premier requestAnimationFrame terminé');
               resolve(undefined);
             });
           });
         });
 
+        console.log('[Structures] 🔄 Mise à jour isInitialLoading = false...');
         // Mettre isInitialLoading à false
         this.isInitialLoading = false;
+        console.log('[Structures] ✅ isInitialLoading = false');
 
+        console.log('[Structures] 🔄 Deuxième detectChanges()...');
         // Forcer à nouveau la détection de changement
         this.cdr.detectChanges();
+        console.log('[Structures] ✅ Deuxième detectChanges() terminé');
 
         // Attendre que le contenu soit visible dans le DOM
+        console.log('[Structures] ⏳ Attente du deuxième requestAnimationFrame + setTimeout...');
         await new Promise((resolve) => {
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               // Délai supplémentaire pour garantir que le contenu est visible
-              setTimeout(() => resolve(undefined), 200);
+              setTimeout(() => {
+                console.log('[Structures] ✅ Deuxième requestAnimationFrame + setTimeout terminé');
+                console.log('[Structures] 🎉 domReadyPromise résolue !');
+                resolve(undefined);
+              }, 200);
             });
           });
         });
       })
       .catch((error) => {
-        console.error('Erreur lors du chargement initial:', error);
+        console.error('[Structures] ❌ Erreur lors du chargement initial:', error);
         this.toast.show('Erreur lors du chargement des données');
         this.isInitialLoading = false;
         throw error;
       });
 
+    console.log('[Structures] 📝 Enregistrement de domReadyPromise...');
     // Enregistrer cette promesse finale qui attend que le DOM soit vraiment prêt
     this.pageLoaderService.registerPageLoad(domReadyPromise);
+    console.log('[Structures] ✅ domReadyPromise enregistrée');
   }
 
   buildForm(structure?: Structure): FormGroup {
