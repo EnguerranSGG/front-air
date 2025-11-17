@@ -36,7 +36,7 @@ import '../styles/fle.css';
         <div class="loader-text">Chargement...</div>
       </div>
     </div>
-    <main>
+    <main class="page-loading">
       <slot />
     </main>
     <Footer />
@@ -224,7 +224,7 @@ import '../styles/fle.css';
             
             if (main) {
               main.classList.remove('page-loading');
-              main.style.opacity = '1';
+              // L'opacity et transform sont gérés par le CSS avec !important
               main.style.transform = 'translateY(0)';
             }
             if (footer) {
@@ -242,7 +242,7 @@ import '../styles/fle.css';
             
             if (main) {
               main.classList.remove('page-loading');
-              main.style.opacity = '1';
+              // L'opacity et transform sont gérés par le CSS avec !important
               main.style.transform = 'translateY(0)';
             }
             if (footer) {
@@ -435,7 +435,7 @@ import '../styles/fle.css';
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999;
+    z-index: 9998;
     opacity: 1;
     transition: opacity 0.5s ease-out;
     pointer-events: all;
@@ -447,6 +447,7 @@ import '../styles/fle.css';
     position: relative;
     z-index: 10000;
     transition: opacity 0.5s ease-out;
+    opacity: 1 !important; /* Forcer la visibilité du header */
   }
   
   footer,
@@ -454,11 +455,17 @@ import '../styles/fle.css';
     transition: opacity 0.5s ease-out;
   }
   
-  /* Masquer le contenu principal sur la page d'accueil jusqu'à ce que tout soit chargé */
+  /* Masquer le contenu principal jusqu'à ce que tout soit chargé */
   main {
-    opacity: 0;
+    opacity: 0 !important;
     transform: translateY(20px);
     transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    pointer-events: none;
+  }
+  
+  main:not(.page-loading) {
+    opacity: 1 !important;
+    pointer-events: auto;
   }
 
   .loader-hidden {
@@ -503,10 +510,7 @@ import '../styles/fle.css';
   }
 
   /* Animation d'entrée pour le contenu principal (quand le loader est masqué) */
-  main:not(.page-loading) {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  /* Déjà défini plus haut avec !important */
 
   @keyframes fadeInUp {
     to {
