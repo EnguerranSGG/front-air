@@ -71,15 +71,21 @@ export class StructureComponent implements OnInit {
     this.isInitialLoading = true;
 
     // Charger les types, fichiers et structures en parallèle
+    // Enregistrer chaque promesse séparément (comme dans history.component.ts)
     const typesPromise = firstValueFrom(
       this.structureTypeService.getAllWithFallback()
     );
-    const filesPromise = firstValueFrom(this.fileService.getAll());
-    const structuresPromise = firstValueFrom(this.structureService.getAll());
+    this.pageLoaderService.registerPageLoad(typesPromise);
 
-    // Créer une promesse combinée qui attend toutes les promesses ET le traitement final
-    const allDataPromise = Promise.all([typesPromise, filesPromise, structuresPromise])
-      .then(async ([typesData, filesData, structuresData]) => {
+    const filesPromise = firstValueFrom(this.fileService.getAll());
+    this.pageLoaderService.registerPageLoad(filesPromise);
+
+    const structuresPromise = firstValueFrom(this.structureService.getAll());
+    this.pageLoaderService.registerPageLoad(structuresPromise);
+
+    // Attendre que toutes les données soient chargées avant de mettre à jour le DOM
+    Promise.all([typesPromise, filesPromise, structuresPromise])
+      .then(([typesData, filesData, structuresData]) => {
         this.structureTypes = typesData || [];
         this.files = filesData || [];
         this.structures = (structuresData || []).sort(
@@ -98,32 +104,21 @@ export class StructureComponent implements OnInit {
           }
         });
 
-        // Forcer la détection de changement pour mettre à jour le DOM
-        this.cdr.detectChanges();
-        
-        // Attendre que le navigateur ait rendu le DOM
-        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-        
-        this.isInitialLoading = false;
-        
-        // Forcer à nouveau la détection de changement après avoir mis isInitialLoading à false
-        this.cdr.detectChanges();
-        
-        // Attendre que le contenu soit visible dans le DOM
-        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-        
-        // Délai supplémentaire pour garantir que le contenu est visible
-        await new Promise(resolve => setTimeout(resolve, 200));
+        // Utiliser setTimeout pour laisser Angular mettre à jour le DOM
+        setTimeout(() => {
+          this.cdr.detectChanges();
+          // Attendre un frame de rendu supplémentaire
+          setTimeout(() => {
+            this.isInitialLoading = false;
+            this.cdr.detectChanges();
+          }, 100);
+        }, 100);
       })
       .catch((error) => {
         console.error('Erreur lors du chargement initial:', error);
         this.toast.show('Erreur lors du chargement des données');
         this.isInitialLoading = false;
-        throw error; // Re-throw pour que la promesse soit rejetée
       });
-
-    // Enregistrer la promesse combinée dans le service de chargement
-    this.pageLoaderService.registerPageLoad(allDataPromise);
   }
 
   buildForm(structure?: Structure): FormGroup {

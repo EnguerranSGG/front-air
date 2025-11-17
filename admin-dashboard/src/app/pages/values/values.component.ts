@@ -58,42 +58,36 @@ export class ValuesComponent implements OnInit {
     this.isInitialLoading = true;
 
     // Charger les valeurs et les fichiers en parallèle
+    // Enregistrer chaque promesse séparément (comme dans history.component.ts)
     const valuesPromise = firstValueFrom(this.valueService.getAll());
+    this.pageLoaderService.registerPageLoad(valuesPromise);
+    
     const filesPromise = firstValueFrom(this.fileService.getAll());
+    this.pageLoaderService.registerPageLoad(filesPromise);
 
-    // Créer la promesse combinée et l'enregistrer immédiatement
-    const allDataPromise = Promise.all([valuesPromise, filesPromise])
-      .then(async ([valuesData, filesData]) => {
+    // Attendre que toutes les données soient chargées avant de mettre à jour le DOM
+    Promise.all([valuesPromise, filesPromise])
+      .then(([valuesData, filesData]) => {
         this.values = (valuesData || []).sort((a, b) =>
           a.name.localeCompare(b.name)
         );
         this.files = filesData || [];
-
-          // Forcer la détection de changement pour mettre à jour le DOM
+        
+        // Utiliser setTimeout pour laisser Angular mettre à jour le DOM
+        setTimeout(() => {
           this.cdr.detectChanges();
-
-          // Attendre que le navigateur ait rendu le DOM
-          await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-
-          this.isInitialLoading = false;
-
-          // Forcer à nouveau la détection de changement après avoir mis isInitialLoading à false
-          this.cdr.detectChanges();
-
-          // Attendre que le contenu soit visible dans le DOM
-          await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-
-          // Délai supplémentaire pour garantir que le contenu est visible
-          await new Promise((resolve) => setTimeout(resolve, 200));
+          // Attendre un frame de rendu supplémentaire
+          setTimeout(() => {
+            this.isInitialLoading = false;
+            this.cdr.detectChanges();
+          }, 100);
+        }, 100);
       })
       .catch((error) => {
         console.error('Erreur lors du chargement initial:', error);
         this.toast.show('Erreur lors du chargement des données');
         this.isInitialLoading = false;
-        throw error; // Re-throw pour que la promesse soit rejetée
       });
-
-    this.pageLoaderService.registerPageLoad(allDataPromise);
   }
 
   buildForm(value?: Value): FormGroup {

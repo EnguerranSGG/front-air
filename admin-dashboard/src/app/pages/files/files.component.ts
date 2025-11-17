@@ -51,36 +51,31 @@ export class FileComponent implements OnInit {
     const PROTECTED_FILE_IDS = [8, 11, 16, 17, 18, 26, 27, 28, 29, 30];
 
     this.isLoading = true;
-    const filesPromise = firstValueFrom(this.fileService.getAll())
-      .then(async (files) => {
+    const filesPromise = firstValueFrom(this.fileService.getAll());
+    
+    // Enregistrer la promesse séparément (comme dans history.component.ts)
+    this.pageLoaderService.registerPageLoad(filesPromise);
+    
+    filesPromise
+      .then((files) => {
         this.files = files.filter(
           (file) => !PROTECTED_FILE_IDS.includes(file.file_id)
         );
 
-        // Forcer la détection de changement pour mettre à jour le DOM
-        this.cdr.detectChanges();
-        
-        // Attendre que le navigateur ait rendu le DOM
-        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-        
-        this.isLoading = false;
-        
-        // Forcer à nouveau la détection de changement après avoir mis isLoading à false
-        this.cdr.detectChanges();
-        
-        // Attendre que le contenu soit visible dans le DOM
-        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-        
-        // Délai supplémentaire pour garantir que le contenu est visible
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        // Utiliser setTimeout pour laisser Angular mettre à jour le DOM
+        setTimeout(() => {
+          this.cdr.detectChanges();
+          // Attendre un frame de rendu supplémentaire
+          setTimeout(() => {
+            this.isLoading = false;
+            this.cdr.detectChanges();
+          }, 100);
+        }, 100);
       })
       .catch((error) => {
         this.toastService.show('Erreur lors du chargement des fichiers');
         this.isLoading = false;
-        throw error; // Re-throw pour que la promesse soit rejetée
       });
-
-    this.pageLoaderService.registerPageLoad(filesPromise);
   }
 
   // Gère la sélection de fichier

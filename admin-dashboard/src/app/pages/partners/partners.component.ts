@@ -60,49 +60,37 @@ export class PartnersComponent implements OnInit {
   }
 
   private async loadData(): Promise<void> {
-    try {
-      this.isInitialLoading = true;
+    this.isInitialLoading = true;
 
-      // Charger les partenaires et les fichiers en parallèle
-      const loadPromise = Promise.all([
-        firstValueFrom(this.partnerService.getAll()),
-        firstValueFrom(this.fileService.getAll()),
-      ])
-        .then(async ([partnersData, filesData]) => {
-          this.partners = partnersData || [];
-          this.files = filesData || [];
+    // Charger les partenaires et les fichiers en parallèle
+    // Enregistrer chaque promesse séparément (comme dans history.component.ts)
+    const partnersPromise = firstValueFrom(this.partnerService.getAll());
+    this.pageLoaderService.registerPageLoad(partnersPromise);
+    
+    const filesPromise = firstValueFrom(this.fileService.getAll());
+    this.pageLoaderService.registerPageLoad(filesPromise);
 
-          // Forcer la détection de changement pour mettre à jour le DOM
+    // Attendre que toutes les données soient chargées avant de mettre à jour le DOM
+    Promise.all([partnersPromise, filesPromise])
+      .then(([partnersData, filesData]) => {
+        this.partners = partnersData || [];
+        this.files = filesData || [];
+
+        // Utiliser setTimeout pour laisser Angular mettre à jour le DOM
+        setTimeout(() => {
           this.cdr.detectChanges();
-
-          // Attendre que le navigateur ait rendu le DOM
-          await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-
-          this.isInitialLoading = false;
-
-          // Forcer à nouveau la détection de changement après avoir mis isInitialLoading à false
-          this.cdr.detectChanges();
-
-          // Attendre que le contenu soit visible dans le DOM
-          await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-
-          // Délai supplémentaire pour garantir que le contenu est visible
-          await new Promise((resolve) => setTimeout(resolve, 200));
-        })
-        .catch((error) => {
-          console.error('Erreur lors du chargement des données:', error);
-          this.toastService.show('Erreur lors du chargement des données');
-          this.isInitialLoading = false;
-          throw error; // Re-throw pour que la promesse soit rejetée
-        });
-
-      // Enregistrer la promesse dans le service de chargement
-      this.pageLoaderService.registerPageLoad(loadPromise);
-
-      await loadPromise;
-    } catch (error) {
-      // Erreur déjà gérée dans le catch de la promesse
-    }
+          // Attendre un frame de rendu supplémentaire
+          setTimeout(() => {
+            this.isInitialLoading = false;
+            this.cdr.detectChanges();
+          }, 100);
+        }, 100);
+      })
+      .catch((error) => {
+        console.error('Erreur lors du chargement des données:', error);
+        this.toastService.show('Erreur lors du chargement des données');
+        this.isInitialLoading = false;
+      });
   }
 
   onFileSelect(fileId: number): void {
