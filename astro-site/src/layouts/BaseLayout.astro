@@ -78,6 +78,15 @@ import '../styles/fle.css';
         window.pageLoadStartTime = Date.now();
         window.allScriptsLoaded = false;
         
+        // S'assurer que le header reste visible et présent
+        const header = document.querySelector('header, .header');
+        if (header) {
+          header.style.opacity = '1';
+          header.style.visibility = 'visible';
+          header.style.display = '';
+          header.style.pointerEvents = 'auto';
+        }
+        
         const loader = document.getElementById('page-loader');
         const main = document.querySelector('main');
         
@@ -86,7 +95,9 @@ import '../styles/fle.css';
           loader.classList.remove('loader-hidden');
           main.classList.add('page-loading');
           main.style.opacity = '0';
+          main.style.visibility = 'hidden';
           main.style.transform = 'translateY(20px)';
+          main.style.pointerEvents = 'none';
           
           // Masquer seulement le footer pendant le chargement (le header reste visible)
           const footer = document.querySelector('footer, .footer');
@@ -225,6 +236,15 @@ import '../styles/fle.css';
           loader.classList.add('loader-hidden');
         setTimeout(() => {
             loader.style.display = 'none';
+            // S'assurer que le header reste toujours visible
+            const header = document.querySelector('header, .header');
+            if (header) {
+              header.style.opacity = '1';
+              header.style.visibility = 'visible';
+              header.style.display = '';
+              header.style.pointerEvents = 'auto';
+            }
+            
             // Afficher le contenu principal et le footer
             const main = document.querySelector('main');
             const footer = document.querySelector('footer, .footer');
@@ -476,13 +496,25 @@ import '../styles/fle.css';
     pointer-events: all;
   }
 
-  /* S'assurer que le header reste au-dessus du loader */
+  /* S'assurer que le header reste au-dessus du loader et toujours visible */
   header,
   .header {
     position: relative;
     z-index: 10000;
     transition: opacity 0.5s ease-out;
     opacity: 1 !important; /* Forcer la visibilité du header */
+    visibility: visible !important; /* Forcer la visibilité */
+    display: block !important; /* Forcer l'affichage */
+    pointer-events: auto !important; /* Permettre les interactions */
+  }
+  
+  /* Empêcher le header d'être masqué par le loader */
+  header.page-loading,
+  .header.page-loading {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+    pointer-events: auto !important;
   }
   
   footer,

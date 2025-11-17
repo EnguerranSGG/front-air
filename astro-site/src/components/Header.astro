@@ -55,21 +55,49 @@ const teamDropdownLinks = [
   </nav>
 
   <script is:inline>
-    document.addEventListener('DOMContentLoaded', () => {
+    // Fonction pour initialiser le header (appelée une seule fois ou après navigation)
+    function initHeader() {
       const icon = document.querySelector('.mobile-menu-icon');
       const menu = document.querySelector('.mobile-menu');
 
-      icon.addEventListener('click', () => {
-        icon.classList.toggle('open');
-        menu.classList.toggle('open');
+      if (!icon || !menu) return;
+
+      // Supprimer les anciens listeners pour éviter les doublons
+      const newIcon = icon.cloneNode(true);
+      const newMenu = menu.cloneNode(true);
+      icon.parentNode?.replaceChild(newIcon, icon);
+      menu.parentNode?.replaceChild(newMenu, menu);
+
+      // Références aux nouveaux éléments
+      const iconRef = document.querySelector('.mobile-menu-icon');
+      const menuRef = document.querySelector('.mobile-menu');
+
+      if (!iconRef || !menuRef) return;
+
+      iconRef.addEventListener('click', () => {
+        iconRef.classList.toggle('open');
+        menuRef.classList.toggle('open');
       });
 
-      menu.querySelectorAll('a').forEach(link => {
+      menuRef.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {
-          icon.classList.remove('open');
-          menu.classList.remove('open');
+          iconRef.classList.remove('open');
+          menuRef.classList.remove('open');
         });
       });
+    }
+
+    // Initialiser au chargement initial
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initHeader);
+    } else {
+      initHeader();
+    }
+
+    // Réinitialiser après navigation Astro (mais garder le header visible)
+    document.addEventListener('astro:page-load', () => {
+      // Le header reste visible, on réinitialise juste les event listeners
+      setTimeout(initHeader, 50);
     });
   </script>
 </header>
