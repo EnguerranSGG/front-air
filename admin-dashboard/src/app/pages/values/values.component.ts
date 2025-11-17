@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -20,11 +20,7 @@ import { firstValueFrom } from 'rxjs';
 @Component({
   selector: 'app-value',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FileSelectorComponent,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, FileSelectorComponent],
   templateUrl: './values.component.html',
   styleUrls: ['./values.component.scss'],
 })
@@ -49,7 +45,8 @@ export class ValuesComponent implements OnInit {
     private valueService: ValueService,
     private toast: ToastService,
     private fileService: FileService,
-    private pageLoaderService: PageLoaderService
+    private pageLoaderService: PageLoaderService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -65,22 +62,32 @@ export class ValuesComponent implements OnInit {
     const filesPromise = firstValueFrom(this.fileService.getAll());
 
     // Créer la promesse combinée et l'enregistrer immédiatement
-    const allDataPromise = Promise.all([valuesPromise, filesPromise]);
-    this.pageLoaderService.registerPageLoad(allDataPromise);
-
-    allDataPromise
-      .then(([valuesData, filesData]) => {
+    const allDataPromise = Promise.all([valuesPromise, filesPromise])
+      .then(async ([valuesData, filesData]) => {
         this.values = (valuesData || []).sort((a, b) =>
           a.name.localeCompare(b.name)
         );
         this.files = filesData || [];
+
+        // Forcer la détection de changement pour mettre à jour le DOM
+        this.cdr.detectChanges();
+
+        // Attendre que le DOM soit mis à jour avant de résoudre la promesse
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
         this.isInitialLoading = false;
+
+        // Attendre encore un peu pour que le contenu soit visible
+        await new Promise((resolve) => setTimeout(resolve, 100));
       })
       .catch((error) => {
         console.error('Erreur lors du chargement initial:', error);
         this.toast.show('Erreur lors du chargement des données');
         this.isInitialLoading = false;
+        throw error; // Re-throw pour que la promesse soit rejetée
       });
+
+    this.pageLoaderService.registerPageLoad(allDataPromise);
   }
 
   buildForm(value?: Value): FormGroup {

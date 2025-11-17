@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -29,7 +29,8 @@ export class FileComponent implements OnInit {
     private fb: FormBuilder,
     private fileService: FileService,
     private toastService: ToastService,
-    private pageLoaderService: PageLoaderService
+    private pageLoaderService: PageLoaderService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -50,21 +51,30 @@ export class FileComponent implements OnInit {
     const PROTECTED_FILE_IDS = [8, 11, 16, 17, 18, 26, 27, 28, 29, 30];
 
     this.isLoading = true;
-    const filesPromise = firstValueFrom(this.fileService.getAll());
-    this.pageLoaderService.registerPageLoad(filesPromise);
-
-    filesPromise.then(
-      (files) => {
+    const filesPromise = firstValueFrom(this.fileService.getAll())
+      .then(async (files) => {
         this.files = files.filter(
           (file) => !PROTECTED_FILE_IDS.includes(file.file_id)
         );
+
+        // Forcer la détection de changement pour mettre à jour le DOM
+        this.cdr.detectChanges();
+
+        // Attendre que le DOM soit mis à jour avant de résoudre la promesse
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
         this.isLoading = false;
-      },
-      () => {
+
+        // Attendre encore un peu pour que le contenu soit visible
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      })
+      .catch((error) => {
         this.toastService.show('Erreur lors du chargement des fichiers');
         this.isLoading = false;
-      }
-    );
+        throw error; // Re-throw pour que la promesse soit rejetée
+      });
+
+    this.pageLoaderService.registerPageLoad(filesPromise);
   }
 
   // Gère la sélection de fichier

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { PartnerService } from '../../services/partner.service';
 import { FileService } from '../../services/file.service';
 import { ToastService } from '../../utils/toast/toast.service';
@@ -37,7 +37,8 @@ export class PartnersComponent implements OnInit {
     private fileService: FileService,
     private fb: FormBuilder,
     private toastService: ToastService,
-    private pageLoaderService: PageLoaderService
+    private pageLoaderService: PageLoaderService,
+    private cdr: ChangeDetectorRef
   ) {
     this.initForms();
   }
@@ -66,20 +67,35 @@ export class PartnersComponent implements OnInit {
       const loadPromise = Promise.all([
         firstValueFrom(this.partnerService.getAll()),
         firstValueFrom(this.fileService.getAll()),
-      ]);
+      ])
+        .then(async ([partnersData, filesData]) => {
+          this.partners = partnersData || [];
+          this.files = filesData || [];
+
+          // Forcer la détection de changement pour mettre à jour le DOM
+          this.cdr.detectChanges();
+
+          // Attendre que le DOM soit mis à jour avant de résoudre la promesse
+          await new Promise((resolve) => setTimeout(resolve, 100));
+
+          this.isInitialLoading = false;
+
+          // Attendre encore un peu pour que le contenu soit visible
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        })
+        .catch((error) => {
+          console.error('Erreur lors du chargement des données:', error);
+          this.toastService.show('Erreur lors du chargement des données');
+          this.isInitialLoading = false;
+          throw error; // Re-throw pour que la promesse soit rejetée
+        });
 
       // Enregistrer la promesse dans le service de chargement
       this.pageLoaderService.registerPageLoad(loadPromise);
 
-      const [partnersData, filesData] = await loadPromise;
-
-      this.partners = partnersData || [];
-      this.files = filesData || [];
+      await loadPromise;
     } catch (error) {
-      console.error('Erreur lors du chargement des données:', error);
-      this.toastService.show('Erreur lors du chargement des données');
-    } finally {
-      this.isInitialLoading = false;
+      // Erreur déjà gérée dans le catch de la promesse
     }
   }
 
