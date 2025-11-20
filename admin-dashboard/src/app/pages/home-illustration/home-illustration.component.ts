@@ -145,10 +145,9 @@ export class HomeIllustrationComponent implements OnInit, AfterViewInit {
     // Si un fichier est sélectionné (avec ou sans changement de titre)
     const formData = new FormData();
 
-    // Ajouter le titre s'il est défini
-    if (title) {
-      formData.append('title', title);
-    }
+    // Toujours ajouter le titre (même s'il est vide ou n'a pas changé)
+    // pour garantir que le titre est bien mis à jour côté API
+    formData.append('title', title || '');
 
     // Ajouter le fichier
     if (this.selectedFile) {

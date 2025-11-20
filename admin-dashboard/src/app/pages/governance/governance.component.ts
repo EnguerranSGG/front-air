@@ -22,7 +22,7 @@ export class GovernanceComponent implements OnInit {
   updateForm!: FormGroup;
 
   constructor(
-    private fileService: FileService, 
+    private fileService: FileService,
     private toast: ToastService,
     private fb: FormBuilder
   ) {}
@@ -35,7 +35,7 @@ export class GovernanceComponent implements OnInit {
 
   initForm(): void {
     this.updateForm = this.fb.group({
-      title: ['']
+      title: [''],
     });
   }
 
@@ -45,12 +45,12 @@ export class GovernanceComponent implements OnInit {
         this.organigramFile = file;
         // Mettre à jour le formulaire avec le titre actuel
         this.updateForm.patchValue({
-          title: file.title || ''
+          title: file.title || '',
         });
       },
       error: () => {
         // Silent error, file info is not critical
-      }
+      },
     });
   }
 
@@ -58,7 +58,7 @@ export class GovernanceComponent implements OnInit {
     this.isModalOpen = true;
     // Réinitialiser le formulaire avec les valeurs actuelles
     this.updateForm.patchValue({
-      title: this.organigramFile?.title || ''
+      title: this.organigramFile?.title || '',
     });
   }
 
@@ -78,7 +78,7 @@ export class GovernanceComponent implements OnInit {
   updateOrganigram(): void {
     const title = this.updateForm.get('title')?.value;
     const originalTitle = this.organigramFile?.title || '';
-    
+
     // Vérifier si le titre a changé
     const titleChanged = title !== originalTitle;
     const hasNewFile = this.selectedFile !== null;
@@ -92,24 +92,26 @@ export class GovernanceComponent implements OnInit {
 
     // Si seulement le titre a changé (pas de nouveau fichier)
     if (titleChanged && !hasNewFile) {
-      this.fileService.updateMetadata(this.organigramId, title || '').subscribe({
-        next: () => {
-          this.toast.show('Titre mis à jour');
-          this.loadFileInfo();
-          this.closeModal();
-        },
-        error: () => this.toast.show('Erreur lors de la mise à jour du titre'),
-      });
+      this.fileService
+        .updateMetadata(this.organigramId, title || '')
+        .subscribe({
+          next: () => {
+            this.toast.show('Titre mis à jour');
+            this.loadFileInfo();
+            this.closeModal();
+          },
+          error: () =>
+            this.toast.show('Erreur lors de la mise à jour du titre'),
+        });
       return;
     }
 
     // Si un fichier est sélectionné (avec ou sans changement de titre)
     const formData = new FormData();
-    
-    // Ajouter le titre s'il est défini
-    if (title) {
-      formData.append('title', title);
-    }
+
+    // Toujours ajouter le titre (même s'il est vide ou n'a pas changé)
+    // pour garantir que le titre est bien mis à jour côté API
+    formData.append('title', title || '');
 
     // Ajouter le fichier
     if (this.selectedFile) {
