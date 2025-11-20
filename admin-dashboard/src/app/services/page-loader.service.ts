@@ -34,15 +34,7 @@ export class PageLoaderService {
   }
 
   registerPageLoad(promise: Promise<any>): void {
-    console.log(
-      "[PageLoaderService] 📝 Enregistrement d'une nouvelle promesse, total avant:",
-      this.loadingPromises.length
-    );
     this.loadingPromises.push(promise);
-    console.log(
-      '[PageLoaderService] ✅ Promesse enregistrée, total maintenant:',
-      this.loadingPromises.length
-    );
     this.startChecking();
   }
 
@@ -52,57 +44,27 @@ export class PageLoaderService {
 
   private startChecking(): void {
     if (this.isChecking) {
-      console.log(
-        '[PageLoaderService] ⚠️ startChecking() déjà en cours, ignoré'
-      );
       return;
     }
 
-    console.log(
-      '[PageLoaderService] 🚀 startChecking() démarré, nombre de promesses:',
-      this.loadingPromises.length
-    );
     this.isChecking = true;
 
     // Attendre que le nombre de promesses se stabilise (réduire les délais)
     let initialCheckCount = 0;
     const waitForStable = setInterval(() => {
       initialCheckCount++;
-      console.log(
-        '[PageLoaderService] ⏳ Attente stabilisation, check:',
-        initialCheckCount,
-        'promesses:',
-        this.loadingPromises.length
-      );
 
       // Réduire le timeout (de 10 à 5 checks = 1.5s au lieu de 3s)
       if (initialCheckCount > 5) {
-        console.log(
-          '[PageLoaderService] ⏰ Timeout atteint (5 checks), démarrage de checkAllLoaded()'
-        );
         clearInterval(waitForStable);
         this.checkAllLoaded();
       } else if (initialCheckCount > 2) {
         // Réduire le délai (de 5 à 2 checks)
         const stableCheck = this.loadingPromises.length;
-        console.log(
-          '[PageLoaderService] 🔍 Vérification de stabilité, nombre actuel:',
-          stableCheck
-        );
         setTimeout(() => {
           if (this.loadingPromises.length === stableCheck && stableCheck > 0) {
-            console.log(
-              '[PageLoaderService] ✅ Nombre stable détecté, démarrage de checkAllLoaded()'
-            );
             clearInterval(waitForStable);
             this.checkAllLoaded();
-          } else {
-            console.log(
-              '[PageLoaderService] ⚠️ Nombre changé pendant la vérification:',
-              stableCheck,
-              '->',
-              this.loadingPromises.length
-            );
           }
         }, 200); // Réduire de 500ms à 200ms
       }
@@ -110,19 +72,8 @@ export class PageLoaderService {
   }
 
   private async checkAllLoaded(): Promise<void> {
-    console.log(
-      '[PageLoaderService] 🔍 checkAllLoaded() appelé, nombre de promesses:',
-      this.loadingPromises.length
-    );
-
     if (this.loadingPromises.length === 0) {
-      console.log(
-        '[PageLoaderService] ⚠️ Aucune promesse, masquage du loader dans 500ms'
-      );
       setTimeout(() => {
-        console.log(
-          '[PageLoaderService] ✅ Masquage du loader (aucune promesse)'
-        );
         this.loadingState$.next(false);
         this.isChecking = false;
       }, 500);
@@ -137,12 +88,6 @@ export class PageLoaderService {
       const promises = [...this.loadingPromises];
 
       if (promises.length !== lastPromiseCount) {
-        console.log(
-          '[PageLoaderService] 📊 Nombre de promesses changé:',
-          lastPromiseCount,
-          '->',
-          promises.length
-        );
         lastPromiseCount = promises.length;
         stableCount = 0;
         consecutiveStableChecks = 0;
@@ -157,58 +102,23 @@ export class PageLoaderService {
       }
 
       if (promises.length > 0) {
-        console.log(
-          '[PageLoaderService] 🔄 Vérification de',
-          promises.length,
-          'promesse(s)...'
-        );
         const allSettled = await Promise.allSettled(promises);
-        const fulfilled = allSettled.filter(
-          (r) => r.status === 'fulfilled'
-        ).length;
-        const rejected = allSettled.filter(
-          (r) => r.status === 'rejected'
-        ).length;
-
-        console.log('[PageLoaderService] 📊 État des promesses:', {
-          fulfilled,
-          rejected,
-          total: allSettled.length,
-        });
 
         // Promise.allSettled attend toujours que toutes les promesses soient résolues
         // donc toutes sont forcément fulfilled ou rejected, jamais pending
         const allResolved = true; // Toujours vrai pour Promise.allSettled
 
         consecutiveStableChecks++;
-        console.log(
-          '[PageLoaderService] ✅ Toutes les promesses résolues, vérifications stables consécutives:',
-          consecutiveStableChecks,
-          'sur 2 requises'
-        );
 
         // Réduire le nombre de vérifications stables consécutives nécessaires (de 3 à 1)
         if (consecutiveStableChecks >= 1) {
-          console.log(
-            '[PageLoaderService] ⏳ Attente de 200ms avant de masquer le loader...'
-          );
           await new Promise((resolve) => setTimeout(resolve, 200));
 
           if (this.loadingPromises.length === promises.length) {
-            console.log(
-              '[PageLoaderService] 🎉 Masquage du loader ! Nombre de promesses final:',
-              promises.length
-            );
             clearInterval(checkInterval);
             this.loadingState$.next(false);
             this.isChecking = false;
           } else {
-            console.log(
-              '[PageLoaderService] ⚠️ Nouvelles promesses ajoutées, reprise des vérifications',
-              promises.length,
-              '->',
-              this.loadingPromises.length
-            );
             lastPromiseCount = this.loadingPromises.length;
             stableCount = 0;
             consecutiveStableChecks = 0;
@@ -219,9 +129,6 @@ export class PageLoaderService {
 
     // Timeout de sécurité
     setTimeout(() => {
-      console.log(
-        '[PageLoaderService] ⏰ Timeout de sécurité atteint (15s), masquage forcé du loader'
-      );
       clearInterval(checkInterval);
       this.loadingState$.next(false);
       this.isChecking = false;

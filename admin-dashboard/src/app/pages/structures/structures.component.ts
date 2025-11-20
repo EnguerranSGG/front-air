@@ -63,35 +63,25 @@ export class StructureComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('[Structures] 🎬 ngOnInit() appelé');
     this.createForm = this.buildForm();
-    console.log('[Structures] 📝 Formulaire créé, appel de loadInitialData()...');
     this.loadInitialData();
-    console.log('[Structures] ✅ loadInitialData() appelé');
   }
 
   private loadInitialData(): void {
-    console.log('[Structures] 🚀 Début de loadInitialData, isInitialLoading =', this.isInitialLoading);
     this.isInitialLoading = true;
 
     // Charger les types, fichiers et structures en parallèle
     // NE PAS enregistrer les promesses individuelles, seulement la promesse finale
-    console.log('[Structures] 📡 Création des promesses de fetch...');
     const typesPromise = firstValueFrom(
       this.structureTypeService.getAllWithFallback()
     );
-    console.log('[Structures] ✅ Types promise créée');
 
     const filesPromise = firstValueFrom(this.fileService.getAll());
-    console.log('[Structures] ✅ Files promise créée');
 
     const structuresPromise = firstValueFrom(this.structureService.getAll());
-    console.log('[Structures] ✅ Structures promise créée');
 
     // Créer une promesse qui attend que tout soit vraiment chargé et visible
     // C'est la SEULE promesse qu'on enregistre dans le PageLoaderService
-    console.log('[Structures] 🔄 Création de domReadyPromise...');
-    
     // Enregistrer la promesse IMMÉDIATEMENT après sa création (avant même qu'elle ne commence)
     const domReadyPromise = Promise.all([
       typesPromise,
@@ -99,19 +89,11 @@ export class StructureComponent implements OnInit {
       structuresPromise,
     ])
       .then(async ([typesData, filesData, structuresData]) => {
-        console.log('[Structures] 📦 Données reçues:', {
-          types: typesData?.length || 0,
-          files: filesData?.length || 0,
-          structures: structuresData?.length || 0
-        });
-        
         this.structureTypes = typesData || [];
         this.files = filesData || [];
         this.structures = (structuresData || []).sort(
           (a, b) => a.structure_id - b.structure_id
         );
-
-        console.log('[Structures] 📊 Structures triées:', this.structures.length);
 
         // Peupler les objets structure_type manuellement
         this.structures.forEach((structure) => {
@@ -125,41 +107,30 @@ export class StructureComponent implements OnInit {
           }
         });
 
-        console.log('[Structures] 🔄 Premier detectChanges()...');
         // Forcer la détection de changement
         this.cdr.detectChanges();
-        console.log('[Structures] ✅ Premier detectChanges() terminé');
 
         // Attendre que le navigateur ait rendu le DOM (comme côté vitrine)
-        console.log('[Structures] ⏳ Attente du premier requestAnimationFrame...');
         await new Promise((resolve) => {
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-              console.log('[Structures] ✅ Premier requestAnimationFrame terminé');
               resolve(undefined);
             });
           });
         });
 
-        console.log('[Structures] 🔄 Mise à jour isInitialLoading = false...');
         // Mettre isInitialLoading à false
         this.isInitialLoading = false;
-        console.log('[Structures] ✅ isInitialLoading = false');
 
-        console.log('[Structures] 🔄 Deuxième detectChanges()...');
         // Forcer à nouveau la détection de changement
         this.cdr.detectChanges();
-        console.log('[Structures] ✅ Deuxième detectChanges() terminé');
 
         // Attendre que le contenu soit visible dans le DOM
-        console.log('[Structures] ⏳ Attente du deuxième requestAnimationFrame + setTimeout...');
         await new Promise((resolve) => {
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               // Délai supplémentaire pour garantir que le contenu est visible
               setTimeout(() => {
-                console.log('[Structures] ✅ Deuxième requestAnimationFrame + setTimeout terminé');
-                console.log('[Structures] 🎉 domReadyPromise résolue !');
                 resolve(undefined);
               }, 200);
             });
@@ -167,18 +138,19 @@ export class StructureComponent implements OnInit {
         });
       })
       .catch((error) => {
-        console.error('[Structures] ❌ Erreur lors du chargement initial:', error);
+        console.error(
+          '[Structures] ❌ Erreur lors du chargement initial:',
+          error
+        );
         this.toast.show('Erreur lors du chargement des données');
         this.isInitialLoading = false;
         throw error;
       });
 
-    console.log('[Structures] 📝 Enregistrement de domReadyPromise IMMÉDIATEMENT...');
     // Enregistrer cette promesse finale qui attend que le DOM soit vraiment prêt
     // IMPORTANT: Enregistrer AVANT que la promesse ne commence à s'exécuter
     this.pageLoaderService.registerPageLoad(domReadyPromise);
-    console.log('[Structures] ✅ domReadyPromise enregistrée, total promesses:', this.pageLoaderService['loadingPromises']?.length || 'N/A');
-    
+
     // Ajouter un catch pour voir si la promesse est rejetée
     domReadyPromise.catch((error) => {
       console.error('[Structures] ❌ domReadyPromise rejetée:', error);

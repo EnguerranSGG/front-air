@@ -140,7 +140,6 @@ export class HistoryComponent implements OnInit {
 
     this.timeService.update(time.time_id, sanitizedPayload).subscribe({
       next: (updatedTime) => {
-        console.log('Mise à jour réussie:', updatedTime);
         const index = this.times.findIndex((t) => t.time_id === time.time_id);
         if (index !== -1) {
           this.times[index] = { ...this.times[index], ...updatedTime };

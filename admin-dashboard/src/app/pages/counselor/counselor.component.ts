@@ -130,7 +130,6 @@ export class CounselorComponent implements OnInit {
       .update(counselor.counselor_id, sanitizedPayload)
       .subscribe({
         next: (updatedCounselor) => {
-          console.log('Mise à jour réussie:', updatedCounselor);
           const index = this.counselors.findIndex(
             (c) => c.counselor_id === counselor.counselor_id
           );

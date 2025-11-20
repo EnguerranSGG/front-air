@@ -10,16 +10,21 @@ import { PageLoaderComponent } from './components/page-loader/page-loader.compon
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, CommonModule, ToastComponent, PageLoaderComponent],
+  imports: [
+    RouterOutlet,
+    HeaderComponent,
+    CommonModule,
+    ToastComponent,
+    PageLoaderComponent,
+  ],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-
   @ViewChild(ToastComponent) toast!: ToastComponent;
 
   constructor(
-    private router: Router, 
+    private router: Router,
     private toastService: ToastService,
     private authService: AuthService
   ) {}
@@ -28,8 +33,8 @@ export class AppComponent {
     // Pages d'authentification où le header ne doit pas s'afficher
     const authPages = ['/login', '/forgot-password', '/reset-password'];
     const currentPath = this.router.url.split('?')[0]; // Enlever les query parameters
-    const isAuthPage = authPages.some(page => currentPath === page);
-    
+    const isAuthPage = authPages.some((page) => currentPath === page);
+
     return !isAuthPage && this.authService.isAuthenticated();
   }
 
@@ -37,14 +42,10 @@ export class AppComponent {
     // Pages d'authentification qui peuvent être affichées sans être connecté
     const publicAuthPages = ['/login', '/forgot-password', '/reset-password'];
     const currentPath = this.router.url.split('?')[0]; // Enlever les query parameters
-    const isPublicAuthPage = publicAuthPages.some(page => currentPath === page);
-    
-    console.log('shouldShowContent - Current URL:', this.router.url);
-    console.log('shouldShowContent - Current Path:', currentPath);
-    console.log('shouldShowContent - Is public auth page:', isPublicAuthPage);
-    console.log('shouldShowContent - Is authenticated:', this.authService.isAuthenticated());
-    console.log('shouldShowContent - Result:', isPublicAuthPage || this.authService.isAuthenticated());
-    
+    const isPublicAuthPage = publicAuthPages.some(
+      (page) => currentPath === page
+    );
+
     return isPublicAuthPage || this.authService.isAuthenticated();
   }
 
