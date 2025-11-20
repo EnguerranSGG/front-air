@@ -26,7 +26,6 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
       try {
         const res = await fetch(apiUrl);
         const data = await res.json();
-        console.log('Données récupérées côté API :', data);
         const values = Array.isArray(data) ? data : [];
         
         if (values.length === 0) {

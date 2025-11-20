@@ -151,8 +151,6 @@ import '../styles/fle.css';
                   return;
                 }
                 
-                console.log(`[Page Loader Navigation] Début de la vérification avec ${window.pageLoadPromises.length} promesse(s)`);
-                
                 let lastPromiseCount = window.pageLoadPromises.length;
                 let stableCount = 0;
                 let consecutiveStableChecks = 0;
@@ -161,7 +159,6 @@ import '../styles/fle.css';
                   const promises = [...window.pageLoadPromises];
                   
                   if (promises.length !== lastPromiseCount) {
-                    console.log(`[Page Loader Navigation] Nouvelle(s) promesse(s): ${promises.length} (était ${lastPromiseCount})`);
                     lastPromiseCount = promises.length;
                     stableCount = 0;
                     consecutiveStableChecks = 0;
@@ -184,17 +181,14 @@ import '../styles/fle.css';
                     }
                     
                     consecutiveStableChecks++;
-                    console.log(`[Page Loader Navigation] Toutes les promesses résolues (vérification ${consecutiveStableChecks}/3)`);
                     
                     if (consecutiveStableChecks >= 3) {
                       await new Promise(resolve => setTimeout(resolve, 500));
                       
                       if (window.pageLoadPromises.length === promises.length) {
-                        console.log(`[Page Loader Navigation] ✅ Toutes les promesses résolues`);
                         clearInterval(checkAllLoaded);
                         hidePageLoader();
                       } else {
-                        console.log(`[Page Loader Navigation] ⚠️ Nouvelles promesses ajoutées, réinitialisation`);
                         lastPromiseCount = window.pageLoadPromises.length;
                         stableCount = 0;
                         consecutiveStableChecks = 0;
@@ -204,7 +198,6 @@ import '../styles/fle.css';
                 }, 300);
                 
                 setTimeout(() => {
-                  console.log(`[Page Loader Navigation] ⏱️ Timeout de sécurité atteint`);
                   clearInterval(checkAllLoaded);
                   hidePageLoader();
                 }, 15000);
@@ -300,8 +293,6 @@ import '../styles/fle.css';
         window.pageLoadStartTime = Date.now();
         window.allScriptsLoaded = false;
         
-        console.log(`[Page Loader] DOMContentLoaded: ${window.pageLoadPromises.length} promesse(s) déjà enregistrée(s)`);
-        
         const loader = document.getElementById('page-loader');
         const main = document.querySelector('main');
         
@@ -336,7 +327,6 @@ import '../styles/fle.css';
             // Attendre encore un peu pour que tous les scripts avec define:vars soient exécutés
             setTimeout(() => {
               window.allScriptsLoaded = true;
-              console.log(`[Page Loader] Scripts chargés, ${window.pageLoadPromises?.length || 0} promesse(s) enregistrée(s)`);
               
               // Attendre encore un peu pour laisser le temps aux scripts de s'enregistrer
               // Puis attendre que le nombre de promesses se stabilise
@@ -344,11 +334,9 @@ import '../styles/fle.css';
               const waitForAllPromises = setInterval(() => {
                 initialCheckCount++;
                 const currentCount = window.pageLoadPromises.length;
-                console.log(`[Page Loader] Attente initiale (${initialCheckCount}/10): ${currentCount} promesse(s) détectée(s)`);
                 
                 // Si on a déjà attendu 3 secondes et qu'aucune promesse n'a été ajoutée récemment
                 if (initialCheckCount > 10) { // 10 * 300ms = 3 secondes
-                  console.log(`[Page Loader] Timeout initial atteint, démarrage de la vérification avec ${currentCount} promesse(s)`);
                   clearInterval(waitForAllPromises);
                   startCheckingPromises();
                 } else if (initialCheckCount > 5) {
@@ -356,7 +344,6 @@ import '../styles/fle.css';
                   const stableCheck = window.pageLoadPromises.length;
                   setTimeout(() => {
                     if (window.pageLoadPromises.length === stableCheck && stableCheck > 0) {
-                      console.log(`[Page Loader] Nombre de promesses stable (${stableCheck}), démarrage de la vérification`);
                       clearInterval(waitForAllPromises);
                       startCheckingPromises();
                     }
@@ -373,33 +360,22 @@ import '../styles/fle.css';
                   return;
                 }
                 
-                console.log(`[Page Loader] Début de la vérification avec ${window.pageLoadPromises.length} promesse(s) enregistrée(s)`);
-                
                 // Stocker le nombre initial de promesses
                 let lastPromiseCount = window.pageLoadPromises.length;
                 let stableCount = 0;
                 let consecutiveStableChecks = 0;
-                let checkCount = 0;
                 
                 // Vérifier périodiquement si toutes les promesses sont résolues
                 const checkAllLoaded = setInterval(async () => {
-                  checkCount++;
-                  
                   // Faire une copie de la liste pour éviter les modifications pendant la vérification
                   const promises = [...window.pageLoadPromises];
                   
                   // Vérifier si de nouvelles promesses ont été ajoutées
                   if (promises.length !== lastPromiseCount) {
-                    console.log(`[Page Loader] Nouvelle(s) promesse(s) détectée(s): ${promises.length} (était ${lastPromiseCount})`);
                     lastPromiseCount = promises.length;
                     stableCount = 0;
                     consecutiveStableChecks = 0;
                     return; // Attendre que le nombre se stabilise
-                  }
-                  
-                  // Log périodique pour voir l'état des promesses
-                  if (checkCount % 10 === 0) {
-                    console.log(`[Page Loader] Vérification ${checkCount}: ${promises.length} promesse(s) en cours de vérification`);
                   }
                   
                   stableCount++;
@@ -415,14 +391,11 @@ import '../styles/fle.css';
                     const allResolved = allSettled.every(result => result.status === 'fulfilled' || result.status === 'rejected');
                     
                     if (!allResolved) {
-                      const pendingResults = allSettled.filter(r => r.status === 'pending');
-                      console.log(`[Page Loader] Vérification ${checkCount}: ${pendingResults.length} promesse(s) encore en attente sur ${promises.length}`);
                       consecutiveStableChecks = 0;
                       return;
                     }
                     
                     consecutiveStableChecks++;
-                    console.log(`[Page Loader] Toutes les promesses résolues (vérification ${consecutiveStableChecks}/3)`);
                     
                     // Attendre 3 vérifications consécutives avec toutes les promesses résolues
                     if (consecutiveStableChecks >= 3) {
@@ -431,12 +404,10 @@ import '../styles/fle.css';
                       
                       // Vérifier une dernière fois si de nouvelles promesses ont été ajoutées
                       if (window.pageLoadPromises.length === promises.length) {
-                        console.log(`[Page Loader] ✅ Toutes les ${promises.length} promesses sont résolues, masquage du loader`);
                         clearInterval(checkAllLoaded);
                         hidePageLoader();
                       } else {
                         // Nouvelles promesses ajoutées, réinitialiser
-                        console.log(`[Page Loader] ⚠️ Nouvelles promesses ajoutées (${window.pageLoadPromises.length} au lieu de ${promises.length}), réinitialisation`);
                         lastPromiseCount = window.pageLoadPromises.length;
                         stableCount = 0;
                         consecutiveStableChecks = 0;
@@ -447,7 +418,6 @@ import '../styles/fle.css';
                 
                 // Timeout de sécurité : masquer le loader après 15 secondes max
                 setTimeout(() => {
-                  console.log(`[Page Loader] ⏱️ Timeout de sécurité atteint, masquage du loader`);
                   clearInterval(checkAllLoaded);
                   hidePageLoader();
                 }, 15000);

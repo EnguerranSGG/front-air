@@ -36,7 +36,6 @@ const structureTypes = [
     // Créer la promesse IMMÉDIATEMENT et l'enregistrer AVANT de commencer le fetch
     // (comme dans FleSection, où les promesses sont créées et enregistrées immédiatement)
     const structuresPromise = (async () => {
-      console.log('[StructuresSection] Début du chargement des structures');
     if (!container || !API_BASE_URL) {
       if (container) {
         container.innerHTML = '<p>Configuration API manquante</p>';
@@ -262,8 +261,6 @@ const structureTypes = [
         title.style.opacity = '1';
         title.style.visibility = 'visible';
       }
-      
-      console.log('[StructuresSection] ✅ Toutes les structures et images sont chargées, titre affiché');
     } catch (err) {
       console.error('Erreur lors du fetch des structures :', err);
       if (container) {
@@ -280,9 +277,7 @@ const structureTypes = [
     
     // ENREGISTRER LA PROMESSE IMMÉDIATEMENT (avant même qu'elle ne commence)
     // Cela permet au système de chargement global de la détecter à temps
-    console.log('[StructuresSection] Enregistrement de la promesse structuresPromise');
     registerPromiseWhenReady(structuresPromise);
-    console.log('[StructuresSection] Promesse enregistrée, total:', window.pageLoadPromises?.length || 0);
   })();
 
   function initScrollAnimations() {
