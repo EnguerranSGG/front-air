@@ -163,12 +163,19 @@ body {
   .hero-overlay {
     bottom: 0;
     left: 0;
+    right: 0;
     background: rgba(0, 70, 164, 0.85);
     color: white;
     padding: 1rem;
     text-align: center;
     border-bottom-left-radius: 1rem;
     border-bottom-right-radius: 1rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   h4 {
@@ -176,6 +183,8 @@ body {
     margin: 0;
     font-size: 1.2rem;
     line-height: 1.4;
+    text-align: center;
+    width: 100%;
   }
 }
 

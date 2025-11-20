@@ -100,7 +100,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
       position: absolute;
       bottom: 0;
       left: 0;
-      right: auto;
+      right: 0;
       top: auto;
       transform: none;
       background: rgba(0, 70, 164, 0.85);
@@ -112,8 +112,12 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
       border-top-left-radius: 0;
       border-top-right-radius: 0;
       min-width: auto;
-      max-width: none;
+      max-width: 100%;
       width: 100%;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     
     .hero-overlay h4 {
@@ -121,6 +125,8 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
       margin: 0;
       font-size: 1.2rem;
       line-height: 1.4;
+      text-align: center;
+      width: 100%;
     }
   }
 
